@@ -41,6 +41,11 @@ training_versions = Table(
     Column("training_id", String(50)),
     Column("version_label", String(50)),
     Column("published_at", DateTime),
+    # Phase 10 (migration 0004): the training as one JSON document, and where the version is in its workflow.
+    Column("status", String(16)),
+    Column("content", JSON),
+    Column("created_by", Integer),
+    Column("source_upload_id", Integer),
 )
 
 training_topics = Table(

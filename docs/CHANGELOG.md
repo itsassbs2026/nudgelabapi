@@ -98,3 +98,11 @@
   `scripts/check_baseline.py`), then migrated to `0003_jobs` (the API's eight tables only).
 - Found during go-live and fixed: database logins use the server's private address (`10.0.1.148`); the preflight
   no longer crashes when the database is unreachable; invalid escape sequences in search (ruff W rules now on).
+
+## Phase 10 — Content model (2026-10-03)
+
+- Migration `0004_training_content`: `status`, `content`, `created_by`, `source_upload_id` on
+  `training_versions` (nullable, added in place).
+- `app/schemas/training_content.py`: the content document, tested against the agent's exports
+  (`tests/fixtures/content`).
+- Agent (nudgelab): loads trainings from the database with pinning and file fallback; `content.py export|publish`.

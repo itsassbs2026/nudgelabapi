@@ -1,0 +1,96 @@
+{
+  "format": 1,
+  "training": {
+    "title": "Sample: Return Policy Acknowledgment",
+    "trainer_name": "Anne",
+    "company": "Prime Communications",
+    "uses_location": false,
+    "completion_type": "acknowledgment",
+    "acknowledgment": "I understand the sample return policy and will follow it with every customer.",
+    "lines": {
+      "first_message": "Hi! I'm Anne. This is a short sample training on an example return policy. We'll go through two quick topics, and at the end I'll ask you to confirm out loud that you understand it. Ready?",
+      "welcome_back_walkthrough": "Welcome back! Let's pick up where we left off.",
+      "acknowledgment_intro": "That covers the policy. The last step is a quick confirmation.",
+      "welcome_back_acknowledgment": "Welcome back! You've been through the policy already, so there's just one quick confirmation left.",
+      "completed": "Thank you, that's recorded. You've completed the return policy acknowledgment.",
+      "feedback_question": "Before we wrap up, on a scale of 1 to 10, how would you rate this training? And in a sentence or two, what worked for you and what didn't?",
+      "closing": "Thanks for your time today!",
+      "already_passed": "Welcome back! You've already completed the return policy acknowledgment. Want a quick refresher on the policy, or are you all set?"
+    }
+  },
+  "knowledge_base": {
+    "preamble": [],
+    "topics": [
+      {
+        "number": 1,
+        "title": " The return window",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "This is an example policy for a sample training. Customers can return most accessories within 14 days of purchase, with the receipt, in the original packaging."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "How long do customers have to return an accessory under this example policy?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "14 days, with the receipt and the original packaging."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "two weeks; 14 days; fourteen days."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "14 days, receipt, original packaging."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": " Being honest about returns",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "Always explain the return policy honestly before the sale. Never promise a return or refund the policy doesn't allow just to close a sale."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "A customer asks if they can return a case after a month. What do you tell them?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Honestly that the example policy only allows returns within 14 days, so a return after a month wouldn't qualify."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "no, it's past 14 days; be honest that it's outside the window."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "Be upfront about the policy every time, even if it costs you the sale."
+          }
+        ]
+      }
+    ],
+    "ends_with_newline": true
+  },
+  "quiz": null,
+  "vocabulary": null
+}

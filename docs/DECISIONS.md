@@ -193,3 +193,25 @@ Recorded as they're made (SPEC §0.2). Newest last.
     `.env` permissions, the app login's reads, the API tables, the migration state, the instance role and a HEAD
     on the newest recording (S3 access without listing the bucket), LiveKit, Graph, and the export folder.
     `deploy/preflight-check.sh` adds DNS, certificate, Python, port, nginx and systemd checks.
+
+## Phase 10 — Content model and agent loading (2026-10-03)
+
+59. **Content format 1 mirrors the files losslessly** (SPEC §6.5): `training` is training.json as written, the
+    knowledge base is split into topics and typed lines (kind, the exact marker, the text, location tags),
+    `quiz` is quiz.json, `vocabulary` is vocabulary.txt. The agent's `content.py` writes and reads it;
+    `app/schemas/training_content.py` is the API's copy, tested against real exports of all four trainings
+    (each validates and dumps back unchanged).
+60. **The database is the source of truth once a training has content** (owner's decision): editing the files
+    changes nothing live until `uv run content.py publish <training>`; from Phase 11 the dashboard publishes.
+    Trainings without database content still run from their files, exactly as before.
+61. **Trainees stay on the version they started until they pass** (owner's decision), quiz retries included;
+    "start over" and anything after passing use the active version. `training_progress.version_id` is no
+    longer overwritten after a pass, so the reports' per-version figures keep the version a trainee passed on.
+    Trainees mid-training on a version without content (published from files before Phase 10) move to the
+    active version, which is what they had before.
+62. **Migration 0004 only adds four nullable columns** to the agent's `training_versions` (in place on MySQL 8,
+    no table copy). No check constraint or foreign keys: either would rebuild the table under the live agent, and
+    the agent's tables stay independent of the API's. The agent's login gets `UPDATE (content, status)` on that
+    table, nothing more, for `content.py publish`.
+63. **Preview-call isolation (SPEC 10.6.3) and the testers table (10.6.4)** are built in Phases 15 and 14, as the
+    phase list assigns them; nothing issues preview tokens or reads testers from the database before then.

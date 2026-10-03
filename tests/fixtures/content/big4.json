@@ -1,0 +1,674 @@
+{
+  "format": 1,
+  "training": {
+    "title": "The Big 4",
+    "trainer_name": "Anne",
+    "company": "Prime Communications",
+    "uses_location": false,
+    "stt_vocabulary": "nudgelab-big4",
+    "opening": [
+      {
+        "say": "As AT&T's largest authorized retailer, Prime is expected to deliver the best sales results and the best customer experience in our stores. Our business has dozens, even hundreds, of products, plans, and metrics in any given month. But there are four priorities we call The Big 4 that should be your main focus every day. We'll take them one small piece at a time."
+      }
+    ],
+    "lines": {
+      "first_message": "Hey! I'm Anne, your trainer for the Big 4 overview. We'll go through Prime's four biggest daily priorities in quick, bite-sized pieces, with a short check-in after each one. It should take about 10 to 12 minutes. At the end there's a 5-question quiz — you'll need all 5 right to complete the training. Ready to jump in?",
+      "welcome_back_walkthrough": "Welcome back! Let's pick up where we left off.",
+      "quiz_intro": "That's all four of the Big 4! Now a quick 5-question quiz. You'll need all 5 right to complete the training, and if you miss one, we'll just revisit that area together.",
+      "welcome_back_quiz": "Welcome back! You've already finished the walkthrough, so today is the quick 5-question quiz. You'll need all 5 right, and if you miss one, we'll just revisit that area together.",
+      "welcome_back_retry": "Welcome back! You've already passed part of the quiz, so today we'll just go back over the areas that still need a little work.",
+      "perfect_score": "Perfect score — you've got the Big 4 down!",
+      "passed_after_retry": "That's all five — you've got the Big 4 down!",
+      "feedback_question": "Before we wrap up — on a scale of 1 to 10, how would you rate this training? And in a sentence or two, what worked for you and what didn't?",
+      "closing": "Great work — you've completed the Big 4 training! Keep those four in mind every day: bring in new customers, offer accessories to everyone, protect every device the right way, and stay above your PSQ. Your local leadership is there anytime you want coaching. Thanks for your time today!",
+      "already_passed": "Welcome back! You've already completed the Big 4 training — nice work. Want a quick refresher on any of the four, or are you all set?"
+    }
+  },
+  "knowledge_base": {
+    "preamble": [],
+    "topics": [
+      {
+        "number": 1,
+        "title": " Meet the Big 4",
+        "lines": [
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "Before we dig in, can you guess what any of the Big 4 might be?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Volumes, Accessories, Protection, and Personal Sales Quotas, or PSQs. Any partial guess counts."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "a product or metric that belongs to one of the four counts as partly right, but say which one it belongs to, for example PPVGA, voice, Fiber or AIA are part of Volumes. Don't call them one of the Big 4."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "The Big 4 are Volumes, Accessories, Protection, and Personal Sales Quotas, or PSQs. We'll take them one at a time."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": " Volumes, new customers",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "Big 4, number one: Volumes. AT&T's challenge to Prime has always been to help them grow with new customers, specifically three types: new voice customers, also called Postpaid Voice Gross Adds or PPVGA; new Fiber customers; and new AIA customers."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "Quick check, what are the three types of new customers that count toward Volumes?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "PPVGA, or new voice customers; new Fiber customers; and new AIA customers."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "new phone lines or new wireless lines for PPVGA; new internet for Fiber; partial lists count as partly right."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 3,
+        "title": " Volumes, Fiber versus AIA",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "AIA is an internet solution for customers who are not eligible for AT&T Fiber."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "So if a customer's address is eligible for AT&T Fiber, could they also be eligible for AIA?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "No. A customer can't be eligible for both."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "no; it's one or the other; AIA is only when Fiber isn't available."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "It's one or the other, never both."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 4,
+        "title": " Volumes, own the home",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "AT&T's strategy is to own the home with converged customers, meaning customers who have both AT&T wireless and AT&T internet. That's why you'll see a lot of promotions aimed at getting wireless customers to add internet, and internet customers to move their wireless lines over."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "Why do you think AT&T cares so much about customers having both wireless and internet with them?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Customers with both are significantly less likely to leave AT&T."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "loyalty; they stay longer; they're less likely to switch carriers; it's harder to leave."
+          },
+          {
+            "kind": "then_add",
+            "prefix": "Then add: ",
+            "text": "And bringing in new wireless and internet customers drives more sales incentives for you, while helping AT&T keep customers away from competitors like Verizon, T-Mobile and Comcast."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 5,
+        "title": " Accessories, what they are",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "Big 4, number two: Accessories. They help customers charge, protect and personalize their devices, plus things like headphones and Bluetooth speakers."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "When a customer buys a new phone, what's one accessory you'd suggest?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Any reasonable accessory, such as a case, a screen protector, a charger, headphones or a Bluetooth speaker."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "any accessory a store sells."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 6,
+        "title": " Accessories, tools to close",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "To close the sale, check CCKM for today's offers, use the MST tool to bundle the price, and use AT&T's Accessory Installment Plan, or AIP, so customers can finance accessories."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "If a customer loves a bundle but doesn't want to pay for it all today, what can you offer them?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "AIP, the Accessory Installment Plan, which puts it on their monthly bill."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "an installment plan; a payment plan; financing; monthly payments; putting it on their bill."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "AIP finances accessories with no interest, through 12 equal payments added to their AT&T bill, and customers only pay the sales tax in store."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 7,
+        "title": " Accessories, two flags on AIP",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "Two flags on AIP. It only covers accessories available in the store, so anything ordered through Direct Fulfillment, or DF, doesn't qualify. And customers are limited to two AIP plans per account."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "A customer already has two AIP plans and wants a third one. Can you set it up?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "No. Customers are limited to two AIP plans per account, and AIP only covers accessories available in the store."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "no; two is the limit."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": "After this topic's key point, and before starting the next topic, say a brief halfway line, such as: That's halfway!"
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 8,
+        "title": " Accessories, sell to anyone",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "Accessories can be sold to anyone, not just customers buying a new phone. And our sales incentive plans for accessories have never been more aggressive."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "Besides someone buying a new device, who else could you offer an accessory promotion to?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Anyone, such as customers paying a bill, customers asking a question about their service, or even delivery drivers dropping off packages."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "anyone; everyone who walks in; any example of a customer who isn't buying a device."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "Anyone who walks in is an accessory opportunity."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 9,
+        "title": " Accessories, the Apple flag",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "One flag: we do sell Apple-branded accessories in store, but they are not eligible for sales incentive payouts."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "So if a customer picks an Apple-branded case, does that count toward your accessory incentive payout?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "No. Apple-branded accessories are not eligible for sales incentive payouts."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "no; it doesn't count."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 10,
+        "title": " Protection, Protect Advantage",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "Big 4, number three: Protection. Beyond a case and screen protector, customers can get Protect Advantage, for a single device or their whole account, for accidental damage or loss."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "What does Protect Advantage cover for a customer?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Accidental damage or loss, for a single device or their whole account."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "damage or loss; broken or lost phones; one device or the whole account."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 11,
+        "title": " Protection, Home Tech Protection",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "There's also Home Tech Protection, or HTP, which covers all the electronics in their house and includes live tech support for setup and troubleshooting."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "In your own words, what's the difference between Protect Advantage and Home Tech Protection?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Protect Advantage covers devices, one or the whole account, for damage or loss. HTP covers electronics throughout the home, plus live tech support."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "one covers the phone or devices, the other covers the home's electronics; HTP adds tech support."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 12,
+        "title": " Protection, show the value",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "Lots of customers are cost-conscious and will ask you to keep their bill as low as possible. Set up the account in the way that best fits their needs, but it's also your job to educate them on replacement costs, like a new device or a broken screen, so they can see the value. Most people have lost or damaged a device before."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "A customer says, just make my bill as low as possible. How would you handle protection in that conversation?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Respect their budget, but explain replacement and repair costs so they can decide on protection with full information, and make sure they understand how it works and how to get support."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "respect the budget but explain what a replacement or repair would cost; let them decide with the facts."
+          },
+          {
+            "kind": "then_add",
+            "prefix": "Then add: ",
+            "text": "And for new HTP customers, help them set up an appointment for when they get home, so their new device gets connected to the house."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 13,
+        "title": " Protection, selling ethically",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "One more on Protection, and it's an important one."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "True or false: it's okay to tell a customer that protection comes with the phone, and they can just call in after 30 days to remove it."
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "False."
+          },
+          {
+            "kind": "key_point_exactly",
+            "prefix": "Key point, say exactly: ",
+            "text": "Never tell a customer protection is required, that it comes with the phone, that you can't remove it during activation, or that they can call after 30 days to have it removed. That's an unethical sales practice Prime does not support, and intentionally misleading a customer can lead to disciplinary action, up to and including termination."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 14,
+        "title": " Protection, the customer's choice",
+        "lines": [
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "So if a customer asks whether protection is required with their new phone, what would you tell them?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "No, protection isn't required. It's their choice, and you explain what it covers so they can decide."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "no; it's optional; it's up to them."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 15,
+        "title": " Personal Sales Quotas",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "Big 4, number four: Personal Sales Quotas, or PSQs. RSCs need to hit minimum Power Ranks, your quotas, to stay in good standing and to be eligible for our sales incentive programs. Your local leadership is there to give you hands-on coaching every month."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "What are some reasons staying above your PSQ minimum matters, for you and for the team?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "It keeps you in good standing and eligible for sales incentives, keeps you off health checks and progressive discipline, and helps your career. Any one of these counts."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "incentives or commission; good standing; avoiding discipline; career growth; any one counts."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "Staying above your PSQ keeps you eligible for sales incentives, and off health checks and progressive discipline."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 16,
+        "title": " Personal Sales Quotas, the team",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "And it adds up. Teams that exceed expectations earn more and stay at Prime longer, and that tenure means better customer service and more chances to move into management."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "What's one thing you could focus on this week to stay above your PSQ?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "A reflection question. Any sincere answer is right."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "Your local leadership is there anytime you want coaching to get there."
+          }
+        ]
+      }
+    ],
+    "ends_with_newline": true
+  },
+  "quiz": {
+    "sections": {
+      "A": {
+        "name": "the Big 4",
+        "topics": [
+          1
+        ]
+      },
+      "B": {
+        "name": "Volumes",
+        "topics": [
+          2,
+          3
+        ]
+      },
+      "C": {
+        "name": "owning the home",
+        "topics": [
+          4
+        ]
+      },
+      "D": {
+        "name": "selling Protection ethically",
+        "topics": [
+          10,
+          11,
+          12,
+          13,
+          14
+        ]
+      },
+      "E": {
+        "name": "Personal Sales Quotas",
+        "topics": [
+          15,
+          16
+        ]
+      }
+    },
+    "questions": [
+      {
+        "number": 1,
+        "section": "A",
+        "question": "What are Prime's Big 4?",
+        "options": {
+          "A": "Upgrades, billing, inventory, and staffing",
+          "B": "Volumes, Accessories, Protection, and Personal Sales Quotas",
+          "C": "Promotions, customer surveys, repairs, and audits"
+        },
+        "correct": "B",
+        "explanation": "The Big 4 are Volumes, Accessories, Protection, and Personal Sales Quotas, the four priorities to focus on every day."
+      },
+      {
+        "number": 2,
+        "section": "B",
+        "question": "Which sales support the Volumes priority?",
+        "options": {
+          "A": "New postpaid voice customers, new Fiber customers, and new AIA customers",
+          "B": "Accessories, device repairs, and bill payments",
+          "C": "Upgrades, protection plans, and screen protectors"
+        },
+        "correct": "A",
+        "explanation": "Volumes is all about new customers: new postpaid voice customers, new Fiber customers, and new AIA customers."
+      },
+      {
+        "number": 3,
+        "section": "C",
+        "question": "What does AT&T's own the home strategy emphasize?",
+        "options": {
+          "A": "Customers having both AT&T wireless and internet service",
+          "B": "Customers purchasing every device from the same store",
+          "C": "Customers adding protection to every accessory"
+        },
+        "correct": "A",
+        "explanation": "Owning the home means customers having both AT&T wireless and internet. Converged customers are significantly less likely to leave AT&T."
+      },
+      {
+        "number": 4,
+        "section": "D",
+        "question": "Which statement is an unethical protection sales practice?",
+        "options": {
+          "A": "Let's review what the plan covers and how to get support.",
+          "B": "Protection comes with the phone, and you have to wait 30 days to remove it.",
+          "C": "We can set up your account based on your needs."
+        },
+        "correct": "B",
+        "explanation": "Telling a customer protection comes with the phone, or that they have to wait 30 days to remove it, is an unethical practice Prime doesn't support, and it can lead to disciplinary action, up to and including termination."
+      },
+      {
+        "number": 5,
+        "section": "E",
+        "question": "Why is meeting Personal Sales Quotas important?",
+        "options": {
+          "A": "It eliminates the need for coaching and training",
+          "B": "It guarantees an immediate promotion",
+          "C": "It helps employees remain in good standing and qualify for sales incentives"
+        },
+        "correct": "C",
+        "explanation": "Meeting your PSQ keeps you in good standing and eligible for sales incentives, and your local leadership is there to coach you every month to get there."
+      }
+    ]
+  },
+  "vocabulary": [
+    "P.P.V.G.A.",
+    "A.I.A.",
+    "A.I.P.",
+    "H.T.P.",
+    "P.S.Q.",
+    "C.C.K.M.",
+    "M.S.T.",
+    "D.F.",
+    "Protect-Advantage",
+    "Home-Tech-Protection",
+    "Accessory-Installment-Plan",
+    "Postpaid-Voice-Gross-Adds",
+    "Personal-Sales-Quotas",
+    "Direct-Fulfillment",
+    "Power-Ranks",
+    "Live-Tech-Support"
+  ]
+}

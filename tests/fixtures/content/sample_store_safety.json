@@ -1,0 +1,129 @@
+{
+  "format": 1,
+  "training": {
+    "title": "Sample: Store Safety Basics",
+    "trainer_name": "Anne",
+    "company": "Prime Communications",
+    "uses_location": false,
+    "completion_type": "walkthrough",
+    "lines": {
+      "first_message": "Hi! I'm Anne. This is a short sample training on store safety basics, with three quick topics and a check-in after each one. There's no quiz: you complete it by going through all three. Ready?",
+      "welcome_back_walkthrough": "Welcome back! Let's pick up where we left off.",
+      "completed": "That's all three topics, so you've completed the store safety basics training.",
+      "feedback_question": "Before we wrap up, on a scale of 1 to 10, how would you rate this training? And in a sentence or two, what worked for you and what didn't?",
+      "closing": "Thanks for your time, and stay safe out there!",
+      "already_passed": "Welcome back! You've already completed the store safety basics training. Want a quick refresher on any of it, or are you all set?"
+    }
+  },
+  "knowledge_base": {
+    "preamble": [],
+    "topics": [
+      {
+        "number": 1,
+        "title": " Keep walkways clear",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "This is a sample training. First, keep walkways and exits clear. Boxes, display stock and cords left on the floor are the most common cause of trips in a store."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "What are some things that can make a store walkway unsafe?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Boxes, stock, cords, or anything left on the floor or blocking an exit."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "clutter; boxes; cables or cords; anything on the floor; a blocked exit."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "If you see something on the floor, pick it up or move it right away."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 2,
+        "title": " Spills and wet floors",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "If there's a spill, put out a wet floor sign straight away, then clean it up or get someone who can. Never leave a spill unattended."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "What should you do first when you see a spill on the sales floor?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Put out a wet floor sign right away, then clean it up or get help."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "put a sign out; warn people; block it off."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "Sign first, then clean up."
+          },
+          {
+            "kind": "text",
+            "prefix": "",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "number": 3,
+        "title": " Reporting an injury",
+        "lines": [
+          {
+            "kind": "say",
+            "prefix": "Say: ",
+            "text": "If anyone gets hurt in the store, a customer or a coworker, make sure they're okay and get help if needed, then tell your manager right away so it can be reported the same day."
+          },
+          {
+            "kind": "ask",
+            "prefix": "Ask: ",
+            "text": "Who should you tell if someone gets hurt in the store?"
+          },
+          {
+            "kind": "expected",
+            "prefix": "Expected: ",
+            "text": "Your manager, right away, the same day."
+          },
+          {
+            "kind": "accept",
+            "prefix": "Accept: ",
+            "text": "my manager; my supervisor; the store manager; leadership."
+          },
+          {
+            "kind": "key_point",
+            "prefix": "Key point: ",
+            "text": "Care for the person first, then tell your manager the same day."
+          }
+        ]
+      }
+    ],
+    "ends_with_newline": true
+  },
+  "quiz": null,
+  "vocabulary": null
+}
