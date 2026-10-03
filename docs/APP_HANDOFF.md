@@ -1,6 +1,6 @@
 # Flutter app → nudgelabapi hand-off
 
-> **Status:** decided 2026-10-03 (Section 6). A1 (the API side) built 2026-10-03. Runs **before Phase 11** (owner's decision).
+> **Status:** decided 2026-10-03 (Section 6). A1 (the API side) built and deployed 2026-10-03. Runs **before Phase 11** (owner's decision).
 > Assignment *rules* are later (Section 4.2): until then the owner assigns trainings by hand.
 > **Readers:** the owner (Sections 2, 4, 6), whoever changes the Flutter app (Section 5), the DB team when rules come (4.2, Appendix A).
 

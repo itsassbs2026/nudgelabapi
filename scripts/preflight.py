@@ -81,13 +81,26 @@ def check_database(settings: object) -> None:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
             report("PASS", "database (app login)", f"connected as {engine.url.username}@{engine.url.host}")
-            for table in ("training_sessions", "session_transcripts", "vw_trainees", "vw_training_stores"):
+            for table in (
+                "training_sessions",
+                "session_transcripts",
+                "vw_trainees",
+                "vw_training_stores",
+                "vw_app_profile",
+            ):
                 try:
                     conn.execute(text(f"SELECT 1 FROM `{table}` LIMIT 1"))  # noqa: S608 - fixed names
                     report("PASS", f"read {table}")
                 except Exception as exc:
                     report("FAIL", f"read {table}", _short(exc))
-            for table in ("dash_users", "dash_audit_log", "review_queue", "jobs", "saved_views"):
+            for table in (
+                "dash_users",
+                "dash_audit_log",
+                "review_queue",
+                "jobs",
+                "saved_views",
+                "app_session_starts",
+            ):
                 try:
                     conn.execute(text(f"SELECT 1 FROM `{table}` LIMIT 1"))  # noqa: S608 - fixed names
                     report("PASS", f"API table {table}")

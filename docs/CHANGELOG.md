@@ -123,4 +123,7 @@
 - Owner scripts: `deploy/assign-testers.sql`, `deploy/app-catalog.sql`. Wanaka brief:
   `docs/WANAKA_NUDGE_TOKEN.md`. Preflight checks the pass keys.
 - Tests: 300.
+- Live 2026-10-03: migration 0005 applied on production, `83815e8` deployed, preflight clean; the app endpoints
+  answer 401 until Wanaka's public key is set (`APP_PASS_PUBLIC_KEYS`). Preflight now also reads
+  `vw_app_profile` and `app_session_starts` (the 0005 grants).
 
