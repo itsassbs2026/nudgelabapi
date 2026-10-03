@@ -7,7 +7,7 @@
 --      host pattern (e.g. a private 10.x / 172.x address because the server is in the same VPC as RDS), use the same
 --      pattern here. Check with:  SELECT user, host FROM mysql.user WHERE user LIKE 'pingit%';
 --
--- Part 2 (the API's own tables) can only run after Phase 9 creates them; it's at the bottom, commented out.
+-- The grants on the API's own tables come later, after the migration creates them: deploy/db-grants-api-tables.sql.
 
 -- ---------------------------------------------------------------------------
 -- 1. The running API: read-only on the agent's data. No access to v_users* (personal data) or Wanaka/Portal.
@@ -50,14 +50,5 @@ CREATE USER 'nudgelab_api_migrate'@'204.236.179.185' IDENTIFIED BY 'CHANGE_ME_MI
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES, CREATE VIEW, SHOW VIEW
     ON nudgeai.* TO 'nudgelab_api_migrate'@'204.236.179.185';
 
--- ---------------------------------------------------------------------------
--- 3. After Phase 9 creates the API's own tables, run this (uncomment):
--- ---------------------------------------------------------------------------
--- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.dash_users                 TO 'nudgelab_api'@'204.236.179.185';
--- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.dash_refresh_tokens        TO 'nudgelab_api'@'204.236.179.185';
--- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.dash_password_reset_tokens TO 'nudgelab_api'@'204.236.179.185';
--- GRANT SELECT, INSERT                 ON nudgeai.dash_audit_log             TO 'nudgelab_api'@'204.236.179.185';
--- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.dash_email_outbox          TO 'nudgelab_api'@'204.236.179.185';
--- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.review_queue               TO 'nudgelab_api'@'204.236.179.185';
--- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.saved_views                TO 'nudgelab_api'@'204.236.179.185';
--- GRANT SELECT, INSERT, UPDATE         ON nudgeai.jobs                       TO 'nudgelab_api'@'204.236.179.185';
+-- Part 3, grants on the API's own tables, is in deploy/db-grants-api-tables.sql: run it after
+-- `alembic upgrade head` has created those tables (deploy/README.md, step 5).

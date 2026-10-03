@@ -172,3 +172,24 @@ Recorded as they're made (SPEC §0.2). Newest last.
     to click. The browser test serves its own audio file for the recording link: S3 signing is covered here by
     the moto tests, and running a local S3 server (moto's server mode) would add dozens of packages, some
     Windows-only, to the lock file.
+
+## Phase 9 — Deploy (prepared 2026-10-03)
+
+53. **The runbook is `deploy/README.md`**: one ordered list for both servers, the database, IAM and DNS, each step
+    with its check. The owner runs the server and database steps (deploys are `git pull`, never file copies).
+54. **Migrations never run from `deploy.sh`.** It stops when a release has migrations; they're reviewed with
+    `alembic upgrade <current>:head --sql` (prints SQL, executes nothing) and applied by hand with the migrate
+    login (SPEC §14.1). For go-live that's eight `CREATE TABLE`s for the API's own tables, nothing else. The
+    runbook starts with `alembic current` because the production state couldn't be read from here (the agent's
+    login can't see `alembic_version`); if it was never stamped, it's stamped at `0001_baseline`, never upgraded.
+55. **Grants on the API's tables are their own file** (`deploy/db-grants-api-tables.sql`), run after the
+    migration creates the tables and before the bootstrap Admin (who is inserted with the app login). A test
+    checks both grant files against the code: every table the API reads or writes is granted, the agent's
+    data is SELECT-only, the audit log is append-only, and no `v_*` table is granted.
+56. **The worker runs from day one** (SPEC §14.1 said Stage 2): emails, XLSX exports and cleanup need it.
+57. **The wildcard certificate pingit already uses** (`/etc/ssl/myprimeportal/…`) instead of Let's Encrypt
+    (SPEC §14.1): same server, same domain, no renewals to run.
+58. **`scripts/preflight.py`** checks what breaks deploys, read-only and without printing secrets: settings,
+    `.env` permissions, the app login's reads, the API tables, the migration state, the instance role and a HEAD
+    on the newest recording (S3 access without listing the bucket), LiveKit, Graph, and the export folder.
+    `deploy/preflight-check.sh` adds DNS, certificate, Python, port, nginx and systemd checks.

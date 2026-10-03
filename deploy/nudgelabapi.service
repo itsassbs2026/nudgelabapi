@@ -1,0 +1,24 @@
+[Unit]
+Description=nudgelabapi (FastAPI/uvicorn) - NudgeLab dashboard API
+After=network.target
+
+[Service]
+Type=simple
+# Same server as pingitapi (8001) and joynapi (8000); this app uses 8002 (SPEC §14.1).
+# Check it's free first: sudo ss -tlnp | grep :8002
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/nudgelabapi
+# .env is read by pydantic-settings relative to WorkingDirectory (mode 600, owned by ubuntu).
+#
+# --proxy-headers --forwarded-allow-ips 127.0.0.1: trust nginx on this box for the client IP, which the
+# audit log records and the login rate limit uses.
+ExecStart=/srv/nudgelabapi/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8002 --workers 2 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,22 @@
+[Unit]
+Description=nudgelabapi worker (email outbox, XLSX exports, token and export cleanup)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/nudgelabapi
+# Same .env as nudgelabapi.service. Exactly ONE instance: never run a second copy of this unit, or
+# `python -m app.worker` by hand, against the same database (the API processes don't run scheduled jobs).
+# It writes XLSX exports into EXPORT_DIR, which the API serves: both run as ubuntu, so one directory
+# owned by ubuntu works for both (deploy/README.md creates /var/lib/nudgelabapi/exports).
+ExecStart=/srv/nudgelabapi/venv/bin/python -m app.worker
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

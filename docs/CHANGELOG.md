@@ -81,3 +81,12 @@
 - `GET/POST/DELETE /saved-views` and `GET /team`.
 - The e2e seed gives a recorded session a transcript.
 - Tests: 247.
+
+## Phase 9 — Deploy files (2026-10-03)
+
+- `deploy/README.md`: the go-live runbook (DNS, deploy keys, database logins, IAM, settings, migrations,
+  grants, bootstrap Admin, services, nginx, dashboard, smoke test, redeploy and rollback).
+- `deploy/nudgelabapi.service`, `deploy/nudgelabapi-worker.service`, `deploy/nginx-nudgelabapi.conf`,
+  `deploy/env.production.example`, `deploy/deploy.sh` (stops on pending migrations), `deploy/preflight-check.sh`
+  and `scripts/preflight.py` (read-only checks).
+- `deploy/db-grants-api-tables.sql` (split out of `db-logins.sql`), with a test that the grant files match the code.
