@@ -42,6 +42,10 @@ fi
 
 if command -v python3.12 >/dev/null 2>&1; then pass "python3.12 $(python3.12 -V 2>&1 | cut -d' ' -f2)"; else fail "python3.12 not installed (the lock file targets 3.12)"; fi
 
+# Right after a restart the API takes a few seconds to listen: give it up to 10 before judging.
+if systemctl is-active --quiet nudgelabapi; then
+  for _ in 1 2 3 4 5 6 7 8 9 10; do ss -tln 2>/dev/null | grep -q ':8002 ' && break; sleep 1; done
+fi
 if ss -tlnp 2>/dev/null | grep -q ':8002 '; then
   if systemctl is-active --quiet nudgelabapi; then pass "port 8002 in use by nudgelabapi"; else fail "port 8002 is taken by something else"; fi
 else
