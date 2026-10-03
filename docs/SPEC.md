@@ -329,7 +329,7 @@ Every report endpoint accepts the global filters (7.1) through one shared Pydant
 
 Exactly pingit's design (pingit SPEC §8.1), with these values:
 - Access token: JWT HS256, 15 min, claims `sub`, `role`, `iat`, `exp`, `jti`, held **in memory only** in the SPA.
-- Refresh token: opaque 256-bit, 12 h sliding, 7 days absolute, stored hashed. Cookie: `HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth; Domain=nudgelabapi.myprimeportal.com`.
+- Refresh token: opaque 256-bit, 12 h sliding, 7 days absolute, stored hashed. Cookie: `HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth`, host-only (no `Domain`, so it goes to the API host alone; DECISIONS #12).
 - Rotation with reuse detection; lockout after 5 failures (15 min); `/auth/login` limited to 10/min/IP; minimum 12-character passwords checked against a common-password list.
 - Bootstrap: `scripts/bootstrap_admin.py` creates the first Admin (`bgupta@primecomms.com`) from env, with `must_change_password = true`, and refuses if an Admin exists.
 - Password reset, both ways: (a) self-service "forgot password" email through **Microsoft Graph** (as pingit §10: client credentials, `Mail.Send` restricted to one sender mailbox, sent by the worker from an outbox table); (b) an Admin resets a user's password from the Users page (forces a change at next login). It reuses pingit's Azure app registration and sender mailbox.
@@ -450,7 +450,7 @@ Both servers deploy by **`git pull`** from GitHub, never by copying files over S
 
 ### Stage 1 — Reporting
 - [x] **Phase 1 — API foundation:** repo scaffold (pingit layout), settings, DB session, `/health`, structured logging, ruff/mypy/pytest in CI (GitHub Actions: lint + tests against a MySQL service container), Alembic configured with the **baseline** (001–007) and API tables (6.3). *Accept:* tests pass locally and in CI; `alembic upgrade head` on an empty local DB builds the full schema; no connection to prod from tests.
-- [ ] **Phase 2 — Auth & users:** login/refresh/logout, lockout, password reset (Admin reset, plus forgot-password email through Graph via an outbox and the worker), bootstrap admin, user admin, audit log. *Accept:* authorization tests for every route; refresh-token reuse revokes the family.
+- [x] **Phase 2 — Auth & users:** login/refresh/logout, lockout, password reset (Admin reset, plus forgot-password email through Graph via an outbox and the worker), bootstrap admin, user admin, audit log. *Accept:* authorization tests for every route; refresh-token reuse revokes the family.
 - [ ] **Phase 3 — Metrics & report API:** `metrics.py` (Section 5), global filters, overview, trainings, training detail, questions, drill-down, employee, cost, feedback, acknowledgments, assignments (from `training_assignments`). *Accept:* every metric has a unit test against fixture data; p95 < 1.5 s on a prod-sized copy; bot sessions excluded by default.
 - [ ] **Phase 4 — Sessions & recordings:** session list and detail (transcript, events, review, usage), presigned recording URL, audit logging. *Accept:* a Trainer can play a recording; the audit log shows it; URLs expire.
 - [ ] **Phase 5 — Quality queue & exports:** `review_queue`, CSV/XLSX exports (streamed / job), audit. *Accept:* exports match on-screen figures; large exports don't time out.

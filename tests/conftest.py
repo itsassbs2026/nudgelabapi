@@ -33,8 +33,21 @@ if _TEST_URL:
     # Must happen before any app module is imported (Settings reads the environment at import time).
     os.environ["DATABASE_URL"] = _TEST_URL
     os.environ.pop("DATABASE_MIGRATION_URL", None)
+# Test-only signing secret and settings; never used outside tests.
+os.environ["JWT_SECRET"] = "test-secret-" + "x" * 40
+os.environ["EMAIL_ENABLED"] = "false"
+os.environ.setdefault("DATABASE_URL", "mysql+pymysql://u:p@127.0.0.1:3306/unused_test")
+for _key in (
+    "BOOTSTRAP_ADMIN_EMAIL",
+    "BOOTSTRAP_ADMIN_PASSWORD",
+    "GRAPH_TENANT_ID",
+    "GRAPH_CLIENT_ID",
+    "GRAPH_CLIENT_SECRET",
+    "GRAPH_SENDER_MAILBOX",
+):
+    os.environ.pop(_key, None)
 
-from collections.abc import Generator  # noqa: E402
+from collections.abc import Callable, Generator  # noqa: E402
 from pathlib import Path  # noqa: E402
 
 import pytest  # noqa: E402
@@ -102,3 +115,71 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
         yield TestClient(app)
     finally:
         app.dependency_overrides.pop(get_db, None)
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits() -> None:
+    """The app's limiter is a module-level singleton and TestClient always has the same address."""
+    from app.auth.rate_limit import limiter
+
+    limiter.reset()
+
+
+GOOD_PASSWORD = "correct-horse-battery-1"
+
+
+@pytest.fixture
+def make_user(db_session: Session) -> Callable[..., object]:
+    from app.auth.passwords import hash_password
+    from app.models.dashboard import DashUser
+
+    counter = {"n": 0}
+
+    def _make(
+        *,
+        role: str = "trainer",
+        email: str | None = None,
+        password: str = GOOD_PASSWORD,
+        is_active: bool = True,
+        must_change_password: bool = False,
+    ) -> DashUser:
+        counter["n"] += 1
+        user = DashUser(
+            email=email or f"user{counter['n']}@example.com",
+            full_name=f"User {counter['n']}",
+            password_hash=hash_password(password),
+            role=role,
+            is_active=is_active,
+            must_change_password=must_change_password,
+            timezone="America/Chicago",
+            preferences={},
+        )
+        db_session.add(user)
+        db_session.flush()
+        return user
+
+    return _make
+
+
+@pytest.fixture
+def login(client: TestClient) -> Callable[..., dict[str, str]]:
+    """Signs in and returns the Authorization header."""
+
+    def _login(email: str, password: str = GOOD_PASSWORD) -> dict[str, str]:
+        response = client.post("/api/v1/auth/login", json={"email": email, "password": password})
+        assert response.status_code == 200, response.text
+        return {"Authorization": f"Bearer {response.json()['access_token']}"}
+
+    return _login
+
+
+@pytest.fixture
+def admin_headers(make_user: Callable[..., object], login: Callable[..., dict[str, str]]) -> dict[str, str]:
+    admin = make_user(role="admin", email="admin@example.com")
+    return login(admin.email)  # type: ignore[attr-defined]
+
+
+@pytest.fixture
+def trainer_headers(make_user: Callable[..., object], login: Callable[..., dict[str, str]]) -> dict[str, str]:
+    trainer = make_user(role="trainer", email="trainer@example.com")
+    return login(trainer.email)  # type: ignore[attr-defined]

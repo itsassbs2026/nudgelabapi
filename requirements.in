@@ -15,3 +15,12 @@ httpx
 ruff
 mypy
 types-PyMySQL
+
+# Phase 2 — auth & users (SPEC §9, same libraries as pingit).
+argon2-cffi
+pyjwt
+slowapi
+email-validator  # pydantic EmailStr
+msal             # Microsoft Graph (password-reset email)
+jinja2           # email templates
+apscheduler      # worker: email outbox, token cleanup

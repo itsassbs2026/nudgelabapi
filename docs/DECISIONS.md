@@ -30,3 +30,29 @@ Recorded as they're made (SPEC §0.2). Newest last.
    database to head.
 10. **Dependencies locked with uv.** `requirements.lock` is produced by `uv pip compile` (same format pingit
     uses). `cryptography` is included because PyMySQL needs it for MySQL 8's `caching_sha2_password`.
+
+## Phase 2 — Auth & users (2026-10-03)
+
+11. **Same design as pingit** for passwords (Argon2id, 12+ characters, common-password list), access tokens
+    (HS256, 15 minutes, in memory) and refresh tokens (rotating, reuse revokes the family, 12 h sliding, 7 days
+    absolute), lockout (5 failures → 15 minutes) and the login rate limit (10/minute/IP). Forgot- and
+    reset-password share the login rate limit.
+12. **Host-only refresh cookie.** SPEC §9 named `Domain=nudgelabapi.myprimeportal.com`; the cookie is set with no
+    `Domain` instead, which is stricter: it goes to the API host only, never to its subdomains (same as pingit).
+13. **Forced password change is enforced by the API.** While `must_change_password` is set, every endpoint
+    except `GET /me`, `POST /auth/change-password` and `POST /auth/logout` answers 403
+    `password_change_required`. The bootstrap Admin, users created with a temporary password, and Admin resets
+    to a temporary password all start in this state.
+14. **Admin password reset, two ways** (the owner chose both): set a temporary password (works without email),
+    or send a reset link through Graph. Both unlock the account and end the user's sessions. Creating a user
+    works the same way: a temporary password, or an invitation email.
+15. **Wrong current password is 400, not 401** (pingit uses 401). A 401 means "your session is gone" to the SPA,
+    which would sign the user out for a typo.
+16. **Safeguards:** at least one active Admin always remains; an Admin can't demote or deactivate themselves.
+17. **Audit log entries for auth events:** login, login_failed (with reason, never the typed email), account
+    locked, logout, password changed / reset / reset requested, refresh-token reuse, user created / updated /
+    deactivated / reactivated, admin password reset.
+18. **Emails wait in the outbox** until Graph is configured (`EMAIL_ENABLED` plus the four `GRAPH_*` values from
+    pingit's app registration). The worker retries after 1, 5 and 30 minutes, then marks the email dead.
+19. **Authorization matrix test.** `tests/test_permissions.py` calls every route as anonymous, Trainer and Admin,
+    and fails if a route is missing from the matrix, so new routes can't skip authorization tests (SPEC §0.3).
