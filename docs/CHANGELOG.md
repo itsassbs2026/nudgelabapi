@@ -90,3 +90,11 @@
   `deploy/env.production.example`, `deploy/deploy.sh` (stops on pending migrations), `deploy/preflight-check.sh`
   and `scripts/preflight.py` (read-only checks).
 - `deploy/db-grants-api-tables.sql` (split out of `db-logins.sql`), with a test that the grant files match the code.
+
+## v1.0.0 — Stage 1 live (2026-10-03)
+
+- Deployed to the pingitapi server (`nudgelabapi.myprimeportal.com`, port 8002, API + worker) with the dashboard at
+  `nudgelab.myprimeportal.com`. Production `nudgeai` stamped at `0001_baseline` (checked first with
+  `scripts/check_baseline.py`), then migrated to `0003_jobs` (the API's eight tables only).
+- Found during go-live and fixed: database logins use the server's private address (`10.0.1.148`); the preflight
+  no longer crashes when the database is unreachable; invalid escape sequences in search (ruff W rules now on).
