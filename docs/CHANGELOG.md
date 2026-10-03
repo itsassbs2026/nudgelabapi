@@ -106,3 +106,6 @@
 - `app/schemas/training_content.py`: the content document, tested against the agent's exports
   (`tests/fixtures/content`).
 - Agent (nudgelab): loads trainings from the database with pinning and file fallback; `content.py export|publish`.
+- Live 2026-10-03: migration 0004 applied on production; the agent (nudgelab `99cee78`, `c8d6d6f`) deployed and the
+  four trainings published (Big 4 v18, Q4 comp v19, samples v16 and v17). Bot sessions before and after gave
+  identical instructions fingerprints.
