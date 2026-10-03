@@ -160,3 +160,15 @@ Recorded as they're made (SPEC §0.2). Newest last.
     (`configured: false`) until `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` are set; the owner adds
     them to the server's `.env` (the same values as the agent's).
 49. **CORS exposes `Content-Disposition`** so the dashboard (another origin) can read export file names.
+
+## Phase 8 — for the session viewer and quality queue (2026-10-03)
+
+50. **Saved views** (`/saved-views`) are private to each user: a name and the page's query string (validated:
+    URL-query characters only, 2,000 at most, 30 per page). The dashboard re-applies one by navigating to the page
+    with that query. Pages: overview, trainings, drilldown, sessions, quality, feedback, cost, compliance.
+51. **`GET /team`** lists active dashboard users (id, name, role only) so Trainers can assign quality-queue items;
+    the full user list stays Admin-only.
+52. **The e2e seed gives `rec-new` the s1 transcript**, so the dashboard's test has a recorded session with lines
+    to click. The browser test serves its own audio file for the recording link: S3 signing is covered here by
+    the moto tests, and running a local S3 server (moto's server mode) would add dozens of packages, some
+    Windows-only, to the lock file.

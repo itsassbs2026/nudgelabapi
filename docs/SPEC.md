@@ -457,7 +457,7 @@ Both servers deploy by **`git pull`** from GitHub, never by copying files over S
 - [x] **Phase 5 — Quality queue & exports:** `review_queue`, CSV/XLSX exports (streamed / job), audit. *Accept:* exports match on-screen figures; large exports don't time out. *(Done 2026-10-03.)*
 - [x] **Phase 6 — Dashboard shell & auth:** Vite app, layout, theming, login, refresh on load, route guards, global filters in the URL, ⌘K. *Accept:* Playwright: log in, navigate, log out. *(Done 2026-10-03; the smoke tests run locally against the real API, dashboard DECISIONS #8. The Admin Users and Audit log pages have no phase yet: see Open Items.)*
 - [x] **Phase 7 — Dashboard reports:** Overview, Trainings, Training detail, Drill-down, Employee, Feedback, Cost, Compliance. *Accept:* figures match the API; drill-down scope persists across pages. *(Done 2026-10-03: Playwright compares each page with the API and follows a scope across pages.)*
-- [ ] **Phase 8 — Session viewer & quality queue UI:** synced player and transcript, timeline markers, review panel, queue actions, saved views. *Accept:* clicking a transcript line seeks the audio; flagged sessions can be worked end to end.
+- [x] **Phase 8 — Session viewer & quality queue UI:** synced player and transcript, timeline markers, review panel, queue actions, saved views. *Accept:* clicking a transcript line seeks the audio; flagged sessions can be worked end to end. *(Done 2026-10-03, with the Sessions list and the Admin Users and Audit log pages; Playwright covers both acceptance points.)*
 - [ ] **Phase 9 — Deploy Stage 1:** deploy keys and `git pull` deploy scripts, Nginx sites, certificates, systemd, preflight script, new DB logins and grants, IAM policy, DNS (Route 53, by the owner), `alembic stamp` baseline on prod, smoke test. *Accept:* the owner logs in at `nudgelab.myprimeportal.com` and sees real data.
 
 ### Stage 2 — Training management
@@ -476,12 +476,11 @@ Both servers deploy by **`git pull`** from GitHub, never by copying files over S
 
 Resolved 2026-10-03: assignments come from the owner's Wanaka → `training_assignments` sync (6.4); pingitapi server `204.236.179.185`, deploys by `git pull` (14.0); DNS by the owner in Route 53 when ready; Trainers and Admins both publish, after a required preview call (10.1); password reset by Graph email and by Admin (9); time zone `America/Chicago`; pingit's branding; training content in the existing `nudgeailab` bucket; reserved preview uid per dashboard user (10.5); first Admin `bgupta@primecomms.com`.
 
-Also resolved: the pingitapi server's role is `Prime-nudgeapi-ec2-role` (policies in `deploy/iam-policy-stage1.json` and `deploy/iam-policy-stage2.json`); Graph reuses pingit's Azure app registration and sender mailbox; the owner runs `deploy/db-logins.sql` and builds the assignment sync from `docs/ASSIGNMENT_SYNC.md`.
+Also resolved: the Admin Users and Audit log pages were built in Phase 8 (2026-10-03). The pingitapi server's role is `Prime-nudgeapi-ec2-role` (policies in `deploy/iam-policy-stage1.json` and `deploy/iam-policy-stage2.json`); Graph reuses pingit's Azure app registration and sender mailbox; the owner runs `deploy/db-logins.sql` and builds the assignment sync from `docs/ASSIGNMENT_SYNC.md`.
 
 Still open (`⚠ CONFIRM`):
 1. Is `Prime-nudgeapi-ec2-role` in the **same AWS account as the `nudgeailab` bucket**? If not, the bucket also needs a bucket policy allowing that role (Stage 1), and Claude on Bedrock must be enabled in the role's account (Stage 2).
 2. The database host pattern for the new logins: `204.236.179.185`, or the same pattern pingit's login uses (see the note in `deploy/db-logins.sql`).
-3. **Admin pages in the dashboard** (Users, Audit log; the API side is done in Phase 2): no phase in this list builds their screens. Suggested: Phase 8, before the Stage 1 deploy, so the owner can create trainer accounts from the dashboard.
 
 ---
 

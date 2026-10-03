@@ -75,3 +75,9 @@
   LiveKit; new dependency `livekit-api`).
 - CORS exposes `Content-Disposition` (export file names).
 - Tests: 231.
+
+## Phase 8 — for the session viewer and quality queue (2026-10-03)
+
+- `GET/POST/DELETE /saved-views` and `GET /team`.
+- The e2e seed gives a recorded session a transcript.
+- Tests: 247.

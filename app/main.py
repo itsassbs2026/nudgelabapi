@@ -10,7 +10,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app import __version__
 from app.auth.rate_limit import limiter, rate_limit_exceeded_handler
 from app.config import get_settings
-from app.routers import admin_users, auth, exports, health, me, quality, reports, sessions
+from app.routers import admin_users, auth, exports, health, me, quality, reports, sessions, views
 from app.utils.errors import (
     ApiError,
     api_error_handler,
@@ -64,6 +64,7 @@ def create_app() -> FastAPI:
         sessions.router,
         quality.router,
         exports.router,
+        views.router,
     ):
         app.include_router(router, prefix="/api/v1")
     return app

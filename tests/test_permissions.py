@@ -48,6 +48,10 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("POST", "/api/v1/sessions/{session_id}/recording-url", None, True),
     ("GET", "/api/v1/search?q=ab", None, True),
     ("GET", "/api/v1/live", None, True),
+    ("GET", "/api/v1/saved-views?page=quality", None, True),
+    ("POST", "/api/v1/saved-views", {"page": "quality", "name": "Mine", "query": "status=open"}, True),
+    ("DELETE", "/api/v1/saved-views/{view_id}", None, True),
+    ("GET", "/api/v1/team", None, True),
     ("GET", "/api/v1/reports/rating-trend", None, True),
     ("GET", "/api/v1/quality", None, True),
     ("PATCH", "/api/v1/quality/{session_id}", {}, True),
@@ -65,7 +69,7 @@ def _call(
     headers: dict[str, str] | None = None,
 ) -> int:
     path = path.replace("{user_id}", "1").replace("{training_key}", "big4").replace("{uid}", "1001")
-    path = path.replace("{session_id}", "s1").replace("{job_id}", "1")
+    path = path.replace("{session_id}", "s1").replace("{job_id}", "1").replace("{view_id}", "999999")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 
 

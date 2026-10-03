@@ -60,6 +60,15 @@ def main(url: str) -> None:
         seed(db)
         add_assignments(db)
         add_session_details(db)
+        # The session viewer test needs a recorded session with a transcript: give rec-new s1's lines.
+        db.execute(
+            text(
+                "INSERT INTO session_transcripts"
+                " (session_id, seq, role, message, seconds_into_session, interrupted, created_at)"
+                " SELECT 'rec-new', seq, role, message, seconds_into_session, interrupted, created_at"
+                " FROM session_transcripts WHERE session_id = 's1'"
+            )
+        )
         for email, name, role, must_change in USERS:
             db.add(
                 DashUser(
