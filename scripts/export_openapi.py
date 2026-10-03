@@ -24,5 +24,5 @@ from app.main import create_app  # noqa: E402
 if __name__ == "__main__":
     schema = create_app().openapi()
     text = json.dumps(schema, indent=2, ensure_ascii=False) + "\n"
-    (ROOT / "openapi.json").write_text(text, encoding="utf-8")
+    (ROOT / "openapi.json").write_text(text, encoding="utf-8", newline="\n")
     print(f"openapi.json: {len(schema['paths'])} paths")
