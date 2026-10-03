@@ -34,3 +34,14 @@
 - `GET /employees/{uid}`, `/feedback`, `/acknowledgments`, `/assignments` (state counts, overdue).
 - Tests: 132 (55 new). Every figure is checked against a hand-built dataset (`tests/agent_data.py`); the
   authorization matrix covers the new routes.
+
+## Phase 4 — Sessions & recordings (2026-10-03)
+
+- `GET /sessions`: the session list with the global filters plus trainee, outcome, end reason, flagged, rating
+  and search (name, uid or session id); each row shows rating, review score, cost and recording state.
+- `GET /sessions/{session_id}`: the session viewer's data (metadata, transcript with seconds for seeking, timeline
+  events, AI review with issues linked to transcript lines, feedback, usage and cost). Audit logged.
+- `POST /sessions/{session_id}/recording-url`: a 5-minute inline playback link (404 never recorded or missing,
+  410 past the 90-day retention, 503 if S3 can't be reached). Audit logged.
+- New dependencies: boto3 (and boto3-stubs, moto for tests).
+- Tests: 163 (31 new), with S3 mocked by moto.

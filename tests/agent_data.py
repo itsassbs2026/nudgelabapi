@@ -329,3 +329,78 @@ def add_assignments(db: Session) -> None:
             status="assigned",
         )
     insert(db, "training_assignments", uid=1003, training_id="big4", assigned_at=T(3, 12), status="cancelled")
+
+
+REVIEW_ISSUES = (
+    '[{"type": "false_praise", "time": "15:01:10", "quote": "Great answer, that is exactly",'
+    ' "detail": "Praised a wrong answer"},'
+    ' {"type": "long_turn", "time": "15:05:00", "quote": "never said", "detail": "Long turn"}]'
+)
+
+
+def add_session_details(db: Session) -> dict[str, str]:
+    """Transcript, issues, review quotes and recordings for the session viewer (Phase 4).
+
+    Recording ages are relative to today, because the API decides "expired" from the real clock: rec-new
+    (yesterday, in S3), rec-old (120 days ago, deleted by the lifecycle rule) and rec-gone (yesterday, key set
+    but the file never reached S3). s1 has no recording. Returns the S3 keys.
+    """
+    conn = db.connection()
+    for seq, role, message, seconds, cut in (
+        (1, "trainer", "Hi, I'm Anne. Let's start with topic one.", 0, 0),
+        (2, "trainee", "Okay sounds good", 6, 0),
+        (3, "trainer", "Great answer, that is exactly right!", 70, 1),
+        (4, "trainee", "I think it's C", 400, 0),
+    ):
+        insert(
+            db,
+            "session_transcripts",
+            session_id="s1",
+            seq=seq,
+            role=role,
+            message=message,
+            seconds_into_session=seconds,
+            interrupted=cut,
+            created_at=T(5) + dt.timedelta(seconds=seconds),
+        )
+    insert(
+        db,
+        "session_issues",
+        session_id="s1",
+        issue_type="guardrail",
+        detail="Removed a guessed answer",
+        occurred_at=T(5, 15, 2),
+    )
+    conn.execute(
+        text("UPDATE session_reviews SET issues = :issues, summary = 'Went well' WHERE session_id = 's1'"),
+        {"issues": REVIEW_ISSUES},
+    )
+    conn.execute(
+        text(
+            "UPDATE training_sessions SET outcome = 'passed', end_reason = 'completed'"
+            " WHERE session_id = 's2'"
+        )
+    )
+    conn.execute(text("UPDATE training_sessions SET outcome = 'not_passed' WHERE session_id = 's4'"))
+
+    now = dt.datetime.now(dt.UTC).replace(tzinfo=None, microsecond=0)
+    keys = {}
+    for sid, age in (("rec-new", 1), ("rec-old", 120), ("rec-gone", 1)):
+        started = now - dt.timedelta(days=age)
+        keys[sid] = f"recordings/{started:%Y/%m}/{sid}.ogg"
+        insert(
+            db,
+            "training_sessions",
+            session_id=sid,
+            uid=1004,
+            training_id="walk",
+            version_id=2,
+            room_name=f"room-{sid}",
+            started_at=started,
+            duration_sec=60,
+            start_point="new",
+            store_id_at_session="S3",
+            client="web_test",
+            recording_s3_key=keys[sid],
+        )
+    return keys

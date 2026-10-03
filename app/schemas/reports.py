@@ -363,3 +363,137 @@ class FilterOptions(BaseModel):
     setups: list[dict[str, Any]]
     voices: list[dict[str, Any]]
     completion_types: list[str]
+
+
+# -- sessions (Phase 4) --------------------------------------------------------------------------------------
+
+
+class SessionItem(BaseModel):
+    session_id: str
+    started_at: datetime
+    duration_sec: int | None
+    uid: int
+    name: str | None
+    store_id: str | None
+    store_name: str | None
+    training_id: str
+    training_title: str | None
+    outcome: str | None
+    end_reason: str | None
+    client: str | None
+    rating: int | None
+    review_score: int | None
+    flagged: bool
+    cost: float | None
+    recording: str  # available | none | expired
+
+
+class SessionPage(BaseModel):
+    items: list[SessionItem]
+    total: int
+    page: int
+    page_size: int
+
+
+class SessionStore(BaseModel):
+    store_id: str | None
+    store_name: str | None
+    district_name: str | None
+    market_name: str | None
+    region_name: str | None
+
+
+class SessionHeader(BaseModel):
+    session_id: str
+    uid: int
+    trainee_name: str | None
+    job_title_at_session: str | None
+    training_id: str
+    training_title: str | None
+    completion_type: str | None
+    version_id: int | None
+    version_label: str | None
+    store: SessionStore
+    started_at: datetime
+    ended_at: datetime | None
+    duration_sec: int | None
+    start_point: str | None
+    outcome: str | None
+    end_reason: str | None
+    client: str | None
+    profile_id: str | None
+    profile_name: str | None
+    voice_id: str | None
+    voice_name: str | None
+    llm_model: str | None
+    agent_version: str | None
+    summary: str | None
+    recording: str
+
+
+class TranscriptLine(BaseModel):
+    seq: int
+    role: str  # trainer | trainee
+    message: str
+    seconds: int
+    interrupted: bool
+
+
+class SessionEvent(BaseModel):
+    type: str  # topic_reached | quiz_answer | guardrail | end_call_refused | error | acknowledged | rating
+    at: datetime | None
+    seconds: int | None
+    label: str
+    data: dict[str, Any]
+
+
+class ReviewIssue(BaseModel):
+    type: str | None
+    time: str | None
+    quote: str | None
+    detail: str | None
+    seq: int | None  # the transcript line the quote comes from
+    seconds: int | None
+
+
+class SessionReview(BaseModel):
+    score: int | None
+    summary: str | None
+    flagged: bool
+    reviewed_at: datetime | None
+    model: str | None
+    issues: list[ReviewIssue]
+
+
+class SessionFeedback(BaseModel):
+    rating: int | None
+    comment: str | None
+    trainee_quote: str | None
+
+
+class SessionUsage(BaseModel):
+    llm_model: str | None
+    llm_requests: int | None
+    llm_input_tokens: int | None
+    llm_cached_tokens: int | None
+    llm_cache_write_tokens: int | None
+    llm_output_tokens: int | None
+    tts_characters: int | None
+    stt_audio_seconds: float | None
+    recorded_seconds: int | None
+    cost: dict[str, float | None]
+
+
+class SessionDetail(BaseModel):
+    session: SessionHeader
+    transcript: list[TranscriptLine]
+    events: list[SessionEvent]
+    review: SessionReview | None
+    feedback: SessionFeedback | None
+    usage: SessionUsage | None
+
+
+class RecordingUrl(BaseModel):
+    url: str
+    content_type: str
+    expires_at: datetime

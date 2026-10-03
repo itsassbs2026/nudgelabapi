@@ -85,3 +85,27 @@ Recorded as they're made (SPEC §0.2). Newest last.
     (`ix_sessions_training_started`, `ix_sessions_store_started`, primary keys); date-only scans of
     `training_sessions` and `training_progress` have no index, which is fine at thousands of rows. Check again
     when staging exists; if needed, ask the owner to add `started_at` / `passed_at` indexes on the agent tables.
+
+## Phase 4 — Sessions & recordings (2026-10-03)
+
+29. **Opening a session is audit logged as `transcript_viewed`**, and every recording link as `recording_played`
+    (with the S3 key and the client IP). A failed request (unknown session, missing or expired recording) logs
+    nothing.
+30. **Recording links:** SigV4, signed for the bucket's region (us-west-1), 5 minutes, `audio/ogg`, played inline.
+    Credentials come from the instance role (boto3's default chain); no keys in config. The API never lists the
+    bucket.
+31. **Recording state** is `available`, `none` (never recorded) or `expired`. Expired means the session is older
+    than the bucket's 90-day lifecycle rule (`RECORDING_RETENTION_DAYS`); the link request then answers 410. Before
+    signing, the API checks that the file exists (HEAD), so a recording that never reached S3 is a clear 404, not
+    a broken player.
+32. **403 from S3 counts as "missing".** The role has `s3:GetObject` but not `s3:ListBucket` (by design), and
+    without ListBucket S3 answers 403 for a file that doesn't exist. The API logs a `recording_head_forbidden`
+    warning each time, so a role that has lost access shows up in the logs. After deploying, play one known
+    recording to confirm access.
+33. **Timeline events** come from the database: topics reached, quiz answers, safety corrections (`guardrail`),
+    refused hang-ups, errors, the acknowledgment and the rating, each with `seconds` into the session for the
+    player. **Dropped connections are not in the database** (the agent only writes them to its log file); adding
+    them needs a one-line agent change (`log_issue("dropped", …)`), left for an agent deploy the owner approves.
+34. **Review issues are linked to transcript lines** by matching the issue's quote. If no line matches, `seconds`
+    comes from the issue's clock time (the agent server's UTC clock) when it falls inside the session.
+35. **Session ids in URLs** must match `^[A-Za-z0-9-]+$` (max 36), so odd input never reaches a query or an S3 key.

@@ -101,6 +101,29 @@ training_sessions = Table(
     Column("llm_model", String(60)),
     Column("voice_id", String(40)),
     Column("recording_s3_key", String(300)),
+    Column("agent_version", String(40)),
+    Column("summary", Text),
+)
+
+session_transcripts = Table(
+    "session_transcripts",
+    agent_metadata,
+    Column("session_id", String(36), primary_key=True),
+    Column("seq", Integer, primary_key=True),
+    Column("role", String(10)),  # trainer | trainee
+    Column("message", Text),
+    Column("seconds_into_session", Integer),
+    Column("interrupted", Boolean),
+)
+
+session_issues = Table(
+    "session_issues",
+    agent_metadata,
+    Column("issue_id", Integer, primary_key=True),
+    Column("session_id", String(36)),
+    Column("issue_type", String(40)),  # guardrail | end_call_refused | error
+    Column("detail", Text),
+    Column("occurred_at", DateTime),
 )
 
 session_topic_events = Table(
@@ -115,10 +138,14 @@ session_usage = Table(
     "session_usage",
     agent_metadata,
     Column("session_id", String(36), primary_key=True),
+    Column("llm_model", String(60)),
+    Column("llm_requests", Integer),
     Column("llm_input_tokens", Integer),
     Column("llm_cached_tokens", Integer),
+    Column("llm_cache_write_tokens", Integer),
     Column("llm_output_tokens", Integer),
     Column("tts_characters", Integer),
+    Column("recorded_seconds", Integer),
     Column("stt_audio_seconds", Numeric(10, 1)),
     Column("est_llm_cost", Numeric(10, 5)),
     Column("est_tts_cost", Numeric(10, 5)),
@@ -133,6 +160,8 @@ session_reviews = Table(
     Column("uid", Integer),
     Column("training_id", String(50)),
     Column("session_started", DateTime),
+    Column("reviewed_at", DateTime),
+    Column("review_model", String(100)),
     Column("score", Integer),
     Column("summary", String(500)),
     Column("flagged", Boolean),

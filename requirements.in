@@ -24,3 +24,8 @@ email-validator  # pydantic EmailStr
 msal             # Microsoft Graph (password-reset email)
 jinja2           # email templates
 apscheduler      # worker: email outbox, token cleanup
+
+# Phase 4 — sessions & recordings (SPEC §12: presigned playback; credentials from the EC2 instance role).
+boto3
+boto3-stubs[s3]  # dev only: type stubs for mypy
+moto[s3]         # dev only: S3 in tests

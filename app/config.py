@@ -51,6 +51,14 @@ class Settings(BaseSettings):
     graph_request_timeout_seconds: int = 30
     email_enabled: bool = False
 
+    # Session recordings (SPEC §12). The agent's egress writes recordings/YYYY/MM/<session_id>.ogg; the
+    # bucket's lifecycle rule deletes them after 90 days. Credentials come from boto3's default chain (the EC2
+    # instance role), never from config.
+    recordings_bucket: str = "nudgeailab"
+    recordings_region: str = "us-west-1"
+    recording_url_seconds: int = 300
+    recording_retention_days: int = 90
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
