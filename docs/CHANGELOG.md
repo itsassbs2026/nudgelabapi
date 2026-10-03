@@ -45,3 +45,16 @@
   410 past the 90-day retention, 503 if S3 can't be reached). Audit logged.
 - New dependencies: boto3 (and boto3-stubs, moto for tests).
 - Tests: 163 (31 new), with S3 mocked by moto.
+
+## Phase 5 — Quality queue & exports (2026-10-03)
+
+- `GET /quality` (flagged sessions with status counts; filters: status, issue type, assignee and the global
+  filters) and `PATCH /quality/{session_id}` (status, resolution, note, assignee; audit logged). The session
+  viewer now includes the queue state.
+- `POST /exports` for ten reports: CSV streamed, XLSX queued for the worker; `GET /exports/{id}` and
+  `GET /exports/{id}/download`. Row limit, local times, formula escaping, audit log.
+- Worker: `exports` (every 5 s) and `export_cleanup` (hourly).
+- Migration `0003_jobs`. New dependency: openpyxl.
+- The session timeline labels dropped connections, reconnects and timeouts (logged by the agent since
+  nudgelab 4b86529).
+- Tests: 214 (51 new), including a check that every export matches its screen and a collation guard.

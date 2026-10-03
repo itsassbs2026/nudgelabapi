@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     recording_url_seconds: int = 300
     recording_retention_days: int = 90
 
+    # Exports (SPEC §7.2): CSV streams straight back; XLSX is built by the worker into EXPORT_DIR (on the API
+    # server's own disk, shared by the API and the worker) and deleted after EXPORT_KEEP_HOURS.
+    export_dir: str = "var/exports"
+    export_max_rows: int = 100_000
+    export_keep_hours: int = 24
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

@@ -104,8 +104,35 @@ Recorded as they're made (SPEC §0.2). Newest last.
     recording to confirm access.
 33. **Timeline events** come from the database: topics reached, quiz answers, safety corrections (`guardrail`),
     refused hang-ups, errors, the acknowledgment and the rating, each with `seconds` into the session for the
-    player. **Dropped connections are not in the database** (the agent only writes them to its log file); adding
-    them needs a one-line agent change (`log_issue("dropped", …)`), left for an agent deploy the owner approves.
+    player. Dropped connections were only in the agent's log file at first; since the agent change of 2026-10-03
+    (nudgelab 4b86529) they're in `session_issues` too, as `dropped`, `reconnected` and `not_reconnected`.
 34. **Review issues are linked to transcript lines** by matching the issue's quote. If no line matches, `seconds`
     comes from the issue's clock time (the agent server's UTC clock) when it falls inside the session.
 35. **Session ids in URLs** must match `^[A-Za-z0-9-]+$` (max 36), so odd input never reaches a query or an S3 key.
+
+## Phase 5 — Quality queue & exports (2026-10-03)
+
+36. **The queue is every session the AI review flagged** (`session_reviews.flagged`), filtered like the other
+    reports (by the session's date, store, training…). A session with no `review_queue` row is "open"; the row is
+    created the first time someone changes it. Only the fields sent in `PATCH` change, `null` clears resolution,
+    note or assignee, and every change is audit logged (`quality_updated`, with before and after). Trainers and
+    Admins can both work the queue (SPEC §4). The session viewer shows the queue state of a flagged session.
+37. **Exports reuse the on-screen functions**, so a file always matches its table (tested report by report). Ten
+    reports can be exported: sessions, trainings, questions, drill-down, feedback, acknowledgments, assignments,
+    quality queue, daily activity and cost by training.
+38. **CSV comes straight back; XLSX is a job.** `POST /exports` answers 200 with the CSV, or 202 with a job for
+    XLSX; the worker builds the file into `EXPORT_DIR` on the API server (shared by the API and the worker), and
+    only the person who asked can download it. Files are deleted after 24 hours. A job stuck "running" for 30
+    minutes (worker restarted) is marked failed. The `jobs` table is the one SPEC §6.5 defines for Stage 2, created
+    now (migration 0003).
+39. **At most 100,000 rows per export** (SPEC §7.2); a larger request answers 422 `export_too_large` and asks the
+    user to narrow the filters, rather than cutting the file short.
+40. **Times in exports are the user's local time**, with the time zone in the column header; numbers stay numbers
+    (rates are 0–1, shown as percentages in XLSX). CSV has a UTF-8 byte-order mark so Excel opens it correctly.
+41. **Spreadsheet formulas never run:** text starting with `=`, `+`, `-` or `@` gets a leading apostrophe.
+    Comments, quotes and transcripts are things people said.
+42. **Every export is audit logged** (`export`) with the report, format, filters, parameters and row count (XLSX:
+    the job id; the row count is on the job).
+43. **Collations:** the API's tables take the database's default collation, so it must equal the agent tables'
+    (`utf8mb4_0900_ai_ci` on production, checked 2026-10-03) or joins like `review_queue` → `training_sessions`
+    fail. The test database is created the same way, and a schema test fails if they ever differ.

@@ -24,11 +24,15 @@ uv pip install -r requirements.lock    # or: .venv/Scripts/pip install -r requir
 cp .env.example .env                   # points at a local nudgeai_dev database
 
 # Build a local copy of the schema (baseline + API tables)
-mysql -u root -h 127.0.0.1 -e "CREATE DATABASE nudgeai_dev CHARACTER SET utf8mb4"
+# (same collation as the agent's tables: utf8mb4_unicode_ci on MariaDB, utf8mb4_0900_ai_ci on MySQL 8)
+mysql -u root -h 127.0.0.1 -e "CREATE DATABASE nudgeai_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 .venv/Scripts/alembic upgrade head
 
 # Run the API
 .venv/Scripts/uvicorn app.main:app --reload --port 8002   # http://localhost:8002/api/docs
+
+# Run the worker (emails, token cleanup, XLSX exports) in a second terminal
+.venv/Scripts/python -m app.worker
 ```
 
 ## Checks (the same ones CI runs)

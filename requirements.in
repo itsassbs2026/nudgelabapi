@@ -29,3 +29,7 @@ apscheduler      # worker: email outbox, token cleanup
 boto3
 boto3-stubs[s3]  # dev only: type stubs for mypy
 moto[s3]         # dev only: S3 in tests
+
+# Phase 5 — exports (SPEC §3.1).
+openpyxl
+types-openpyxl  # dev only: type stubs for mypy

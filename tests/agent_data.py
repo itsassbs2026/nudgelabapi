@@ -371,6 +371,14 @@ def add_session_details(db: Session) -> dict[str, str]:
         detail="Removed a guessed answer",
         occurred_at=T(5, 15, 2),
     )
+    insert(
+        db,
+        "session_issues",
+        session_id="s1",
+        issue_type="dropped",
+        detail="UNKNOWN_REASON",
+        occurred_at=T(5, 15, 4),
+    )
     conn.execute(
         text("UPDATE session_reviews SET issues = :issues, summary = 'Went well' WHERE session_id = 's1'"),
         {"issues": REVIEW_ISSUES},

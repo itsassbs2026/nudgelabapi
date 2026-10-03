@@ -122,12 +122,14 @@ def test_detail(client: TestClient, trainer_headers: dict[str, str], db_session:
         ("topic_reached", 60),
         ("guardrail", 120),
         ("topic_reached", 180),
+        ("dropped", 240),
         ("quiz_answer", 360),
         ("quiz_answer", 420),
         ("rating", 540),
     ]
     assert d["events"][0]["label"] == "Topic 1: Big 4 topic 1"
-    assert d["events"][5]["data"] == {
+    assert d["events"][4]["label"] == "Connection dropped"
+    assert d["events"][6]["data"] == {
         "question_number": 2,
         "round": 1,
         "given_option": "C",

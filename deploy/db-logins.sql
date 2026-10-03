@@ -60,3 +60,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES, CREATE V
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.dash_email_outbox          TO 'nudgelab_api'@'204.236.179.185';
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.review_queue               TO 'nudgelab_api'@'204.236.179.185';
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.saved_views                TO 'nudgelab_api'@'204.236.179.185';
+-- GRANT SELECT, INSERT, UPDATE         ON nudgeai.jobs                       TO 'nudgelab_api'@'204.236.179.185';

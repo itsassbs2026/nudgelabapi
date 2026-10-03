@@ -76,7 +76,11 @@ def engine() -> Generator[Engine, None, None]:
     try:
         with server.connect() as conn:
             conn.execute(text(f"DROP DATABASE IF EXISTS `{url.database}`"))
-            conn.execute(text(f"CREATE DATABASE `{url.database}` CHARACTER SET utf8mb4"))
+            # Same default collation as the agent's tables (0001_baseline), as on production (0900_ai_ci on
+            # MySQL 8): the API's tables take the default, and joins between the two need matching collations.
+            is_mariadb = "mariadb" in str(conn.execute(text("SELECT VERSION()")).scalar()).lower()
+            collation = "utf8mb4_unicode_ci" if is_mariadb else "utf8mb4_0900_ai_ci"
+            conn.execute(text(f"CREATE DATABASE `{url.database}` CHARACTER SET utf8mb4 COLLATE {collation}"))
     except Exception as exc:  # pragma: no cover - environment guard
         pytest.skip(f"Test database server is not reachable: {exc}")
     finally:

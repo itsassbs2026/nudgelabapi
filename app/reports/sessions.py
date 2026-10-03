@@ -33,7 +33,7 @@ from app.reference.agent_tables import (
     vw_trainees,
     vw_training_stores,
 )
-from app.reports import metrics
+from app.reports import metrics, quality
 from app.reports.filters import ReportFilters, session_conditions
 from app.services import recordings
 from app.utils.errors import ApiError
@@ -306,6 +306,9 @@ def session_detail(db: Session, settings: Settings, session_id: str) -> dict[str
                     "guardrail": "Safety check corrected Anne",
                     "end_call_refused": "Hang-up refused",
                     "error": "Error",
+                    "dropped": "Connection dropped",
+                    "reconnected": "Reconnected",
+                    "not_reconnected": "Didn't reconnect",
                 }.get(r.issue_type, r.issue_type),
                 "data": {"detail": r.detail},
             }
@@ -410,6 +413,7 @@ def session_detail(db: Session, settings: Settings, session_id: str) -> dict[str
         if fb is None
         else {"rating": fb.rating, "comment": fb.comment, "trainee_quote": fb.trainee_quote},
         "usage": usage,
+        "quality": quality.queue_state(db, session_id),
     }
 
 

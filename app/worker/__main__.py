@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
 from app.db import SessionLocal
+from app.exports import service as exports
 from app.services import email_sender, token_cleanup
 from app.utils.logging import configure_logging
 
@@ -35,6 +36,8 @@ def build_scheduler() -> BlockingScheduler:
     jobs: list[tuple[str, Callable[[Session, Settings], object], IntervalTrigger]] = [
         ("email_sender", email_sender.drain_email_outbox, IntervalTrigger(seconds=15)),
         ("token_cleanup", token_cleanup.purge_expired_tokens, IntervalTrigger(hours=6)),
+        ("exports", exports.run_export_jobs, IntervalTrigger(seconds=5)),
+        ("export_cleanup", exports.purge_old_exports, IntervalTrigger(hours=1)),
     ]
     for name, fn, trigger in jobs:
         scheduler.add_job(run_job, trigger, args=[name, fn], id=name, max_instances=1, coalesce=True)

@@ -74,6 +74,22 @@ def test_models_match_the_database(engine: Engine) -> None:
     assert diffs == []
 
 
+def test_api_and_agent_tables_share_a_collation(engine: Engine) -> None:
+    """Joins between the API's tables and the agent's (review_queue.session_id → training_sessions) fail when
+    the collations differ. The API's tables take the database default, which must be the agent's collation.
+    The externally synced v_* tables keep their own collations (as on production) and are left out."""
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text(
+                "SELECT TABLE_NAME, TABLE_COLLATION FROM information_schema.TABLES "
+                "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' "
+                "AND TABLE_NAME NOT LIKE 'v\\_%'"
+            )
+        ).all()
+    collations = {collation for _, collation in rows}
+    assert len(collations) == 1, sorted(rows)
+
+
 def test_baseline_refuses_an_existing_schema(engine: Engine) -> None:
     cfg = alembic_config()
     command.stamp(cfg, "base")

@@ -7,6 +7,7 @@ from app.models.dashboard import (
     DashPasswordResetToken,
     DashRefreshToken,
     DashUser,
+    Job,
     ReviewQueueItem,
     SavedView,
 )
@@ -21,6 +22,7 @@ __all__ = [
     "DashPasswordResetToken",
     "DashRefreshToken",
     "DashUser",
+    "Job",
     "ReviewQueueItem",
     "SavedView",
 ]

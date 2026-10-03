@@ -172,3 +172,44 @@ class SavedView(Base):
     created_at: Mapped[datetime] = mapped_column(
         UtcDateTime, server_default=func.utc_timestamp(6), nullable=False
     )
+
+
+class JobType(StrEnum):
+    EXPORT = "export"
+    PREPARE_FOR_VOICE = "prepare_for_voice"  # Stage 2
+    CREATE_VOCABULARY = "create_vocabulary"  # Stage 2
+
+
+class JobStatus(StrEnum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    DONE = "done"
+    FAILED = "failed"
+
+
+class Job(Base):
+    """Background work run by the worker (SPEC §6.5): XLSX exports now, training preparation in Stage 2."""
+
+    __tablename__ = "jobs"
+    __table_args__ = (
+        CheckConstraint(_check_in("type", JobType), name="ck_jobs_type"),
+        CheckConstraint(_check_in("status", JobStatus), name="ck_jobs_status"),
+        Index("ix_jobs_status", "status", "created_at"),
+        Index("ix_jobs_creator", "created_by", "created_at"),
+    )
+
+    id: Mapped[int] = mapped_column(BigIntId, primary_key=True, autoincrement=True)
+    type: Mapped[str] = mapped_column(String(32), nullable=False)
+    training_id: Mapped[str | None] = mapped_column(String(50))
+    version_id: Mapped[int | None] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default=JobStatus.QUEUED.value)
+    input: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    error: Mapped[str | None] = mapped_column(String(500))
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_by: Mapped[int | None] = mapped_column(BigIntId, ForeignKey("dash_users.id"))
+    created_at: Mapped[datetime] = mapped_column(
+        UtcDateTime, server_default=func.utc_timestamp(6), nullable=False
+    )
+    started_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    finished_at: Mapped[datetime | None] = mapped_column(UtcDateTime)

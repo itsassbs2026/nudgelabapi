@@ -6,9 +6,9 @@ The dashboard generates its TypeScript types from these (SPEC §3.2).
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Period(BaseModel):
@@ -440,7 +440,9 @@ class TranscriptLine(BaseModel):
 
 
 class SessionEvent(BaseModel):
-    type: str  # topic_reached | quiz_answer | guardrail | end_call_refused | error | acknowledged | rating
+    # topic_reached | quiz_answer | guardrail | end_call_refused | error | dropped | reconnected |
+    # not_reconnected | acknowledged | rating
+    type: str
     at: datetime | None
     seconds: int | None
     label: str
@@ -491,9 +493,76 @@ class SessionDetail(BaseModel):
     review: SessionReview | None
     feedback: SessionFeedback | None
     usage: SessionUsage | None
+    quality: QualityState | None = None  # set when the AI review flagged the session
 
 
 class RecordingUrl(BaseModel):
     url: str
     content_type: str
     expires_at: datetime
+
+
+# -- quality & exports (Phase 5) -----------------------------------------------------------------------------
+
+
+class QualityItem(BaseModel):
+    session_id: str
+    started_at: datetime
+    uid: int
+    name: str | None
+    training_id: str
+    training_title: str | None
+    score: int | None
+    summary: str | None
+    issue_types: list[str]
+    issue_count: int
+    status: str  # open | reviewed | dismissed
+    resolution: str | None
+    note: str | None
+    assignee_user_id: int | None
+    assignee_name: str | None
+    updated_at: datetime | None
+    updated_by_name: str | None
+
+
+class QualityPage(BaseModel):
+    counts: dict[str, int]
+    items: list[QualityItem]
+    total: int
+    page: int
+    page_size: int
+
+
+class QualityState(BaseModel):
+    status: str
+    resolution: str | None
+    note: str | None
+    assignee_user_id: int | None
+    updated_at: datetime | None
+
+
+class QualityUpdate(BaseModel):
+    """Only the fields sent are changed; send null to clear resolution, note or assignee."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["open", "reviewed", "dismissed"] | None = None
+    resolution: Literal["script_changed", "agent_issue", "no_action", "other"] | None = None
+    note: str | None = Field(default=None, max_length=2000)
+    assignee_user_id: int | None = None
+
+
+class ExportJob(BaseModel):
+    id: int
+    status: str  # queued | running | done | failed
+    report: str | None
+    format: str | None
+    rows: int | None
+    filename: str | None
+    expired: bool
+    error: str | None
+    created_at: datetime
+    finished_at: datetime | None
+
+
+SessionDetail.model_rebuild()  # QualityState is defined after it

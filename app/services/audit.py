@@ -26,7 +26,9 @@ class AuditAction(StrEnum):
     ADMIN_PASSWORD_RESET = "admin_password_reset"
     TRANSCRIPT_VIEWED = "transcript_viewed"
     RECORDING_PLAYED = "recording_played"
-    # Later phases: export, training_published, settings_changed, …
+    QUALITY_UPDATED = "quality_updated"
+    EXPORT = "export"
+    # Later phases: training_published, settings_changed, …
 
 
 def record(

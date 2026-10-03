@@ -46,6 +46,11 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/sessions", None, True),
     ("GET", "/api/v1/sessions/{session_id}", None, True),
     ("POST", "/api/v1/sessions/{session_id}/recording-url", None, True),
+    ("GET", "/api/v1/quality", None, True),
+    ("PATCH", "/api/v1/quality/{session_id}", {}, True),
+    ("POST", "/api/v1/exports", {"report": "daily", "format": "csv"}, True),
+    ("GET", "/api/v1/exports/{job_id}", None, True),
+    ("GET", "/api/v1/exports/{job_id}/download", None, True),
 ]
 
 
@@ -57,7 +62,7 @@ def _call(
     headers: dict[str, str] | None = None,
 ) -> int:
     path = path.replace("{user_id}", "1").replace("{training_key}", "big4").replace("{uid}", "1001")
-    path = path.replace("{session_id}", "s1")
+    path = path.replace("{session_id}", "s1").replace("{job_id}", "1")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 
 
