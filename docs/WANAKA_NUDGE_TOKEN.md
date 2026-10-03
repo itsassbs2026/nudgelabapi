@@ -2,8 +2,9 @@
 
 > **For:** Claude Code working in the Wanaka repo (`C:\python\wanaka`), and the Wanaka owner.
 > **Why:** the Flutter app's **Nudge** menu is moving from Wanaka to NudgeLab's API (`nudgelabapi`). The app keeps
-> signing in with Wanaka. When the user opens Nudge, the app exchanges its Wanaka token for a short-lived
-> **NudgeLab pass**, and uses that pass with `nudgelabapi`. This endpoint is the only Wanaka change.
+> signing in with Wanaka. Right after login (and again when the pass expires), the app exchanges its Wanaka
+> token for a short-lived **NudgeLab pass**, and uses that pass with `nudgelabapi`: for the Nudge badge on the
+> bottom bar, the training list and voice sessions. This endpoint is the only Wanaka change.
 >
 > Wanaka's own sign-in, tokens, `SECRET_KEY` and existing routes stay exactly as they are.
 

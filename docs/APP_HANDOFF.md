@@ -7,8 +7,8 @@
 ## 1. Goal
 
 Wanaka keeps doing what it does: sign-in and everything that isn't training. **Everything about AI trainings moves
-to `nudgeai` and `nudgelabapi`.** The app signs in with Wanaka as today. When the user opens the **Nudge** menu, the
-app talks only to `nudgelabapi`: training list, badge count, starting a voice session.
+to `nudgeai` and `nudgelabapi`.** The app signs in with Wanaka as today. For anything training-related (the Nudge
+badge on the bottom bar, the training list, starting a voice session) it talks only to `nudgelabapi`.
 
 What it replaces:
 
@@ -32,6 +32,10 @@ App ──login──▶ Wanaka /v1/login-portal            (as today; Wanaka to
 App ──────────▶ Wanaka POST /v1/nudge/token        (new; Wanaka token in, NudgeLab pass out)
 App ──────────▶ nudgelabapi /app/v1/...            (Authorization: Bearer <NudgeLab pass>)
 ```
+
+**When the app gets a pass:** right after login, and again whenever it needs one and the one it has is expired
+or about to be: the badge on the bottom bar needs a pass before the user ever opens Nudge. Not only when Nudge
+is opened.
 
 **Wanaka (owner):** one new endpoint, `POST /v1/nudge/token`.
 - Protected by `verify_jwt_primetwok` (the full check, including the one-active-token rule).
@@ -163,7 +167,11 @@ new path is used by testers only, with NudgeLab trainings. NudgeLab never reads 
 
 ## 5. Flutter app
 
-1. On opening Nudge: `POST /v1/nudge/token` (Wanaka), keep the pass in memory, refresh it on 401.
+1. Right after login: `POST /v1/nudge/token` (Wanaka), keep the pass in memory with its expiry, and load the
+   badge (`GET /app/v1/trainings/pending-count`) wherever the app loads it today (app start, resume, home).
+   Before any `/app` call: if the pass expires within a minute, get a new one first; on a 401 from
+   `nudgelabapi`, get a new pass and retry once. If Wanaka refuses the exchange too, the Wanaka session has
+   ended: the app's existing re-login applies.
 2. List and badge from `/app/v1/...`. Same JSON as today, plus the new keys.
 3. Start: `POST .../session`, then join with the LiveKit Flutter SDK (`livekit_client`) using `server_url` and
    `participant_token`; microphone only. The ElevenLabs code path is removed at go-live.
