@@ -106,7 +106,7 @@ It uses `DATABASE_MIGRATION_URL`. One of three answers:
 | Answer | Meaning | Do |
 |---|---|---|
 | `0001_baseline` | The baseline was stamped earlier (Phase 1). | Go to step 6. |
-| nothing (or "alembic_version doesn't exist") | Never stamped. | `venv/bin/alembic stamp 0001_baseline`, then `alembic current` again shows `0001_baseline`. **Stamp, never `upgrade`, for the baseline**: it only records that the agent's existing tables are there. |
+| nothing (or "alembic_version doesn't exist") | Never stamped. | First `venv/bin/python scripts/check_baseline.py` (read-only): it must end with "OK to stamp". Then `venv/bin/alembic stamp 0001_baseline`, and `alembic current` shows `0001_baseline`. **Stamp, never `upgrade`, for the baseline**: it only records that the agent's existing tables are there. |
 | `0003_jobs (head)` | Already migrated. | Skip step 6. |
 
 ## 6. Migrations: add the API's tables (you)
