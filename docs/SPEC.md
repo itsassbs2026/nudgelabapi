@@ -188,7 +188,7 @@ All times are stored in UTC and displayed in the user's time zone (default `Amer
 - **Schema owner:** the `nudgelabapi` repo, through **Alembic**, from now on. The agent's `sql/001–007` scripts are frozen history. The first Alembic migration is a **baseline** that represents 001–007 and is applied with `alembic stamp` on prod (never `upgrade` against existing tables).
 - **Writers:** the agent writes session data (6.2). The API writes only its own tables (6.3), plus the training-content tables in Stage 2 (6.5).
 - **Database logins:**
-  - `nudgelab_api` (new, host `204.236.179.185`): SELECT on all `nudgeai` agent tables and views (including `training_assignments`); INSERT/UPDATE/DELETE on API tables; in Stage 2, write on `trainings`, `training_versions`, `training_topics`, `training_questions`, `training_voices`, `training_profiles`. No Wanaka or Portal access. The owner runs `deploy/db-logins.sql`.
+  - `nudgelab_api` (new, host `10.0.1.148`, the pingitapi server's private address): SELECT on all `nudgeai` agent tables and views (including `training_assignments`); INSERT/UPDATE/DELETE on API tables; in Stage 2, write on `trainings`, `training_versions`, `training_topics`, `training_questions`, `training_voices`, `training_profiles`. No Wanaka or Portal access. The owner runs `deploy/db-logins.sql`.
   - `nudgelab_api_migrate` (new, DDL on `nudgeai` only): used only by Alembic, from a deploy step, never by the running app.
 
 ### 6.2 Existing agent tables (read-only for the API, unless noted)
@@ -396,7 +396,7 @@ The API issues a LiveKit token (named dispatch to the agent, metadata `{training
 | Transcribe (Stage 2) | `CreateVocabulary` / `UpdateVocabulary` / `GetVocabulary` on `vocabulary/nudgelab-*` (as the agent's policy) |
 | Polly (Stage 2) | `SynthesizeSpeech` for voice samples |
 | LiveKit | API key/secret in `.env` (preview tokens, `list_rooms` for Live) |
-| RDS | the pingitapi server's IP (`204.236.179.185`) in the RDS security group (likely already, for pingit) and in the new logins' grants |
+| RDS | the pingitapi server reaches RDS from its private address `10.0.1.148`: the new logins use that host (the RDS security group already allows it, for pingit) |
 
 All AWS access is through the pingitapi server's **instance role, `Prime-nudgeapi-ec2-role`**: attach `deploy/iam-policy-stage1.json` now and replace it with `deploy/iam-policy-stage2.json` for Stage 2. No keys.
 
@@ -478,8 +478,7 @@ Resolved 2026-10-03: assignments come from the owner's Wanaka → `training_assi
 
 Also resolved: `Prime-nudgeapi-ec2-role`, the agent's role and the recordings uploader (`nudgeailab-iam-recordings`) are all in AWS account 825245835842, so no bucket policy is needed (checked 2026-10-03); the role has the read-only inline policy `nudgelab-dashboard-play-recordings` (= `deploy/iam-policy-stage1.json`); the shared `nudgeailab-recordings` policy is the uploader's (`s3:PutObject` only) and must not be on this role. The Admin Users and Audit log pages were built in Phase 8 (2026-10-03). The pingitapi server's role is `Prime-nudgeapi-ec2-role` (policies in `deploy/iam-policy-stage1.json` and `deploy/iam-policy-stage2.json`); Graph reuses pingit's Azure app registration and sender mailbox; the owner runs `deploy/db-logins.sql` and builds the assignment sync from `docs/ASSIGNMENT_SYNC.md`.
 
-Still open (`⚠ CONFIRM`):
-1. The database host pattern for the new logins: `204.236.179.185`, or the same pattern pingit's login uses (see the note in `deploy/db-logins.sql`).
+Still open: none for Stage 1. (Settled 2026-10-03: the new logins' host is the pingitapi server's private address, `10.0.1.148`, as the preflight showed.)
 
 ---
 

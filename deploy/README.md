@@ -21,11 +21,8 @@ database anyway). The only schema change in this deploy is step 6, which only **
 
 ## Before you start (you)
 
-1. **One open question** (SPEC §16). (The other is settled: the role and the bucket are both in account
-   825245835842, so step 2 needs no bucket policy.)
-   - Which host pattern does pingit's database login use? Check on RDS:
-     `SELECT user, host FROM mysql.user WHERE user LIKE 'pingit%';` and use the same pattern for the NudgeLab
-     logins (the SQL files assume `204.236.179.185`).
+1. **Settled:** the role and the bucket are both in account 825245835842 (no bucket policy needed), and the
+   server reaches RDS from its private address **10.0.1.148**, which the logins use.
 2. **DNS (Route 53)**:
    - `nudgelabapi.myprimeportal.com` → same target as `pingitapi.myprimeportal.com`.
    - `nudgelab.myprimeportal.com` → same target as `pingit.myprimeportal.com`.
@@ -45,9 +42,9 @@ database anyway). The only schema change in this deploy is step 6, which only **
 
 ## 1. Database logins (you, on RDS)
 
-If not done yet: open `deploy/db-logins.sql`, replace both `CHANGE_ME` passwords with strong generated ones
-(and the host pattern, if step "Before you start" said so), and run parts 1 and 2. Keep the passwords for the
-`.env` in step 4 only.
+If not done yet: open `deploy/db-logins.sql`, replace both `CHANGE_ME` passwords with strong generated ones, and
+run parts 1 and 2. Keep the passwords for the `.env` in step 4 only. If you created the logins with the earlier
+version of the file (host `204.236.179.185`), run `deploy/db-logins-fix-host.sql` to move them to `10.0.1.148`.
 
 Check: `SELECT user, host FROM mysql.user WHERE user LIKE 'nudgelab%';` shows `nudgelab_api` and
 `nudgelab_api_migrate`.

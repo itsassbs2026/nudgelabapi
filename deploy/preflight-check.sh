@@ -24,8 +24,12 @@ else
 fi
 
 if [ -r "$CERT" ]; then
+  # Browsers get the load balancer's own (Amazon) certificate; this file is used between the load balancer and
+  # nginx, like pingitapi's. An expired one doesn't stop the site, but whoever runs these servers should renew it.
   expiry=$(openssl x509 -enddate -noout -in "$CERT" 2>/dev/null | cut -d= -f2)
-  if openssl x509 -checkend $((30 * 86400)) -noout -in "$CERT" >/dev/null 2>&1; then
+  if ! openssl x509 -checkend 0 -noout -in "$CERT" >/dev/null 2>&1; then
+    warn "server certificate EXPIRED $expiry (used between the load balancer and nginx; browsers get the load balancer's)"
+  elif openssl x509 -checkend $((30 * 86400)) -noout -in "$CERT" >/dev/null 2>&1; then
     pass "certificate valid until $expiry"
   else
     warn "certificate expires within 30 days ($expiry)"

@@ -163,6 +163,13 @@ def check_recordings(settings: object) -> None:
                     "ORDER BY started_at DESC LIMIT 1"
                 )
             ).scalar()
+    except Exception:
+        report(
+            "WARN",
+            "recordings",
+            "skipped: needs the database to find a recording (fix the database line first)",
+        )
+        return
     finally:
         engine.dispose()
     if not key:
