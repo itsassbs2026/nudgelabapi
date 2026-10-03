@@ -11,7 +11,7 @@ src = ["app", "scripts", "tests"]
 extend-exclude = ["alembic/versions"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM"]
+select = ["E", "W", "F", "I", "UP", "B", "SIM"]
 # B008: FastAPI's `Depends(...)` in a parameter default is the framework's own idiom.
 ignore = ["B008"]
 

@@ -301,3 +301,9 @@ def test_rating_trend(client: TestClient, trainer_headers: dict[str, str], data:
         ("2026-08-31", "big4", 9.0, 1),
         ("2026-09-07", "big4", 5.0, 1),
     ]
+
+
+def test_like_escaping() -> None:
+    from app.reports.search import _like
+
+    assert _like(r"50%_a\b") == r"%50\%\_a\\b%"

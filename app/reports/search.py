@@ -14,7 +14,8 @@ _SESSION_ID = re.compile(r"^[0-9a-fA-F-]{4,36}$")
 
 
 def _like(term: str) -> str:
-    return "%" + term.replace("\\", "\\\\").replace("%", "\%").replace("_", "\_") + "%"
+    # Escape LIKE's own characters, so searching for "50%" finds the text 50%, not "50 then anything".
+    return "%" + term.replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_") + "%"
 
 
 def search(db: Session, q: str, *, limit: int = 8) -> dict[str, Any]:
