@@ -32,6 +32,17 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("PATCH", "/api/v1/admin/users/{user_id}", {"full_name": "P"}, False),
     ("POST", "/api/v1/admin/users/{user_id}/reset-password", {}, False),
     ("GET", "/api/v1/admin/audit", None, False),
+    ("GET", "/api/v1/reports/overview", None, True),
+    ("GET", "/api/v1/reports/trainings", None, True),
+    ("GET", "/api/v1/reports/trainings/{training_key}", None, True),
+    ("GET", "/api/v1/reports/trainings/{training_key}/questions", None, True),
+    ("GET", "/api/v1/reports/drilldown", None, True),
+    ("GET", "/api/v1/reports/cost", None, True),
+    ("GET", "/api/v1/reports/filter-options", None, True),
+    ("GET", "/api/v1/employees/{uid}", None, True),
+    ("GET", "/api/v1/feedback", None, True),
+    ("GET", "/api/v1/acknowledgments", None, True),
+    ("GET", "/api/v1/assignments", None, True),
 ]
 
 
@@ -42,9 +53,8 @@ def _call(
     body: dict[str, Any] | None,
     headers: dict[str, str] | None = None,
 ) -> int:
-    return client.request(
-        method, path.replace("{user_id}", "1"), json=body, headers=headers or {}
-    ).status_code
+    path = path.replace("{user_id}", "1").replace("{training_key}", "big4").replace("{uid}", "1001")
+    return client.request(method, path, json=body, headers=headers or {}).status_code
 
 
 def test_every_route_is_in_the_matrix() -> None:

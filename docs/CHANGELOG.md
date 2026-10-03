@@ -23,3 +23,14 @@
   6 h.
 - `scripts/bootstrap_admin.py` (first Admin; refuses if one exists).
 - Tests: 77 (65 new), including an authorization matrix over every route.
+
+## Phase 3 — Metrics & report API (2026-10-03)
+
+- Shared metric definitions (`app/reports/metrics.py`) and global filters (dates in the user's time zone,
+  training, completion type, region → store, setup, voice; bot sessions excluded, Admin-only toggle).
+- `GET /reports/overview`, `/reports/trainings`, `/reports/trainings/{id}` (funnel, drop-off, time per topic,
+  ratings, review stats, versions), `/reports/trainings/{id}/questions` (first-try accuracy, wrong options,
+  "heard as"), `/reports/drilldown`, `/reports/cost`, `/reports/filter-options`.
+- `GET /employees/{uid}`, `/feedback`, `/acknowledgments`, `/assignments` (state counts, overdue).
+- Tests: 132 (55 new). Every figure is checked against a hand-built dataset (`tests/agent_data.py`); the
+  authorization matrix covers the new routes.

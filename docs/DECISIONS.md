@@ -56,3 +56,32 @@ Recorded as they're made (SPEC §0.2). Newest last.
     pingit's app registration). The worker retries after 1, 5 and 30 minutes, then marks the email dead.
 19. **Authorization matrix test.** `tests/test_permissions.py` calls every route as anonymous, Trainer and Admin,
     and fails if a route is missing from the matrix, so new routes can't skip authorization tests (SPEC §0.3).
+
+## Phase 3 — Metrics & report API (2026-10-03)
+
+20. **Reports live in `app/reports/`** (SPEC §5 named `app/services/metrics.py`). `metrics.py` holds the shared
+    definitions; one module per page uses them. The agent's tables are described in `app/reference/agent_tables.py`
+    on their own MetaData, so Alembic never sees them and the API can't create or alter them.
+21. **Two kinds of figures.** Activity (sessions, trainees, completions, ratings, reviews, cost) counts events whose
+    own timestamp is in the date range. Cohort progress (funnel, completion rate, drill-down cohort) follows a
+    cohort: trainees **assigned** in the period when assignment rows exist for the scope, otherwise trainees who
+    **started** in the period. Every response carries `basis` so the dashboard can label it (SPEC §5).
+22. **"Assigned" means `status <> 'cancelled'`**, the same rule as `vw_assignment_status`. The sync never writes
+    `completed` (SPEC §6.4), so this equals `status = 'assigned'` today and stays right if it ever does.
+23. **Org scoping:** session figures use the store at session time; trainee figures (cohort, completions,
+    assignments, acknowledgments) use the trainee's current store. The drill-down groups everything by the
+    trainee's **current** place, so each level adds up to its parent.
+24. **Days are the user's local days.** Date filters convert local midnights to UTC; the daily series is grouped
+    in Python with `zoneinfo`, so it doesn't depend on MySQL's time-zone tables.
+25. **Bot and preview sessions (`client` in `bot_test`, `preview`) are excluded** from every report.
+    `include_bots=true` is Admin-only (403 for Trainers).
+26. **Assignment states** in `GET /assignments`: completed (passed) → overdue (past due, not passed) →
+    in progress (started) → not started. The list is the "assigned" cohort for the period, so its counts match the
+    funnel; widen the date range to see older overdue assignments.
+27. **Path parameter `training_key`** in `/reports/trainings/{training_key}`: FastAPI can't have a path parameter
+    and a query filter both named `training_id`. The URL is unchanged.
+28. **Speed not yet measured on production-sized data** (SPEC Phase 3 acceptance: p95 < 1.5 s). There's no copy
+    of production to test on, and tests never touch production. The queries use the existing indexes
+    (`ix_sessions_training_started`, `ix_sessions_store_started`, primary keys); date-only scans of
+    `training_sessions` and `training_progress` have no index, which is fine at thousands of rows. Check again
+    when staging exists; if needed, ask the owner to add `started_at` / `passed_at` indexes on the agent tables.

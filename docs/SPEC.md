@@ -300,6 +300,7 @@ Base path `/api/v1`. JSON. Errors: `{ "error": { "code", "message", "details" } 
 | `GET /feedback` | ratings and comments |
 | `GET /reports/cost` | cost series and splits |
 | `GET /acknowledgments` | compliance list |
+| `GET /assignments` | assigned trainees and their state (not started, in progress, completed, overdue) |
 | `POST /exports` → `GET /exports/{id}` | export job (streamed CSV for small results; XLSX via job) |
 | `GET /live` | current live sessions (LiveKit rooms; names only) |
 | `GET /admin/users` … `POST/PATCH` | user management (Admin) |
@@ -451,7 +452,7 @@ Both servers deploy by **`git pull`** from GitHub, never by copying files over S
 ### Stage 1 — Reporting
 - [x] **Phase 1 — API foundation:** repo scaffold (pingit layout), settings, DB session, `/health`, structured logging, ruff/mypy/pytest in CI (GitHub Actions: lint + tests against a MySQL service container), Alembic configured with the **baseline** (001–007) and API tables (6.3). *Accept:* tests pass locally and in CI; `alembic upgrade head` on an empty local DB builds the full schema; no connection to prod from tests.
 - [x] **Phase 2 — Auth & users:** login/refresh/logout, lockout, password reset (Admin reset, plus forgot-password email through Graph via an outbox and the worker), bootstrap admin, user admin, audit log. *Accept:* authorization tests for every route; refresh-token reuse revokes the family.
-- [ ] **Phase 3 — Metrics & report API:** `metrics.py` (Section 5), global filters, overview, trainings, training detail, questions, drill-down, employee, cost, feedback, acknowledgments, assignments (from `training_assignments`). *Accept:* every metric has a unit test against fixture data; p95 < 1.5 s on a prod-sized copy; bot sessions excluded by default.
+- [x] **Phase 3 — Metrics & report API:** `metrics.py` (Section 5), global filters, overview, trainings, training detail, questions, drill-down, employee, cost, feedback, acknowledgments, assignments (from `training_assignments`). *Accept:* every metric has a unit test against fixture data; p95 < 1.5 s on a prod-sized copy; bot sessions excluded by default. *(Done 2026-10-03; the p95 check waits for a production-sized copy, DECISIONS #28.)*
 - [ ] **Phase 4 — Sessions & recordings:** session list and detail (transcript, events, review, usage), presigned recording URL, audit logging. *Accept:* a Trainer can play a recording; the audit log shows it; URLs expire.
 - [ ] **Phase 5 — Quality queue & exports:** `review_queue`, CSV/XLSX exports (streamed / job), audit. *Accept:* exports match on-screen figures; large exports don't time out.
 - [ ] **Phase 6 — Dashboard shell & auth:** Vite app, layout, theming, login, refresh on load, route guards, global filters in the URL, ⌘K. *Accept:* Playwright: log in, navigate, log out.

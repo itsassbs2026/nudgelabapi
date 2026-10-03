@@ -10,7 +10,7 @@ from starlette.middleware.cors import CORSMiddleware
 from app import __version__
 from app.auth.rate_limit import limiter, rate_limit_exceeded_handler
 from app.config import get_settings
-from app.routers import admin_users, auth, health, me
+from app.routers import admin_users, auth, health, me, reports
 from app.utils.errors import (
     ApiError,
     api_error_handler,
@@ -53,7 +53,7 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)  # type: ignore[arg-type]
     app.add_exception_handler(Exception, unhandled_exception_handler)
 
-    for router in (health.router, auth.router, me.router, admin_users.router):
+    for router in (health.router, auth.router, me.router, admin_users.router, reports.router):
         app.include_router(router, prefix="/api/v1")
     return app
 

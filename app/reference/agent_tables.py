@@ -1,0 +1,243 @@
+"""The voice agent's tables and views, described for read-only queries (SPEC §6.2).
+
+They live on their own MetaData, never on the API's Base, so Alembic autogenerate can't see them and nothing
+here can create, alter or drop them. Only the columns the reports use are listed; the database has more. All
+datetimes are naive UTC (the agent writes `datetime.now(UTC)` without tzinfo).
+"""
+
+from __future__ import annotations
+
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Integer,
+    MetaData,
+    Numeric,
+    String,
+    Table,
+    Text,
+)
+
+agent_metadata = MetaData()
+
+trainings = Table(
+    "trainings",
+    agent_metadata,
+    Column("training_id", String(50), primary_key=True),
+    Column("title", String(200)),
+    Column("status", String(20)),
+    Column("completion_type", String(20)),
+    Column("completion_key", String(64)),
+    Column("profile_id", String(30)),
+    Column("active_version_id", Integer),
+)
+
+training_versions = Table(
+    "training_versions",
+    agent_metadata,
+    Column("version_id", Integer, primary_key=True),
+    Column("training_id", String(50)),
+    Column("version_label", String(50)),
+    Column("published_at", DateTime),
+)
+
+training_topics = Table(
+    "training_topics",
+    agent_metadata,
+    Column("version_id", Integer, primary_key=True),
+    Column("topic_number", Integer, primary_key=True),
+    Column("title", String(200)),
+)
+
+training_questions = Table(
+    "training_questions",
+    agent_metadata,
+    Column("version_id", Integer, primary_key=True),
+    Column("question_number", Integer, primary_key=True),
+    Column("location_variant", String(20), primary_key=True),
+    Column("section_code", String(5)),
+    Column("section_name", String(100)),
+    Column("question_text", Text),
+    Column("options", JSON),
+    Column("correct_option", String(1)),
+)
+
+training_progress = Table(
+    "training_progress",
+    agent_metadata,
+    Column("uid", Integer, primary_key=True),
+    Column("training_id", String(50), primary_key=True),
+    Column("version_id", Integer),
+    Column("status", String(20)),
+    Column("topics_covered", JSON),
+    Column("walkthrough_finished_at", DateTime),
+    Column("quiz_attempted", Boolean),
+    Column("correct_questions", JSON),
+    Column("sessions_count", Integer),
+    Column("first_started_at", DateTime),
+    Column("passed_at", DateTime),
+    Column("updated_at", DateTime),
+)
+
+training_sessions = Table(
+    "training_sessions",
+    agent_metadata,
+    Column("session_id", String(36), primary_key=True),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("version_id", Integer),
+    Column("started_at", DateTime),
+    Column("ended_at", DateTime),
+    Column("duration_sec", Integer),
+    Column("start_point", String(20)),
+    Column("outcome", String(20)),
+    Column("end_reason", String(20)),
+    Column("store_id_at_session", String(12)),
+    Column("job_title_at_session", String(255)),
+    Column("client", String(20)),
+    Column("profile_id", String(30)),
+    Column("llm_model", String(60)),
+    Column("voice_id", String(40)),
+    Column("recording_s3_key", String(300)),
+)
+
+session_topic_events = Table(
+    "session_topic_events",
+    agent_metadata,
+    Column("session_id", String(36), primary_key=True),
+    Column("topic_number", Integer, primary_key=True),
+    Column("reached_at", DateTime),
+)
+
+session_usage = Table(
+    "session_usage",
+    agent_metadata,
+    Column("session_id", String(36), primary_key=True),
+    Column("llm_input_tokens", Integer),
+    Column("llm_cached_tokens", Integer),
+    Column("llm_output_tokens", Integer),
+    Column("tts_characters", Integer),
+    Column("stt_audio_seconds", Numeric(10, 1)),
+    Column("est_llm_cost", Numeric(10, 5)),
+    Column("est_tts_cost", Numeric(10, 5)),
+    Column("est_stt_cost", Numeric(10, 5)),
+    Column("est_total_cost", Numeric(10, 5)),
+)
+
+session_reviews = Table(
+    "session_reviews",
+    agent_metadata,
+    Column("session_id", String(36), primary_key=True),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("session_started", DateTime),
+    Column("score", Integer),
+    Column("summary", String(500)),
+    Column("flagged", Boolean),
+    Column("issue_count", Integer),
+    Column("issues", JSON),
+)
+
+quiz_answers = Table(
+    "quiz_answers",
+    agent_metadata,
+    Column("answer_id", Integer, primary_key=True),
+    Column("session_id", String(36)),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("version_id", Integer),
+    Column("question_number", Integer),
+    Column("round", Integer),
+    Column("given_option", String(1)),
+    Column("is_correct", Boolean),
+    Column("heard_as", String(100)),
+    Column("answered_at", DateTime),
+)
+
+training_feedback = Table(
+    "training_feedback",
+    agent_metadata,
+    Column("session_id", String(36), primary_key=True),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("rating", Integer),
+    Column("comment", Text),
+    Column("trainee_quote", Text),
+    Column("created_at", DateTime),
+)
+
+training_acknowledgments = Table(
+    "training_acknowledgments",
+    agent_metadata,
+    Column("ack_id", Integer, primary_key=True),
+    Column("session_id", String(36)),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("version_id", Integer),
+    Column("statement", String(1000)),
+    Column("trainee_quote", String(2000)),
+    Column("acknowledged_at", DateTime),
+)
+
+training_assignments = Table(
+    "training_assignments",
+    agent_metadata,
+    Column("assignment_id", Integer, primary_key=True),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("assigned_at", DateTime),
+    Column("due_at", DateTime),
+    Column("status", String(20)),
+)
+
+training_profiles = Table(
+    "training_profiles",
+    agent_metadata,
+    Column("profile_id", String(30), primary_key=True),
+    Column("display_name", String(60)),
+)
+
+training_voices = Table(
+    "training_voices",
+    agent_metadata,
+    Column("voice_id", String(40), primary_key=True),
+    Column("display_name", String(60)),
+    Column("is_active", Boolean),
+)
+
+# Views: the org hierarchy without exposing v_users* personal-data columns (SPEC §6.2).
+vw_trainees = Table(
+    "vw_trainees",
+    agent_metadata,
+    Column("uid", Integer, primary_key=True),
+    Column("name", String(150)),
+    Column("is_active", Boolean),
+    Column("job_title", String(255)),
+    Column("store_id", String(12)),
+    Column("store_name", String(150)),
+    Column("district_id", Integer),
+    Column("district_name", String(150)),
+    Column("market_id", Integer),
+    Column("market_name", String(150)),
+    Column("region_id", Integer),
+    Column("region_name", String(150)),
+)
+
+vw_training_stores = Table(
+    "vw_training_stores",
+    agent_metadata,
+    Column("store_id", String(12), primary_key=True),
+    Column("store_name", String(150)),
+    Column("store_active", Boolean),
+    Column("district_id", Integer),
+    Column("district_name", String(150)),
+    Column("market_id", Integer),
+    Column("market_name", String(150)),
+    Column("region_id", Integer),
+    Column("region_name", String(150)),
+)
+
+# Sessions that never count in reports unless an Admin asks (SPEC §5): automated tests and trainer previews.
+EXCLUDED_CLIENTS = ("bot_test", "preview")
