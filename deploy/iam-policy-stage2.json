@@ -1,0 +1,44 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "NudgeLabPlayRecordings",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::nudgeailab/recordings/*"
+    },
+    {
+      "Sid": "NudgeLabTrainingContent",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"],
+      "Resource": "arn:aws:s3:::nudgeailab/training-content/*"
+    },
+    {
+      "Sid": "NudgeLabPrepareForVoice",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+      "Resource": [
+        "arn:aws:bedrock:*:*:inference-profile/us.anthropic.claude-sonnet-5-5*",
+        "arn:aws:bedrock:*::foundation-model/anthropic.claude-sonnet-5-5*"
+      ]
+    },
+    {
+      "Sid": "NudgeLabFirstUseModelSubscription",
+      "Effect": "Allow",
+      "Action": ["aws-marketplace:ViewSubscriptions", "aws-marketplace:Subscribe"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "NudgeLabVocabularies",
+      "Effect": "Allow",
+      "Action": ["transcribe:CreateVocabulary", "transcribe:UpdateVocabulary", "transcribe:GetVocabulary"],
+      "Resource": "arn:aws:transcribe:*:*:vocabulary/nudgelab-*"
+    },
+    {
+      "Sid": "NudgeLabVoiceSamples",
+      "Effect": "Allow",
+      "Action": ["polly:SynthesizeSpeech", "polly:DescribeVoices"],
+      "Resource": "*"
+    }
+  ]
+}
