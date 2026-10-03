@@ -215,3 +215,27 @@ Recorded as they're made (SPEC §0.2). Newest last.
     table, nothing more, for `content.py publish`.
 63. **Preview-call isolation (SPEC 10.6.3) and the testers table (10.6.4)** are built in Phases 15 and 14, as the
     phase list assigns them; nothing issues preview tokens or reads testers from the database before then.
+
+## Phase A1 — Flutter app hand-off (2026-10-03)
+
+64. **The app keeps Wanaka's JSON** (owner's decision): the list and the badge return the procedures' keys, so
+    the app's screens need no change; new keys are only added. `trainer_key` is the NudgeLab training id,
+    `trainer_id` the old Wanaka id (`trainings.wanaka_trainer_id`), `elevenlabs_agent_id` the completion key.
+65. **A NudgeLab pass, signed by Wanaka with its own ES256 key** (owner's decision), instead of sharing Wanaka's
+    HS256 `SECRET_KEY`: this API can check passes but never make one. Required claims, `iss`/`aud`, 30 s leeway,
+    at most an hour's lifetime, uid as a digits-only `sub`. A dashboard token is never a pass and vice versa
+    (different algorithms and keys), with a test each way.
+66. **Assignments come from `training_assignments` only**, added by hand for now (`deploy/assign-testers.sql`);
+    rules later (APP_HANDOFF.md 4.2). A training is listed when assigned (not cancelled), `app_status = 'active'`,
+    not retired and published. The badge counts the same rows (required, not completed), so the two can't
+    disagree, unlike the old procedures.
+67. **Profile through a view** (`vw_app_profile`, definer's rights): the API still has no grant on `v_users`.
+    The district manager is `v_users.district_id` read as a uid, as in Wanaka's procedure.
+68. **`assignment_month`** is the current month in `DEFAULT_TIMEZONE`; Wanaka used the month of its latest sales
+    data, which assignments here don't depend on.
+69. **Rate limits per uid, not per IP** (60 reads and 6 session starts a minute by default): many employees share a
+    store's address. Counted per Uvicorn worker, like the login limit.
+70. **Session tokens last 30 minutes** (as the tester page), so a dropped call can rejoin; each start is logged in
+    `app_session_starts` (uid, training, room, pass id, IP). The session itself is still the agent's row.
+71. **Errors use this API's shape** (`{"error": {"code", "message", "details"}}`), never database messages.
+

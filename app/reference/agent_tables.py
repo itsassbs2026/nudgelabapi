@@ -32,6 +32,14 @@ trainings = Table(
     Column("completion_key", String(64)),
     Column("profile_id", String(30)),
     Column("active_version_id", Integer),
+    Column("description", Text),
+    # The Flutter app's catalog (migration 0005, docs/APP_HANDOFF.md).
+    Column("app_title", String(200)),
+    Column("category", String(100)),
+    Column("tags", String(500)),
+    Column("is_required", Boolean),
+    Column("app_status", String(16)),
+    Column("wanaka_trainer_id", Integer),
 )
 
 training_versions = Table(
@@ -224,6 +232,10 @@ training_assignments = Table(
     Column("assigned_at", DateTime),
     Column("due_at", DateTime),
     Column("status", String(20)),
+    # Migration 0005: why it was assigned, once rules exist (NULL for rows assigned by hand).
+    Column("matched_rule_group_id", Integer),
+    Column("matched_rule_name", String(150)),
+    Column("ai_flag", String(50)),
 )
 
 training_profiles = Table(
@@ -271,6 +283,23 @@ vw_training_stores = Table(
     Column("market_name", String(150)),
     Column("region_id", Integer),
     Column("region_name", String(150)),
+)
+
+# The app's list header (migration 0005): an active employee (v_users, status 1) and their district manager.
+vw_app_profile = Table(
+    "vw_app_profile",
+    agent_metadata,
+    Column("uid", Integer, primary_key=True),
+    Column("name", String(60)),
+    Column("job_id", Integer),
+    Column("job_title", String(255)),
+    Column("store_id", String(12)),
+    Column("store_name", String(155)),
+    Column("district_name", String(40)),
+    Column("market_name", String(55)),
+    Column("region_name", String(50)),
+    Column("district_manager_name", String(60)),
+    Column("district_manager_picture", Text),
 )
 
 # Sessions that never count in reports unless an Admin asks (SPEC §5): automated tests and trainer previews.

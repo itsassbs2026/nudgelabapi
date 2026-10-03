@@ -109,3 +109,18 @@
 - Live 2026-10-03: migration 0004 applied on production; the agent (nudgelab `99cee78`, `c8d6d6f`) deployed and the
   four trainings published (Big 4 v18, Q4 comp v19, samples v16 and v17). Bot sessions before and after gave
   identical instructions fingerprints.
+
+## Phase A1 — Flutter app endpoints (2026-10-03)
+
+- `/app/v1/trainings`, `/app/v1/trainings/pending-count`, `POST /app/v1/trainings/{training_id}/session`
+  (docs/APP_HANDOFF.md §3): the JSON of Wanaka's `usp_ai_trainer_assignments_json` / pending count, plus
+  `training_id`, `completion_type`, `status`, `progress` and `due_at`; session starts return a LiveKit token
+  with the agent dispatch.
+- NudgeLab pass (`app/mobile/passes.py`): ES256, Wanaka's public keys only (`APP_PASS_PUBLIC_KEYS`, rotation by
+  key id), uid from `sub` only, active employees only. Per-employee rate limits.
+- Migration `0005_app_handoff`: catalog columns on `trainings`, rule columns on `training_assignments` (NULL for
+  now), the `vw_app_profile` view and the `app_session_starts` table. Grants: `deploy/db-grants-0005-app.sql`.
+- Owner scripts: `deploy/assign-testers.sql`, `deploy/app-catalog.sql`. Wanaka brief:
+  `docs/WANAKA_NUDGE_TOKEN.md`. Preflight checks the pass keys.
+- Tests: 300.
+

@@ -64,6 +64,22 @@ class Settings(BaseSettings):
     livekit_api_key: str | None = None
     livekit_api_secret: str | None = None
 
+    # The Flutter app's training endpoints (/app/v1, docs/APP_HANDOFF.md). The app brings a NudgeLab pass: an
+    # ES256 JWT signed by Wanaka (docs/WANAKA_NUDGE_TOKEN.md). Only the public keys live here, as
+    # "kid=/path/key.pem", comma-separated so a rotation can list the old and new keys. Off (503) until set.
+    app_pass_public_keys: str | None = None
+    app_pass_issuer: str = "wanaka"
+    app_pass_audience: str = "nudgelabapi"
+    app_pass_max_lifetime_seconds: int = 3600
+    app_pass_leeway_seconds: int = 30
+    # Per employee (uid), not per IP: a store's Wi-Fi puts many people behind one address.
+    app_read_rate_limit: str = "60/minute"
+    app_session_rate_limit: str = "6/minute"
+    # The voice agent's LiveKit name (the agent repo's web.py AGENT_NAME) and how long a session token can be
+    # used to join or rejoin after a dropped connection (as the tester page).
+    livekit_agent_name: str = "nudgelab-trainer"
+    app_session_token_minutes: int = 30
+
     # Exports (SPEC §7.2): CSV streams straight back; XLSX is built by the worker into EXPORT_DIR (on the API
     # server's own disk, shared by the API and the worker) and deleted after EXPORT_KEEP_HOURS.
     export_dir: str = "var/exports"
@@ -77,6 +93,16 @@ class Settings(BaseSettings):
     @property
     def livekit_configured(self) -> bool:
         return bool(self.livekit_url and self.livekit_api_key and self.livekit_api_secret)
+
+    @property
+    def app_pass_key_files(self) -> dict[str, str]:
+        """kid → public key file, from APP_PASS_PUBLIC_KEYS ("kid=/path.pem,kid2=/path2.pem")."""
+        out: dict[str, str] = {}
+        for item in (self.app_pass_public_keys or "").split(","):
+            kid, sep, path = item.strip().partition("=")
+            if sep and kid.strip() and path.strip():
+                out[kid.strip()] = path.strip()
+        return out
 
     @property
     def is_prod(self) -> bool:

@@ -6,10 +6,14 @@ test_every_route_is_in_the_matrix fails.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pytest
+from app.config import get_settings
 from app.main import app
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 from fastapi.testclient import TestClient
 
 PUBLIC = {
@@ -61,6 +65,15 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
 ]
 
 
+# The Flutter app's routes (docs/APP_HANDOFF.md): a NudgeLab pass only. Dashboard logins, Trainer or Admin,
+# get 401. The pass itself is tested in test_app_api.py.
+APP_ROUTES: list[tuple[str, str]] = [
+    ("GET", "/app/v1/trainings"),
+    ("GET", "/app/v1/trainings/pending-count"),
+    ("POST", "/app/v1/trainings/{training_id}/session"),
+]
+
+
 def _call(
     client: TestClient,
     method: str,
@@ -70,6 +83,7 @@ def _call(
 ) -> int:
     path = path.replace("{user_id}", "1").replace("{training_key}", "big4").replace("{uid}", "1001")
     path = path.replace("{session_id}", "s1").replace("{job_id}", "1").replace("{view_id}", "999999")
+    path = path.replace("{training_id}", "big4")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 
 
@@ -77,7 +91,7 @@ def test_every_route_is_in_the_matrix() -> None:
     routes = set()
     for path, ops in app.openapi()["paths"].items():
         routes |= {(m.upper(), path) for m in ops}
-    covered = PUBLIC | {(m, p.split("?")[0]) for m, p, _, _ in PROTECTED}
+    covered = PUBLIC | {(m, p.split("?")[0]) for m, p, _, _ in PROTECTED} | set(APP_ROUTES)
     assert routes == covered, f"not covered: {routes - covered}; stale: {covered - routes}"
 
 
@@ -114,3 +128,25 @@ def test_admin_is_never_forbidden(
     _trainer_ok: bool,
 ) -> None:
     assert _call(client, method, path, body, admin_headers) not in (401, 403)
+
+
+@pytest.fixture
+def app_passes_configured(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    key = ec.generate_private_key(ec.SECP256R1()).public_key()
+    pem = tmp_path / "pass.pem"
+    spki = serialization.PublicFormat.SubjectPublicKeyInfo
+    pem.write_bytes(key.public_bytes(serialization.Encoding.PEM, spki))
+    monkeypatch.setattr(get_settings(), "app_pass_public_keys", f"k={pem}")
+
+
+@pytest.mark.parametrize(("method", "path"), APP_ROUTES)
+def test_app_routes_refuse_anonymous_and_dashboard_logins(
+    client: TestClient,
+    trainer_headers: dict[str, str],
+    admin_headers: dict[str, str],
+    app_passes_configured: None,
+    method: str,
+    path: str,
+) -> None:
+    for headers in (None, trainer_headers, admin_headers):
+        assert _call(client, method, path, None, headers) == 401

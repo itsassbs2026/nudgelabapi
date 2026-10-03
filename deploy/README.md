@@ -189,6 +189,30 @@ table, then run `deploy.sh` again.
 **Rollback:** `bash deploy/deploy.sh v1.0.0` (any tag). If the bad release had a migration, ask before going
 back: migrations only add things, so older code normally runs fine on the newer schema.
 
+## Phase A1: the Flutter app's endpoints (docs/APP_HANDOFF.md)
+
+One migration (`0005_app_handoff`), two new grants, one new setting. Nothing changes for the dashboard or the agent.
+
+1. `bash /srv/nudgelabapi/deploy/deploy.sh`: it pulls and stops at the pending migration.
+2. Review it: `venv/bin/alembic upgrade 0004_training_content:0005_app_handoff --sql`. It adds columns to
+   `trainings` and `training_assignments` (instant on MySQL 8), creates the view `vw_app_profile` and the table
+   `app_session_starts`.
+3. Run it at a quiet moment (the dashboard's "Live now" empty, so no agent session is mid-write):
+   `venv/bin/alembic upgrade head`.
+4. As an admin on RDS: `deploy/db-grants-0005-app.sql`.
+5. `bash /srv/nudgelabapi/deploy/deploy.sh` again: restarts and checks health. The preflight shows
+   `WARN app passes` until step 6; the app endpoints answer 503 meanwhile.
+6. When Wanaka's key pair exists (docs/WANAKA_NUDGE_TOKEN.md): put the **public** key at
+   `/srv/nudgelabapi/keys/nudge_pass_public.pem`, add `APP_PASS_PUBLIC_KEYS=<kid>=/srv/nudgelabapi/keys/nudge_pass_public.pem`
+   to `.env`, `sudo systemctl restart nudgelabapi`, and run the preflight: `PASS app passes`.
+7. Data (any time after step 3, as an admin): `deploy/app-catalog.sql` (names, categories, required), then
+   `deploy/assign-testers.sql`.
+
+Smoke test:
+- `curl -s https://nudgelabapi.myprimeportal.com/app/v1/trainings` → 401 `invalid_pass` (503 before step 6).
+- After Wanaka's endpoint is live: a tester's app (or a pass from `POST /v1/nudge/token`) lists their trainings,
+  and starting one connects to Anne.
+
 ## Where things are
 
 | | |

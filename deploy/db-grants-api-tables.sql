@@ -11,6 +11,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.dash_email_outbox          TO 'n
 GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.review_queue               TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.saved_views                TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT, UPDATE         ON nudgeai.jobs                       TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, INSERT                 ON nudgeai.app_session_starts         TO 'nudgelab_api'@'10.0.1.148';
 
 -- Check:
 -- SHOW GRANTS FOR 'nudgelab_api'@'10.0.1.148';

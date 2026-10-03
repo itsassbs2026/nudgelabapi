@@ -4489,6 +4489,117 @@
           }
         ]
       }
+    },
+    "/app/v1/trainings": {
+      "get": {
+        "tags": [
+          "app"
+        ],
+        "summary": "List Trainings",
+        "operationId": "list_trainings_app_v1_trainings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingList"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/app/v1/trainings/pending-count": {
+      "get": {
+        "tags": [
+          "app"
+        ],
+        "summary": "Pending Count",
+        "operationId": "pending_count_app_v1_trainings_pending_count_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingCount"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/app/v1/trainings/{training_id}/session": {
+      "post": {
+        "tags": [
+          "app"
+        ],
+        "summary": "Start Session",
+        "operationId": "start_session_app_v1_trainings__training_id__session_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "training_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "pattern": "^[a-z0-9_]+$",
+              "title": "Training Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionStartIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionStartOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6751,6 +6862,36 @@
         ],
         "title": "OverviewOut"
       },
+      "PendingCount": {
+        "properties": {
+          "uid": {
+            "type": "integer",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "incompleted_count": {
+            "type": "integer",
+            "title": "Incompleted Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "name",
+          "incompleted_count"
+        ],
+        "title": "PendingCount"
+      },
       "Period": {
         "properties": {
           "date_from": {
@@ -8546,6 +8687,46 @@
         ],
         "title": "SessionReview"
       },
+      "SessionStartIn": {
+        "properties": {
+          "start_over": {
+            "type": "boolean",
+            "title": "Start Over",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SessionStartIn"
+      },
+      "SessionStartOut": {
+        "properties": {
+          "server_url": {
+            "type": "string",
+            "title": "Server Url"
+          },
+          "participant_token": {
+            "type": "string",
+            "title": "Participant Token"
+          },
+          "room_name": {
+            "type": "string",
+            "title": "Room Name"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          }
+        },
+        "type": "object",
+        "required": [
+          "server_url",
+          "participant_token",
+          "room_name",
+          "expires_in"
+        ],
+        "title": "SessionStartOut"
+      },
       "SessionStore": {
         "properties": {
           "store_id": {
@@ -8930,6 +9111,207 @@
         ],
         "title": "TopicTiming"
       },
+      "TrainingCard": {
+        "properties": {
+          "tags": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags"
+          },
+          "trainer_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Id"
+          },
+          "assigned_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned At"
+          },
+          "trainer_key": {
+            "type": "string",
+            "title": "Trainer Key"
+          },
+          "trainer_name": {
+            "type": "string",
+            "title": "Trainer Name"
+          },
+          "trainer_category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Category"
+          },
+          "elevenlabs_agent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elevenlabs Agent Id"
+          },
+          "trainer_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Description"
+          },
+          "trainer_person_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Person Name"
+          },
+          "trainer_picture": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Picture"
+          },
+          "matched_rule_group_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Rule Group Id"
+          },
+          "matched_rule_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Rule Name"
+          },
+          "ai_flag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Flag"
+          },
+          "is_required": {
+            "type": "boolean",
+            "title": "Is Required"
+          },
+          "is_completed": {
+            "type": "boolean",
+            "title": "Is Completed"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "completion_type": {
+            "type": "string",
+            "enum": [
+              "quiz",
+              "walkthrough",
+              "acknowledgment"
+            ],
+            "title": "Completion Type"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_started",
+              "in_progress",
+              "completed"
+            ],
+            "title": "Status"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/TrainingProgress"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tags",
+          "trainer_id",
+          "assigned_at",
+          "trainer_key",
+          "trainer_name",
+          "trainer_category",
+          "elevenlabs_agent_id",
+          "trainer_description",
+          "trainer_person_name",
+          "trainer_picture",
+          "matched_rule_group_id",
+          "matched_rule_name",
+          "ai_flag",
+          "is_required",
+          "is_completed",
+          "training_id",
+          "completion_type",
+          "status",
+          "progress",
+          "due_at"
+        ],
+        "title": "TrainingCard"
+      },
       "TrainingCount": {
         "properties": {
           "training_id": {
@@ -9069,6 +9451,151 @@
           "attempts"
         ],
         "title": "TrainingDetailOut"
+      },
+      "TrainingList": {
+        "properties": {
+          "uid": {
+            "type": "integer",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "store_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Id"
+          },
+          "job_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Title"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name"
+          },
+          "market_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Name"
+          },
+          "region_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region Name"
+          },
+          "district_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District Name"
+          },
+          "assignment_month": {
+            "type": "string",
+            "title": "Assignment Month"
+          },
+          "assigned_trainers": {
+            "items": {
+              "$ref": "#/components/schemas/TrainingCard"
+            },
+            "type": "array",
+            "title": "Assigned Trainers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "name",
+          "job_id",
+          "store_id",
+          "job_title",
+          "store_name",
+          "market_name",
+          "region_name",
+          "district_name",
+          "assignment_month",
+          "assigned_trainers"
+        ],
+        "title": "TrainingList"
+      },
+      "TrainingProgress": {
+        "properties": {
+          "topics_done": {
+            "type": "integer",
+            "title": "Topics Done"
+          },
+          "topics_total": {
+            "type": "integer",
+            "title": "Topics Total"
+          },
+          "quiz_retry": {
+            "type": "boolean",
+            "title": "Quiz Retry"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topics_done",
+          "topics_total",
+          "quiz_retry"
+        ],
+        "title": "TrainingProgress"
       },
       "TrainingRow": {
         "properties": {

@@ -41,6 +41,8 @@ GRANT SELECT ON nudgeai.vw_training_stores        TO 'nudgelab_api'@'10.0.1.148'
 GRANT SELECT ON nudgeai.vw_session_report         TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.vw_question_stats         TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.vw_assignment_status      TO 'nudgelab_api'@'10.0.1.148';
+-- Added by migration 0005 (the Flutter app); on an existing install run deploy/db-grants-0005-app.sql instead.
+GRANT SELECT ON nudgeai.vw_app_profile            TO 'nudgelab_api'@'10.0.1.148';
 
 -- ---------------------------------------------------------------------------
 -- 2. Migrations only (Alembic, run by hand during a deploy; never used by the running app).

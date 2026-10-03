@@ -1,5 +1,6 @@
 """Importing this package registers every API model on Base.metadata (used by Alembic)."""
 
+from app.models.app import AppSessionStart
 from app.models.base import Base
 from app.models.dashboard import (
     DashAuditLog,
@@ -16,6 +17,7 @@ API_TABLES = frozenset(Base.metadata.tables)
 
 __all__ = [
     "API_TABLES",
+    "AppSessionStart",
     "Base",
     "DashAuditLog",
     "DashEmailOutbox",

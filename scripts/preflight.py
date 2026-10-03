@@ -200,6 +200,19 @@ def check_livekit(settings: object) -> None:
         report("FAIL", "LiveKit", _short(exc))
 
 
+def check_app_passes(settings: object) -> None:
+    if not settings.app_pass_key_files:  # type: ignore[attr-defined]
+        report("WARN", "app passes", "APP_PASS_PUBLIC_KEYS not set: the app's /app endpoints answer 503")
+        return
+    from app.mobile import passes
+
+    try:
+        keys = passes.public_keys(settings)  # type: ignore[arg-type]
+        report("PASS", "app passes", f"public key(s) loaded: {', '.join(sorted(keys))}")
+    except Exception as exc:
+        report("FAIL", "app passes", _short(exc))
+
+
 def check_email(settings: object) -> None:
     if not settings.graph_configured:  # type: ignore[attr-defined]
         report("WARN", "email (Graph)", "off: invitations and reset emails wait in the outbox")
@@ -238,6 +251,7 @@ def main() -> int:
         check_migrations(settings)
         check_recordings(settings)
         check_livekit(settings)
+        check_app_passes(settings)
         check_email(settings)
         check_exports(settings)
     failed = RESULTS.count("FAIL")
