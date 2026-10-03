@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      # Same major version as production (MySQL 8.4 on RDS). A throwaway database: tests drop and recreate it.
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    env:
+      TEST_DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/nudgeai_test?charset=utf8mb4
+      DATABASE_URL: mysql+pymysql://root:root@127.0.0.1:3306/nudgeai_test?charset=utf8mb4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - run: pip install -r requirements.lock
+      - name: Lint
+        run: ruff check . && ruff format --check .
+      - name: Types
+        run: mypy app
+      - name: Tests (migrations build the full schema, then the suite runs)
+        run: pytest -q

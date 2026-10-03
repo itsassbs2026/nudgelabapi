@@ -1,0 +1,17 @@
+# Phase 1 — API foundation (SPEC §3.1).
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+sqlalchemy>=2.0
+pymysql
+cryptography  # PyMySQL needs it for MySQL 8's caching_sha2_password logins
+alembic
+structlog
+
+# Dev / CI.
+pytest
+httpx
+ruff
+mypy
+types-PyMySQL
