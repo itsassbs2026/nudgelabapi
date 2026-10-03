@@ -21,9 +21,8 @@ database anyway). The only schema change in this deploy is step 6, which only **
 
 ## Before you start (you)
 
-1. **Two open questions** (SPEC §16):
-   - Is the pingitapi server's role, `Prime-nudgeapi-ec2-role`, in the same AWS account as the `nudgeailab`
-     bucket? If not, step 3 also needs the bucket policy.
+1. **One open question** (SPEC §16). (The other is settled: the role and the bucket are both in account
+   825245835842, so step 2 needs no bucket policy.)
    - Which host pattern does pingit's database login use? Check on RDS:
      `SELECT user, host FROM mysql.user WHERE user LIKE 'pingit%';` and use the same pattern for the NudgeLab
      logins (the SQL files assume `204.236.179.185`).
