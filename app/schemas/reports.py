@@ -132,6 +132,21 @@ class VersionRow(BaseModel):
     completions: int
 
 
+class RoundCount(BaseModel):
+    rounds: int
+    trainees: int
+
+
+class SessionCount(BaseModel):
+    sessions: int
+    trainees: int
+
+
+class AttemptsOut(BaseModel):
+    quiz_rounds: list[RoundCount]  # trainees by the number of quiz rounds they've started
+    sessions_per_trainee: list[SessionCount]
+
+
 class TrainingDetailOut(BaseModel):
     training_id: str
     title: str | None
@@ -145,6 +160,7 @@ class TrainingDetailOut(BaseModel):
     ratings: RatingsOut
     reviews: ReviewsOut
     versions: list[VersionRow]
+    attempts: AttemptsOut
 
 
 class QuestionStat(BaseModel):
@@ -302,6 +318,18 @@ class FeedbackItem(BaseModel):
     rating: int | None
     comment: str | None
     created_at: datetime | None
+
+
+class RatingPoint(BaseModel):
+    week: date  # Monday, in the user's time zone
+    training_id: str
+    title: str | None
+    average: float
+    count: int
+
+
+class RatingTrendOut(BaseModel):
+    points: list[RatingPoint]
 
 
 class FeedbackPage(BaseModel):
@@ -596,6 +624,22 @@ class SearchOut(BaseModel):
     sessions: list[SearchSession]
     trainings: list[SearchTraining]
     stores: list[SearchStore]
+
+
+class LiveRoom(BaseModel):
+    room: str
+    training_id: str
+    training_title: str | None
+    uid: int
+    name: str | None
+    participants: int
+    started_at: datetime | None
+    is_test: bool
+
+
+class LiveOut(BaseModel):
+    configured: bool  # false until the API has LiveKit settings
+    rooms: list[LiveRoom]
 
 
 SessionDetail.model_rebuild()  # QualityState is defined after it

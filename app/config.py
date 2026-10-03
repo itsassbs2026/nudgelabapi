@@ -59,6 +59,11 @@ class Settings(BaseSettings):
     recording_url_seconds: int = 300
     recording_retention_days: int = 90
 
+    # Live sessions on the Overview (SPEC §7.2): LiveKit's room list, read-only. Off until all three are set.
+    livekit_url: str | None = None
+    livekit_api_key: str | None = None
+    livekit_api_secret: str | None = None
+
     # Exports (SPEC §7.2): CSV streams straight back; XLSX is built by the worker into EXPORT_DIR (on the API
     # server's own disk, shared by the API and the worker) and deleted after EXPORT_KEEP_HOURS.
     export_dir: str = "var/exports"
@@ -68,6 +73,10 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @property
+    def livekit_configured(self) -> bool:
+        return bool(self.livekit_url and self.livekit_api_key and self.livekit_api_secret)
 
     @property
     def is_prod(self) -> bool:

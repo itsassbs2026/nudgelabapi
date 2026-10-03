@@ -1943,6 +1943,221 @@
         }
       }
     },
+    "/api/v1/reports/rating-trend": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Get Rating Trend",
+        "operationId": "get_rating_trend_api_v1_reports_rating_trend_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            }
+          },
+          {
+            "name": "training_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Training Id"
+            }
+          },
+          {
+            "name": "completion_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(quiz|walkthrough|acknowledgment)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Completion Type"
+            }
+          },
+          {
+            "name": "region_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Region Id"
+            }
+          },
+          {
+            "name": "market_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Market Id"
+            }
+          },
+          {
+            "name": "district_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "District Id"
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Store Id"
+            }
+          },
+          {
+            "name": "profile_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Profile Id"
+            }
+          },
+          {
+            "name": "voice_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Voice Id"
+            }
+          },
+          {
+            "name": "include_bots",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Bots"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RatingTrendOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/cost": {
       "get": {
         "tags": [
@@ -3086,6 +3301,55 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/live": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Live Sessions",
+        "description": "Training calls in progress right now (names and trainings only). Test calls are Admin-only.",
+        "operationId": "live_sessions_api_v1_live_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_bots",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Bots"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveOut"
                 }
               }
             }
@@ -4533,6 +4797,30 @@
           "page_size"
         ],
         "title": "AssignmentPage"
+      },
+      "AttemptsOut": {
+        "properties": {
+          "quiz_rounds": {
+            "items": {
+              "$ref": "#/components/schemas/RoundCount"
+            },
+            "type": "array",
+            "title": "Quiz Rounds"
+          },
+          "sessions_per_trainee": {
+            "items": {
+              "$ref": "#/components/schemas/SessionCount"
+            },
+            "type": "array",
+            "title": "Sessions Per Trainee"
+          }
+        },
+        "type": "object",
+        "required": [
+          "quiz_rounds",
+          "sessions_per_trainee"
+        ],
+        "title": "AttemptsOut"
       },
       "AuditEntryOut": {
         "properties": {
@@ -6036,6 +6324,97 @@
         ],
         "title": "IssueCount"
       },
+      "LiveOut": {
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "title": "Configured"
+          },
+          "rooms": {
+            "items": {
+              "$ref": "#/components/schemas/LiveRoom"
+            },
+            "type": "array",
+            "title": "Rooms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "configured",
+          "rooms"
+        ],
+        "title": "LiveOut"
+      },
+      "LiveRoom": {
+        "properties": {
+          "room": {
+            "type": "string",
+            "title": "Room"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "training_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Training Title"
+          },
+          "uid": {
+            "type": "integer",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "participants": {
+            "type": "integer",
+            "title": "Participants"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "is_test": {
+            "type": "boolean",
+            "title": "Is Test"
+          }
+        },
+        "type": "object",
+        "required": [
+          "room",
+          "training_id",
+          "training_title",
+          "uid",
+          "name",
+          "participants",
+          "started_at",
+          "is_test"
+        ],
+        "title": "LiveRoom"
+      },
       "LoginRequest": {
         "properties": {
           "email": {
@@ -6711,6 +7090,63 @@
         ],
         "title": "QuestionsOut"
       },
+      "RatingPoint": {
+        "properties": {
+          "week": {
+            "type": "string",
+            "format": "date",
+            "title": "Week"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "average": {
+            "type": "number",
+            "title": "Average"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "week",
+          "training_id",
+          "title",
+          "average",
+          "count"
+        ],
+        "title": "RatingPoint"
+      },
+      "RatingTrendOut": {
+        "properties": {
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/RatingPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "points"
+        ],
+        "title": "RatingTrendOut"
+      },
       "RatingsOut": {
         "properties": {
           "distribution": {
@@ -6937,6 +7373,24 @@
         ],
         "title": "ReviewsOut"
       },
+      "RoundCount": {
+        "properties": {
+          "rounds": {
+            "type": "integer",
+            "title": "Rounds"
+          },
+          "trainees": {
+            "type": "integer",
+            "title": "Trainees"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rounds",
+          "trainees"
+        ],
+        "title": "RoundCount"
+      },
       "SearchEmployee": {
         "properties": {
           "uid": {
@@ -7128,6 +7582,24 @@
           "title"
         ],
         "title": "SearchTraining"
+      },
+      "SessionCount": {
+        "properties": {
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions"
+          },
+          "trainees": {
+            "type": "integer",
+            "title": "Trainees"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessions",
+          "trainees"
+        ],
+        "title": "SessionCount"
       },
       "SessionDetail": {
         "properties": {
@@ -8310,6 +8782,9 @@
             },
             "type": "array",
             "title": "Versions"
+          },
+          "attempts": {
+            "$ref": "#/components/schemas/AttemptsOut"
           }
         },
         "type": "object",
@@ -8325,7 +8800,8 @@
           "topics",
           "ratings",
           "reviews",
-          "versions"
+          "versions",
+          "attempts"
         ],
         "title": "TrainingDetailOut"
       },

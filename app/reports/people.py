@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_, case, func, or_, select
 from sqlalchemy.orm import Session
@@ -367,3 +369,38 @@ def assignments_list(
         "page": page,
         "page_size": page_size,
     }
+
+
+def rating_trend(db: Session, f: ReportFilters) -> dict[str, Any]:
+    """Average rating per training per week (weeks start on Monday, in the user's time zone), for the
+    Feedback page's trend chart. Same sessions as the feedback list: the period, the filters, no test
+    calls."""
+    s = training_sessions.c
+    fb = training_feedback.c
+    tz = ZoneInfo(f.timezone)
+    buckets: dict[tuple[str, str], list[int]] = defaultdict(list)
+    titles: dict[str, str | None] = {}
+    for training_id, title, rating, created_at, started_at in db.execute(
+        select(s.training_id, trainings.c.title, fb.rating, fb.created_at, s.started_at)
+        .select_from(
+            training_sessions.join(training_feedback, fb.session_id == s.session_id).outerjoin(
+                trainings, trainings.c.training_id == s.training_id
+            )
+        )
+        .where(fb.rating.is_not(None), *session_conditions(f))
+    ):
+        day = metrics.local_day(created_at or started_at, tz)
+        week = (day - timedelta(days=day.weekday())).isoformat()
+        buckets[(week, training_id)].append(int(rating))
+        titles[training_id] = title
+    points = [
+        {
+            "week": week,
+            "training_id": training_id,
+            "title": titles.get(training_id),
+            "average": round(sum(ratings) / len(ratings), 2),
+            "count": len(ratings),
+        }
+        for (week, training_id), ratings in sorted(buckets.items())
+    ]
+    return {"points": points}

@@ -281,3 +281,23 @@ def test_search(client: TestClient, trainer_headers: dict[str, str], db_session:
     assert [s["session_id"] for s in find("3fa85f64")["sessions"]] == ["3fa85f64-5717-4562-b3fc-2c963f66afa6"]
     short = client.get("/api/v1/search", headers=trainer_headers, params={"q": "a"})
     assert short.status_code == 422
+
+
+# -- Phase 7 additions ---------------------------------------------------------------------------------------
+
+
+def test_training_attempts(client: TestClient, trainer_headers: dict[str, str], data: None) -> None:
+    a = get(client, trainer_headers, "/reports/trainings/big4")["attempts"]
+    # Cohort 1001, 1002, 1003: 1001 and 1003 reached quiz round 2; 1002 never answered.
+    assert a["quiz_rounds"] == [{"rounds": 2, "trainees": 2}]
+    # Sessions so far (bot sessions left out): 1001 two, 1002 two (one in August), 1003 one.
+    assert a["sessions_per_trainee"] == [{"sessions": 1, "trainees": 1}, {"sessions": 2, "trainees": 2}]
+
+
+def test_rating_trend(client: TestClient, trainer_headers: dict[str, str], data: None) -> None:
+    points = get(client, trainer_headers, "/reports/rating-trend")["points"]
+    # Ratings on Sat Sep 5 (week of Mon Aug 31) and Thu Sep 10 (week of Mon Sep 7), Chicago time.
+    assert [(p["week"], p["training_id"], p["average"], p["count"]) for p in points] == [
+        ("2026-08-31", "big4", 9.0, 1),
+        ("2026-09-07", "big4", 5.0, 1),
+    ]

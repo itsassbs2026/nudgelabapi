@@ -43,6 +43,8 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE"],
         allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+        # The dashboard is on another origin: without this it can't read export file names.
+        expose_headers=["Content-Disposition", "X-Request-ID"],
     )
     app.add_middleware(SlowAPIMiddleware)
 

@@ -67,3 +67,11 @@
 - `scripts/e2e_seed.py` builds the throwaway local database the dashboard's Playwright tests use (refuses
   anything that isn't a local `*_e2e` database).
 - Tests: 218.
+
+## Phase 7 — for the dashboard reports (2026-10-03)
+
+- Training detail now includes `attempts` (quiz rounds and sessions per trainee).
+- `GET /reports/rating-trend` (weekly average rating per training) and `GET /live` (calls in progress, from
+  LiveKit; new dependency `livekit-api`).
+- CORS exposes `Content-Disposition` (export file names).
+- Tests: 231.

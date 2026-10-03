@@ -145,3 +145,18 @@ Recorded as they're made (SPEC §0.2). Newest last.
     recordings).
 45. **`openapi.json` is committed** so the dashboard can regenerate its types without running the API. Re-export it
     with `scripts/export_openapi.py` after any API change.
+
+## Phase 7 — for the dashboard reports (2026-10-03)
+
+46. **Retries per trainee** (SPEC §7.2 Training detail) are part of `GET /reports/trainings/{id}` as `attempts`:
+    for the same cohort as the funnel, how many quiz rounds each trainee has started, and how many sessions
+    they've had for the training so far (all time, test sessions left out). Counted from `quiz_answers` and
+    `training_sessions`, not from `training_progress.sessions_count`, which the agent may not have set.
+47. **`GET /reports/rating-trend`** (Feedback page, "rating trend per training"): the average rating per training
+    per week, weeks starting Monday in the user's time zone, over the same sessions as the feedback list.
+48. **`GET /live`** (Overview, "live sessions now"): LiveKit's room list, read-only, with a 5-second timeout (503
+    `live_unavailable` on failure). Rooms named `nl-<training>-<uid>-<tag>` are training calls; tags starting with
+    `bot` are tests, shown to Admins only on request. Names, trainings and start times only. Off
+    (`configured: false`) until `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` are set; the owner adds
+    them to the server's `.env` (the same values as the agent's).
+49. **CORS exposes `Content-Disposition`** so the dashboard (another origin) can read export file names.

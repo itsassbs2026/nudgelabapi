@@ -9,10 +9,11 @@ from datetime import datetime
 from statistics import median
 from typing import Any
 
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.reference.agent_tables import (
+    EXCLUDED_CLIENTS,
     quiz_answers,
     session_reviews,
     session_topic_events,
@@ -139,6 +140,37 @@ def time_per_topic(db: Session, f: ReportFilters) -> dict[int, dict[str, Any]]:
     }
 
 
+def attempts(
+    db: Session, f: ReportFilters, training_id: str, members: list[metrics.CohortMember]
+) -> dict[str, list[dict[str, int]]]:
+    """Retries per trainee (SPEC §7.2), for the same cohort as the funnel: how many quiz rounds each one has
+    started, and how many sessions they've had for this training so far (test sessions left out)."""
+    uids = sorted({m.uid for m in members})
+    if not uids:
+        return {"quiz_rounds": [], "sessions_per_trainee": []}
+    qa = quiz_answers.c
+    rounds = Counter(
+        int(n)
+        for (n,) in db.execute(
+            select(func.max(qa.round)).where(qa.training_id == training_id, qa.uid.in_(uids)).group_by(qa.uid)
+        )
+    )
+    s = training_sessions.c
+    not_bots = [] if f.include_bots else [or_(s.client.is_(None), s.client.not_in(EXCLUDED_CLIENTS))]
+    sessions = Counter(
+        int(n)
+        for (n,) in db.execute(
+            select(func.count())
+            .where(s.training_id == training_id, s.uid.in_(uids), *not_bots)
+            .group_by(s.uid)
+        )
+    )
+    return {
+        "quiz_rounds": [{"rounds": k, "trainees": rounds[k]} for k in sorted(rounds)],
+        "sessions_per_trainee": [{"sessions": k, "trainees": sessions[k]} for k in sorted(sessions)],
+    }
+
+
 def training_detail(db: Session, f: ReportFilters, training_id: str) -> dict[str, Any]:
     t = _training_row(db, training_id)
     tf = replace(f, training_id=training_id)
@@ -248,6 +280,7 @@ def training_detail(db: Session, f: ReportFilters, training_id: str) -> dict[str
 
     act = metrics.activity(db, tf)
     return {
+        "attempts": attempts(db, tf, training_id, members),
         "training_id": t.training_id,
         "title": t.title,
         "completion_type": t.completion_type,

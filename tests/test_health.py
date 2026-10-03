@@ -22,3 +22,9 @@ def test_unknown_route_uses_the_error_shape(client: TestClient) -> None:
     response = client.get("/api/v1/does-not-exist")
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "not_found"
+
+
+def test_cors_lets_the_dashboard_read_export_file_names(client: TestClient) -> None:
+    response = client.get("/api/v1/health", headers={"Origin": "http://localhost:5173"})
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+    assert "Content-Disposition" in response.headers["access-control-expose-headers"]

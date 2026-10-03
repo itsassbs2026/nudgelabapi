@@ -47,6 +47,8 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/sessions/{session_id}", None, True),
     ("POST", "/api/v1/sessions/{session_id}/recording-url", None, True),
     ("GET", "/api/v1/search?q=ab", None, True),
+    ("GET", "/api/v1/live", None, True),
+    ("GET", "/api/v1/reports/rating-trend", None, True),
     ("GET", "/api/v1/quality", None, True),
     ("PATCH", "/api/v1/quality/{session_id}", {}, True),
     ("POST", "/api/v1/exports", {"report": "daily", "format": "csv"}, True),
