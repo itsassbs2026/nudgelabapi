@@ -58,3 +58,12 @@
 - The session timeline labels dropped connections, reconnects and timeouts (logged by the agent since
   nudgelab 4b86529).
 - Tests: 214 (51 new), including a check that every export matches its screen and a collation guard.
+
+## Phase 6 — for the dashboard shell (2026-10-03)
+
+- `GET /search?q=` for the dashboard's ⌘K palette: employees (name or uid), sessions (id prefix), trainings and
+  stores. LIKE wildcards in the search text are escaped.
+- `scripts/export_openapi.py` writes `openapi.json` (committed) for the dashboard's generated types.
+- `scripts/e2e_seed.py` builds the throwaway local database the dashboard's Playwright tests use (refuses
+  anything that isn't a local `*_e2e` database).
+- Tests: 218.

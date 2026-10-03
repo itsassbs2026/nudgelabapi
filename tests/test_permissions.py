@@ -46,6 +46,7 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/sessions", None, True),
     ("GET", "/api/v1/sessions/{session_id}", None, True),
     ("POST", "/api/v1/sessions/{session_id}/recording-url", None, True),
+    ("GET", "/api/v1/search?q=ab", None, True),
     ("GET", "/api/v1/quality", None, True),
     ("PATCH", "/api/v1/quality/{session_id}", {}, True),
     ("POST", "/api/v1/exports", {"report": "daily", "format": "csv"}, True),
@@ -70,7 +71,7 @@ def test_every_route_is_in_the_matrix() -> None:
     routes = set()
     for path, ops in app.openapi()["paths"].items():
         routes |= {(m.upper(), path) for m in ops}
-    covered = PUBLIC | {(m, p) for m, p, _, _ in PROTECTED}
+    covered = PUBLIC | {(m, p.split("?")[0]) for m, p, _, _ in PROTECTED}
     assert routes == covered, f"not covered: {routes - covered}; stale: {covered - routes}"
 
 

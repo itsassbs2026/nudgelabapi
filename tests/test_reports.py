@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from tests.agent_data import add_assignments, seed
+from tests.agent_data import T, add_assignments, insert, seed
 
 SEPT = {"date_from": "2026-09-01", "date_to": "2026-09-30"}
 
@@ -252,3 +252,32 @@ def test_assignments(
     overdue = get(client, trainer_headers, "/assignments", state="overdue")
     assert overdue["total"] == 1 and overdue["items"][0]["name"] == "Trainee 1002"
     assert get(client, trainer_headers, "/assignments", region_id=1)["total"] == 2
+
+
+# -- quick search (⌘K) ---------------------------------------------------------------------------------------
+
+
+def test_search(client: TestClient, trainer_headers: dict[str, str], db_session: Session, data: None) -> None:
+    def find(q: str) -> Any:
+        response = client.get("/api/v1/search", headers=trainer_headers, params={"q": q})
+        assert response.status_code == 200, response.text
+        return response.json()
+
+    assert [e["uid"] for e in find("Trainee 100")["employees"]] == [1001, 1002, 1003, 1004, 1005]
+    assert [e["uid"] for e in find("1003")["employees"]] == [1003]
+    assert find("big")["trainings"] == [{"training_id": "big4", "title": "The Big 4"}]
+    assert [s["store_id"] for s in find("Store S")["stores"]] == ["S1", "S2", "S3"]
+    assert find("50%")["employees"] == []  # LIKE wildcards are escaped
+    insert(
+        db_session,
+        "training_sessions",
+        session_id="3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        uid=1001,
+        training_id="big4",
+        room_name="room-uuid",
+        started_at=T(7),
+        start_point="new",
+    )
+    assert [s["session_id"] for s in find("3fa85f64")["sessions"]] == ["3fa85f64-5717-4562-b3fc-2c963f66afa6"]
+    short = client.get("/api/v1/search", headers=trainer_headers, params={"q": "a"})
+    assert short.status_code == 422

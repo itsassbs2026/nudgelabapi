@@ -565,4 +565,37 @@ class ExportJob(BaseModel):
     finished_at: datetime | None
 
 
+class SearchEmployee(BaseModel):
+    uid: int
+    name: str | None
+    store_name: str | None
+    is_active: bool
+
+
+class SearchSession(BaseModel):
+    session_id: str
+    started_at: datetime
+    uid: int
+    name: str | None
+    training_title: str | None
+
+
+class SearchTraining(BaseModel):
+    training_id: str
+    title: str | None
+
+
+class SearchStore(BaseModel):
+    store_id: str
+    store_name: str | None
+    district_id: int | None
+
+
+class SearchOut(BaseModel):
+    employees: list[SearchEmployee]
+    sessions: list[SearchSession]
+    trainings: list[SearchTraining]
+    stores: list[SearchStore]
+
+
 SessionDetail.model_rebuild()  # QualityState is defined after it

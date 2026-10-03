@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, get_user
 from app.db import get_db
-from app.reports import cost, drilldown, options, overview, people, trainings
+from app.reports import cost, drilldown, options, overview, people, search, trainings
 from app.reports.filters import ReportFilters, report_filters
 from app.schemas.reports import (
     AcknowledgmentPage,
@@ -24,6 +24,7 @@ from app.schemas.reports import (
     FilterOptions,
     OverviewOut,
     QuestionsOut,
+    SearchOut,
     TrainingDetailOut,
     TrainingsOut,
 )
@@ -127,3 +128,13 @@ def get_assignments(
     db: Session = Depends(get_db),
 ) -> Any:
     return people.assignments_list(db, f, state=state, page=page, page_size=page_size)
+
+
+@router.get("/search", response_model=SearchOut)
+def quick_search(
+    q: str = Query(min_length=2, max_length=100),
+    _: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """The ⌘K palette: employees by name or uid, sessions by id prefix, trainings and stores by name."""
+    return search.search(db, q)

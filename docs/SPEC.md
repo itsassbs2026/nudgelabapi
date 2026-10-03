@@ -455,7 +455,7 @@ Both servers deploy by **`git pull`** from GitHub, never by copying files over S
 - [x] **Phase 3 — Metrics & report API:** `metrics.py` (Section 5), global filters, overview, trainings, training detail, questions, drill-down, employee, cost, feedback, acknowledgments, assignments (from `training_assignments`). *Accept:* every metric has a unit test against fixture data; p95 < 1.5 s on a prod-sized copy; bot sessions excluded by default. *(Done 2026-10-03; the p95 check waits for a production-sized copy, DECISIONS #28.)*
 - [x] **Phase 4 — Sessions & recordings:** session list and detail (transcript, events, review, usage), presigned recording URL, audit logging. *Accept:* a Trainer can play a recording; the audit log shows it; URLs expire. *(Done 2026-10-03 against mocked S3; the first real playback is checked after deploy, DECISIONS #32.)*
 - [x] **Phase 5 — Quality queue & exports:** `review_queue`, CSV/XLSX exports (streamed / job), audit. *Accept:* exports match on-screen figures; large exports don't time out. *(Done 2026-10-03.)*
-- [ ] **Phase 6 — Dashboard shell & auth:** Vite app, layout, theming, login, refresh on load, route guards, global filters in the URL, ⌘K. *Accept:* Playwright: log in, navigate, log out.
+- [x] **Phase 6 — Dashboard shell & auth:** Vite app, layout, theming, login, refresh on load, route guards, global filters in the URL, ⌘K. *Accept:* Playwright: log in, navigate, log out. *(Done 2026-10-03; the smoke tests run locally against the real API, dashboard DECISIONS #8. The Admin Users and Audit log pages have no phase yet: see Open Items.)*
 - [ ] **Phase 7 — Dashboard reports:** Overview, Trainings, Training detail, Drill-down, Employee, Feedback, Cost, Compliance. *Accept:* figures match the API; drill-down scope persists across pages.
 - [ ] **Phase 8 — Session viewer & quality queue UI:** synced player and transcript, timeline markers, review panel, queue actions, saved views. *Accept:* clicking a transcript line seeks the audio; flagged sessions can be worked end to end.
 - [ ] **Phase 9 — Deploy Stage 1:** deploy keys and `git pull` deploy scripts, Nginx sites, certificates, systemd, preflight script, new DB logins and grants, IAM policy, DNS (Route 53, by the owner), `alembic stamp` baseline on prod, smoke test. *Accept:* the owner logs in at `nudgelab.myprimeportal.com` and sees real data.
@@ -481,6 +481,7 @@ Also resolved: the pingitapi server's role is `Prime-nudgeapi-ec2-role` (policie
 Still open (`⚠ CONFIRM`):
 1. Is `Prime-nudgeapi-ec2-role` in the **same AWS account as the `nudgeailab` bucket**? If not, the bucket also needs a bucket policy allowing that role (Stage 1), and Claude on Bedrock must be enabled in the role's account (Stage 2).
 2. The database host pattern for the new logins: `204.236.179.185`, or the same pattern pingit's login uses (see the note in `deploy/db-logins.sql`).
+3. **Admin pages in the dashboard** (Users, Audit log; the API side is done in Phase 2): no phase in this list builds their screens. Suggested: Phase 8, before the Stage 1 deploy, so the owner can create trainer accounts from the dashboard.
 
 ---
 

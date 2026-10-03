@@ -136,3 +136,12 @@ Recorded as they're made (SPEC §0.2). Newest last.
 43. **Collations:** the API's tables take the database's default collation, so it must equal the agent tables'
     (`utf8mb4_0900_ai_ci` on production, checked 2026-10-03) or joins like `review_queue` → `training_sessions`
     fail. The test database is created the same way, and a schema test fails if they ever differ.
+
+## Phase 6 — for the dashboard shell (2026-10-03)
+
+44. **`GET /search` for ⌘K** (SPEC §13 asks to "jump to an employee, a session id or a training"): up to 8
+    employees (active first), 5 sessions, 5 trainings and 5 active stores. Session search only runs for text that
+    looks like part of a session id. Trainers and Admins; not audit logged (it returns names, not transcripts or
+    recordings).
+45. **`openapi.json` is committed** so the dashboard can regenerate its types without running the API. Re-export it
+    with `scripts/export_openapi.py` after any API change.
