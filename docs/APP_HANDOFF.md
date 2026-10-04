@@ -167,6 +167,8 @@ new path is used by testers only, with NudgeLab trainings. NudgeLab never reads 
 
 ## 5. Flutter app
 
+Full guide for the app developer: `docs/FLUTTER_APP_GUIDE.md`. In short:
+
 1. Right after login: `POST /v1/nudge/token` (Wanaka), keep the pass in memory with its expiry, and load the
    badge (`GET /app/v1/trainings/pending-count`) wherever the app loads it today (app start, resume, home).
    Before any `/app` call: if the pass expires within a minute, get a new one first; on a 401 from
