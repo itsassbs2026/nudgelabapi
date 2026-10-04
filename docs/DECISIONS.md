@@ -230,7 +230,8 @@ Recorded as they're made (SPEC §0.2). Newest last.
     not retired and published. The badge counts the same rows (required, not completed), so the two can't
     disagree, unlike the old procedures.
 67. **Profile through a view** (`vw_app_profile`, definer's rights): the API still has no grant on `v_users`.
-    The district manager is `v_users.district_id` read as a uid, as in Wanaka's procedure.
+    The district manager is `v_users.district_id` read as a uid, as in Wanaka's procedure. Checked by the owner on
+    2026-10-04 (counts of missing, inactive, non-DM titles and other-district DMs, plus spot checks): correct.
 68. **`assignment_month`** is the current month in `DEFAULT_TIMEZONE`; Wanaka used the month of its latest sales
     data, which assignments here don't depend on.
 69. **Rate limits per uid, not per IP** (60 reads and 6 session starts a minute by default): many employees share a
