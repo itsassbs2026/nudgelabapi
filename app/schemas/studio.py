@@ -237,3 +237,19 @@ class JobView(BaseModel):
     created_at: datetime
     started_at: datetime | None
     finished_at: datetime | None
+
+
+class Issue(BaseModel):
+    where: str
+    message: str
+    topic: int | None = None
+    line_key: str | None = None
+    question: int | None = None
+    section: str | None = None
+
+
+class ValidationOut(BaseModel):
+    """SPEC 10.4: errors block publishing, warnings don't."""
+
+    errors: list[Issue]
+    warnings: list[Issue]

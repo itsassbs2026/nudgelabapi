@@ -32,6 +32,7 @@ from app.services.audit import AuditAction
 from app.studio import prepare
 from app.studio.blank import blank_content
 from app.studio.diff import diff
+from app.studio.validate import validate
 from app.utils.errors import ApiError
 
 DRAFT = "draft"
@@ -370,7 +371,7 @@ def save_content(
     row = _version(db, version_id)
     if row.status != DRAFT:
         raise ApiError(409, "not_a_draft", "Only a draft can be edited. Make a new draft from this version.")
-    document = content.model_dump(mode="json", exclude_unset=True)
+    document = without_nulls(content.model_dump(mode="json", exclude_unset=True))
     if len(json.dumps(document, ensure_ascii=False).encode()) > MAX_CONTENT_BYTES:
         raise ApiError(413, "content_too_large", "The training is too large to save.")
     v = training_versions.c
@@ -396,6 +397,37 @@ def save_content(
         )
     db.commit()
     return version_summary(db, version_id)
+
+
+def without_nulls(document: dict[str, Any]) -> dict[str, Any]:
+    """Drop explicit nulls where the agent reads "missing" and "null" differently.
+
+    In training.json, a missing `completion_type` means "quiz" but a null one is an error to the agent; the
+    same goes for the other settings, a line's `locations`, and a question's fields when it has `variants`.
+    Only the top-level `quiz` and `vocabulary` keep null: it means "none", as the agent's export writes them.
+    """
+    training = document.get("training")
+    if isinstance(training, dict):
+        document["training"] = {k: v for k, v in training.items() if v is not None}
+    knowledge_base = document.get("knowledge_base") or {}
+    lines = [*knowledge_base.get("preamble", [])]
+    for topic in knowledge_base.get("topics", []):
+        lines.extend(topic.get("lines", []))
+    for line in lines:
+        if line.get("locations") is None:
+            line.pop("locations", None)
+    for question in (document.get("quiz") or {}).get("questions", []):
+        for key in [k for k, v in question.items() if v is None]:
+            del question[key]
+    return document
+
+
+def validate_version(db: Session, version_id: int) -> dict[str, Any]:
+    row = _version(db, version_id)
+    if row.content is None:
+        raise ApiError(422, "no_content", "This version has no content to check.")
+    training = _training(db, row.training_id)
+    return validate(_json(row.content), completion_key=training.completion_key)
 
 
 def version_diff(db: Session, from_id: int, to_id: int) -> dict[str, Any]:

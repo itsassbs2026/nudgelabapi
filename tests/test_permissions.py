@@ -86,6 +86,7 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("POST", "/api/v1/versions/{version_id}/prepare", None, True),
     ("GET", "/api/v1/versions/{version_id}/prepare", None, True),
     ("GET", "/api/v1/jobs/{job_id}", None, True),
+    ("POST", "/api/v1/versions/{version_id}/validate", None, True),
 ]
 
 

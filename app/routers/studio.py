@@ -28,6 +28,7 @@ from app.schemas.studio import (
     UploadPresignOut,
     UploadSummary,
     UploadText,
+    ValidationOut,
     VersionContent,
     VersionCreate,
     VersionDiff,
@@ -112,6 +113,14 @@ def save_content(
     db: Session = Depends(get_db),
 ) -> Any:
     return service.save_content(db, current, version_id, body.revision, body.content)
+
+
+@router.post("/versions/{version_id}/validate", response_model=ValidationOut)
+def validate_version(
+    version_id: int = VersionId, _: CurrentUser = Depends(get_user), db: Session = Depends(get_db)
+) -> Any:
+    """The publish checks (SPEC 10.4) on the version as saved. Errors block publishing; warnings don't."""
+    return service.validate_version(db, version_id)
 
 
 @router.get("/versions/{from_id}/diff/{to_id}", response_model=VersionDiff)

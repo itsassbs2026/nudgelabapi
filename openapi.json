@@ -4880,6 +4880,55 @@
         }
       }
     },
+    "/api/v1/versions/{version_id}/validate": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Validate Version",
+        "description": "The publish checks (SPEC 10.4) on the version as saved. Errors block publishing; warnings don't.",
+        "operationId": "validate_version_api_v1_versions__version_id__validate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/versions/{from_id}/diff/{to_id}": {
       "get": {
         "tags": [
@@ -7458,6 +7507,68 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Issue": {
+        "properties": {
+          "where": {
+            "type": "string",
+            "title": "Where"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          },
+          "line_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line Key"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question"
+          },
+          "section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
+          }
+        },
+        "type": "object",
+        "required": [
+          "where",
+          "message"
+        ],
+        "title": "Issue"
       },
       "IssueCount": {
         "properties": {
@@ -12293,6 +12404,31 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "ValidationOut": {
+        "properties": {
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "type": "array",
+            "title": "Errors"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "errors",
+          "warnings"
+        ],
+        "title": "ValidationOut",
+        "description": "SPEC 10.4: errors block publishing, warnings don't."
       },
       "VersionContent": {
         "properties": {
