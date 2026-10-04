@@ -152,3 +152,14 @@
 - Migration `0007_trainer_persona`: `trainer_name`, `voice_id` on `app_session_starts`; `trainer_name` on
   `training_sessions` (for the agent, step 2).
 - Flutter guide and APP_HANDOFF updated.
+
+## Trainer persona, steps 2–3: agent and content (2026-10-04, live)
+
+- Agent (nudgelab `011f12f`, `f605e02`, deployed 03:10 UTC): `trainer_name` from the token fills the rules, lines
+  and opening; says it's an AI voice trainer if asked; records `training_sessions.trainer_name`. A test now imports
+  agent.py and checks for undefined names (a missing import was caught before deploy).
+- Content: the four trainings republished with `{trainer_name}` in `first_message` (Big 4 v20, Q4 v21, samples
+  v22/v23).
+- Bot checks on production: no name → "I'm Anne", recorded Anne/Matthew; `Dana` + `Ruth` → "I'm Dana", in
+  Ruth's voice, answers "are you really Dana?" with "I'm an AI voice trainer for Prime Communications…", recorded
+  Dana/Ruth. uid 3784's sample progress restored after; 0 agent errors since the deploy.
