@@ -256,6 +256,20 @@ changes (you, in the console). The agent isn't touched.
 4. After the IAM change: `venv/bin/python scripts/check_prepare.py` → `PASS S3 ...` and `PASS Bedrock ...`
    (a tiny real preparation, about a cent).
 
+## Phase 14: voices, setups and testers
+
+One migration (`0009_testers`, a new table), one grants file, then the agent's tester page moves to the table.
+
+1. `bash deploy/deploy.sh` → stops at the migration → review
+   `venv/bin/alembic upgrade 0008_content_uploads:0009_testers --sql` (one `CREATE TABLE testers`) →
+   `venv/bin/alembic upgrade head`.
+2. As an admin on RDS: `deploy/db-grants-0009-admin.sql` (the API: testers, and column-level updates on voices
+   and setups; the agent: SELECT on testers).
+3. `bash deploy/deploy.sh` again, then the preflight (`PASS API table testers`). Deploy the dashboard.
+4. On the dashboard, Admin > Testers > *Import testers.json* with the file from the agent server.
+5. Agent server: copy the new `web.py`, restart **only** `nudgelab-web` (not the agent), sign in on the tester
+   page with an existing code, then `mv testers.json testers.json.retired`.
+
 ## Where things are
 
 | | |
