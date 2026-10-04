@@ -307,3 +307,12 @@ Recorded as they're made (SPEC §0.2). Newest last.
     one it started from; otherwise it fails and keeps its result in the job.
 93. **Bedrock from the API server goes to us-east-1** (`BEDROCK_REGION`, the `us.` inference profile, as the
     agent): the pingitapi server is in us-west-1, where the model isn't served directly.
+
+## Phase 13 — Training studio (API part, 2026-10-04)
+
+94. **Validation is the API's, not the dashboard's**: Phase 16's publish enforces the same function. Errors and
+    warnings are SPEC 10.4's, with two refinements from the live trainings: a quiz question may have **two or
+    three** options (Q4 comp has true/false questions), and the welcome line should use `{trainer_name}`.
+95. **Saves drop explicit nulls in training settings and lines**: to the agent a missing `completion_type` means
+    "quiz" but a null one is an error, so a client sending nulls must not be able to break a training. Only the
+    top-level `quiz` and `vocabulary` keep null ("none").

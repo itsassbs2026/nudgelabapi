@@ -183,3 +183,11 @@
 - Live 2026-10-04: migration 0008 and the uploads grant on production, `f30c702` deployed; IAM stage 2 policy,
   bucket lifecycle (`training-content/prod/pending/`, 1 day) and CORS (POST from the dashboard) set by the
   owner; preflight 26/26 with the uploads table; `check_prepare.py`: S3 and Bedrock pass from the server's role.
+
+## Phase 13 — Training studio (API part, 2026-10-04)
+
+- `POST /versions/{id}/validate`: the publish checks (SPEC 10.4) as errors and warnings, each pointing at a topic,
+  line, question or section. All four live trainings pass with no errors.
+- Content saves drop explicit nulls the agent reads differently from "missing" (`completion_type`, other
+  settings, a line's `locations`, question fields beside `variants`).
+- The studio itself is in nudgelabdashboard (`d373bbc`). Tests: 464.
