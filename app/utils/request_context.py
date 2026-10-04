@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 import uuid
 from collections.abc import Awaitable, Callable
 
@@ -9,6 +10,10 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 REQUEST_ID_HEADER = "X-Request-ID"
+# Requests slower than this are logged (`slow_request`), so reports can be tuned as data grows (Phase 17).
+SLOW_REQUEST_MS = 2000
+
+logger = structlog.get_logger(__name__)
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
@@ -21,6 +26,12 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         request.state.request_id = request_id
         structlog.contextvars.clear_contextvars()
         structlog.contextvars.bind_contextvars(request_id=request_id)
+        started = time.monotonic()
         response = await call_next(request)
         response.headers[REQUEST_ID_HEADER] = request_id
+        elapsed_ms = int((time.monotonic() - started) * 1000)
+        if elapsed_ms >= SLOW_REQUEST_MS:
+            # The path only: query strings can hold names typed into a search box.
+            logger.warning("slow_request", method=request.method, path=request.url.path,
+                           status=response.status_code, ms=elapsed_ms)  # fmt: skip
         return response

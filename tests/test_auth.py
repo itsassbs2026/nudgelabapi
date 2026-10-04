@@ -65,7 +65,10 @@ def test_lockout_after_five_failures_then_unlocks(
     for _ in range(FAILED_LOGIN_THRESHOLD):
         client.post(LOGIN, json={"email": "carl@example.com", "password": "wrong-password-x"})
     locked = client.post(LOGIN, json={"email": "carl@example.com", "password": GOOD_PASSWORD})
-    assert locked.status_code == 401 and locked.json()["error"]["code"] == "account_locked"
+    # Locked looks exactly like a wrong password from outside (no account enumeration); the audit log knows.
+    assert locked.status_code == 401 and locked.json()["error"]["code"] == "invalid_credentials"
+    wrong = client.post(LOGIN, json={"email": "nobody@example.com", "password": GOOD_PASSWORD})
+    assert locked.json()["error"]["message"] == wrong.json()["error"]["message"]
     assert "account_locked" in _actions(db_session, user.id)
 
     user.locked_until = datetime.now(UTC) - timedelta(seconds=1)  # the 15 minutes have passed

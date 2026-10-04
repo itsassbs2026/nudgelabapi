@@ -30,7 +30,14 @@ LOCKOUT_MINUTES = 15
 
 
 def _invalid_credentials() -> ApiError:
-    return ApiError(401, "invalid_credentials", "Invalid email or password.")
+    # The same answer for a wrong password, an unknown or inactive email and a locked account, so a guesser
+    # can't learn which emails have accounts; the message still tells a real user about the lockout.
+    return ApiError(
+        401,
+        "invalid_credentials",
+        f"Incorrect email or password. After {FAILED_LOGIN_THRESHOLD} failed tries, sign-in is locked for "
+        f"{LOCKOUT_MINUTES} minutes.",
+    )
 
 
 def _invalid_refresh() -> ApiError:
@@ -73,7 +80,7 @@ def login(
     if user is not None and user.locked_until is not None and _utc(user.locked_until) > now:
         audit.record(db, AuditAction.LOGIN_FAILED, actor_user_id=user.id, details={"reason": "locked"}, ip=ip)
         db.commit()
-        raise ApiError(401, "account_locked", "Account is locked. Try again later.")
+        raise _invalid_credentials()
 
     if user is None or not user.is_active or not verify_password(password, user.password_hash):
         if user is not None and user.is_active:

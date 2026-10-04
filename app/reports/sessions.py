@@ -93,40 +93,74 @@ def session_list(
             options.append(s.uid == int(term))
         conditions.append(or_(*options))
 
-    q = (
-        select(
-            s.session_id,
-            s.started_at,
-            s.duration_sec,
-            s.uid,
-            vw_trainees.c.name,
-            s.store_id_at_session,
-            st.store_name,
-            s.training_id,
-            trainings.c.title,
-            s.outcome,
-            s.end_reason,
-            s.client,
-            fb.rating,
-            rv.score,
-            rv.flagged,
-            session_usage.c.est_total_cost,
-            s.recording_s3_key,
-        )
-        .select_from(
-            metrics.sessions_from()
-            .outerjoin(vw_trainees, vw_trainees.c.uid == s.uid)
-            .outerjoin(vw_training_stores, st.store_id == s.store_id_at_session)
-            .outerjoin(training_feedback, fb.session_id == s.session_id)
-            .outerjoin(session_reviews, rv.session_id == s.session_id)
-            .outerjoin(session_usage, session_usage.c.session_id == s.session_id)
-        )
-        .where(and_(*conditions))
+    # Count and page on the sessions table with only the joins the filters need, then look up the extras for
+    # the page's rows alone. Joining every session in range to the people and store views was quadratic at
+    # full rollout: v_stores_all.store_id is utf8mb3 and store_id_at_session utf8mb4, so MySQL can't use the
+    # store index for that join (Phase 17 load test: minutes for 180,000 sessions).
+    source = metrics.sessions_from()
+    if min_rating is not None or max_rating is not None:
+        source = source.outerjoin(training_feedback, fb.session_id == s.session_id)
+    if flagged is not None:
+        source = source.outerjoin(session_reviews, rv.session_id == s.session_id)
+    if search:
+        source = source.outerjoin(vw_trainees, vw_trainees.c.uid == s.uid)
+    where = and_(*conditions)
+    total = int(db.execute(select(func.count()).select_from(source).where(where)).scalar_one())
+    page_ids = list(
+        db.execute(
+            select(s.session_id)
+            .select_from(source)
+            .where(where)
+            .order_by(s.started_at.desc(), s.session_id)
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        ).scalars()
     )
-    total = int(db.execute(select(func.count()).select_from(q.subquery())).scalar_one())
-    rows = db.execute(
-        q.order_by(s.started_at.desc(), s.session_id).offset((page - 1) * page_size).limit(page_size)
-    ).all()
+    rows = (
+        db.execute(
+            select(
+                s.session_id,
+                s.started_at,
+                s.duration_sec,
+                s.uid,
+                s.store_id_at_session,
+                s.training_id,
+                trainings.c.title,
+                s.outcome,
+                s.end_reason,
+                s.client,
+                fb.rating,
+                rv.score,
+                rv.flagged,
+                session_usage.c.est_total_cost,
+                s.recording_s3_key,
+            )
+            .select_from(
+                metrics.sessions_from()
+                .outerjoin(training_feedback, fb.session_id == s.session_id)
+                .outerjoin(session_reviews, rv.session_id == s.session_id)
+                .outerjoin(session_usage, session_usage.c.session_id == s.session_id)
+            )
+            .where(s.session_id.in_(page_ids))
+            .order_by(s.started_at.desc(), s.session_id)
+        ).all()
+        if page_ids
+        else []
+    )
+    uids = {r.uid for r in rows if r.uid is not None}
+    names = (
+        dict(
+            db.execute(select(vw_trainees.c.uid, vw_trainees.c.name).where(vw_trainees.c.uid.in_(uids))).all()
+        )
+        if uids
+        else {}
+    )
+    store_ids = {r.store_id_at_session for r in rows if r.store_id_at_session}
+    stores = (
+        dict(db.execute(select(st.store_id, st.store_name).where(st.store_id.in_(store_ids))).all())
+        if store_ids
+        else {}
+    )
     return {
         "items": [
             {
@@ -134,9 +168,9 @@ def session_list(
                 "started_at": r.started_at,
                 "duration_sec": r.duration_sec,
                 "uid": r.uid,
-                "name": r.name,
+                "name": names.get(r.uid),
                 "store_id": r.store_id_at_session,
-                "store_name": r.store_name,
+                "store_name": stores.get(r.store_id_at_session),
                 "training_id": r.training_id,
                 "training_title": r.title,
                 "outcome": r.outcome,
