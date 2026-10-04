@@ -56,21 +56,23 @@ def sign(secret: str, version_id: int, training_id: str, uid: int, start: str, e
 
 
 def _live_preview(settings: Settings, uid: int) -> str | None:
-    """A preview room of this trainer's with someone still in it, if any (one at a time). LiveKit keeps an
-    empty room for a few minutes after everyone leaves; that one doesn't count."""
+    """A preview room of this trainer's with a person still in it, if any (one at a time). Only people count:
+    after a call ends the agent stays a minute or two, and LiveKit keeps the empty room a few more."""
+
+    async def find() -> str | None:
+        rooms = await live.fetch_rooms(settings)
+        marker = f"-{uid}-"
+        for r in rooms:
+            name = r.name or ""
+            mine = name.startswith("pv-") and marker in name and r.num_participants
+            if mine and await live.people_in(settings, name):
+                return name
+        return None
+
     try:
-        rooms = asyncio.run(live.fetch_rooms(settings))
+        return asyncio.run(find())
     except ApiError as exc:
         raise ApiError(503, "previews_unavailable", "Preview calls aren't available right now.") from exc
-    marker = f"-{uid}-"
-    return next(
-        (
-            r.name
-            for r in rooms
-            if (r.name or "").startswith("pv-") and marker in r.name and r.num_participants
-        ),
-        None,
-    )
 
 
 def _profile(db: Session, profile_id: str | None) -> str | None:

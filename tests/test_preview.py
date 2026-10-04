@@ -52,7 +52,12 @@ def rooms(monkeypatch: pytest.MonkeyPatch) -> list[Any]:
     async def fake_rooms(_settings: Any) -> list[Any]:
         return open_rooms
 
+    async def fake_people(_settings: Any, room: str) -> int:
+        # Each test room says how many people are in it; the rest is the agent.
+        return next(int(r.people) for r in open_rooms if r.name == room)
+
     monkeypatch.setattr(live, "fetch_rooms", fake_rooms)
+    monkeypatch.setattr(live, "people_in", fake_people)
     return open_rooms
 
 
@@ -182,15 +187,13 @@ def test_one_preview_at_a_time(
     client: TestClient, trainer_headers: dict[str, str], studio_data: None, rooms: list[Any]
 ) -> None:
     uid = preview.PREVIEW_UID_BASE + my_id(client, trainer_headers)
-    rooms.append(SimpleNamespace(name=f"nl-big4-{uid}-abc123", num_participants=1))  # not a preview room
-    rooms.append(
-        SimpleNamespace(name=f"pv-big4-{uid + 1}-abc123", num_participants=2)
-    )  # someone else's preview
-    rooms.append(
-        SimpleNamespace(name=f"pv-big4-{uid}-0ld000", num_participants=0)
-    )  # mine, empty: LiveKit's leftover
+    room = SimpleNamespace
+    rooms.append(room(name=f"nl-big4-{uid}-abc123", num_participants=1, people=1))  # not a preview room
+    rooms.append(room(name=f"pv-big4-{uid + 1}-abc123", num_participants=2, people=1))  # someone else's
+    rooms.append(room(name=f"pv-big4-{uid}-0ld000", num_participants=0, people=0))  # mine, empty leftover
+    rooms.append(room(name=f"pv-big4-{uid}-agent1", num_participants=1, people=0))  # only the agent left
     assert call(client, trainer_headers).status_code == 200
-    rooms.append(SimpleNamespace(name=f"pv-walk-{uid}-def456", num_participants=1))
+    rooms.append(room(name=f"pv-walk-{uid}-def456", num_participants=2, people=1))  # I'm in this one
     r = call(client, trainer_headers)
     assert (r.status_code, r.json()["error"]["code"]) == (409, "preview_running")
 
