@@ -24,6 +24,9 @@ from app.schemas.studio import (
     JobView,
     PreviewCallIn,
     PreviewCallOut,
+    PublishIn,
+    Readiness,
+    SendBackIn,
     TrainingCreate,
     TrainingDetail,
     TrainingListItem,
@@ -40,7 +43,7 @@ from app.schemas.studio import (
 )
 from app.services import audit
 from app.services.audit import AuditAction
-from app.studio import prepare, service, uploads
+from app.studio import prepare, publish, service, uploads
 from app.studio import preview as previews
 from app.utils.errors import ApiError
 
@@ -126,6 +129,60 @@ def validate_version(
 ) -> Any:
     """The publish checks (SPEC 10.4) on the version as saved. Errors block publishing; warnings don't."""
     return service.validate_version(db, version_id)
+
+
+@router.get("/versions/{version_id}/readiness", response_model=Readiness)
+def version_readiness(
+    version_id: int = VersionId, _: CurrentUser = Depends(get_user), db: Session = Depends(get_db)
+) -> Any:
+    """What stands between this version and publishing: check errors, the preview call, the completion key."""
+    return publish.readiness(db, version_id)
+
+
+@router.post("/versions/{version_id}/submit", response_model=VersionSummary)
+def submit_version(
+    request: Request,
+    version_id: int = VersionId,
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Draft → in review. The content can't be edited while it's in review."""
+    return publish.submit(db, current, version_id, client_ip(request))
+
+
+@router.post("/versions/{version_id}/send-back", response_model=VersionSummary)
+def send_back_version(
+    body: SendBackIn,
+    request: Request,
+    version_id: int = VersionId,
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """In review → draft, with a note for the author."""
+    return publish.send_back(db, current, version_id, body.note, client_ip(request))
+
+
+@router.post("/versions/{version_id}/publish", response_model=JobView, status_code=status.HTTP_202_ACCEPTED)
+def publish_version(
+    body: PublishIn,
+    request: Request,
+    version_id: int = VersionId,
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Make this version live (a worker job: topic rows, speech vocabulary, then the switch). A retired
+    version can be published again (a rollback)."""
+    return publish.start(
+        db, current, version_id, no_completion_key_ok=body.no_completion_key_ok, ip=client_ip(request)
+    )
+
+
+@router.get("/versions/{version_id}/publish", response_model=JobView | None)
+def publish_job(
+    version_id: int = VersionId, _: CurrentUser = Depends(get_user), db: Session = Depends(get_db)
+) -> Any:
+    """The latest publish job for this version, if any."""
+    return publish.latest_job(db, version_id)
 
 
 @router.post("/versions/{version_id}/preview-call", response_model=PreviewCallOut)

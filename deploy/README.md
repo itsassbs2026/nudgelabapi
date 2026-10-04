@@ -280,6 +280,19 @@ No migration and no new grants. One new secret, shared with the agent server, an
 2. `bash deploy/deploy.sh`, then the preflight. Deploy the dashboard (its security policy now allows LiveKit).
 3. Agent server: deploy the agent (live-room check first, then restart), then the preview bot test.
 
+## Phase 16: publish workflow
+
+One migration (`0010_publish_jobs`: the jobs type check), one grants file, the worker restarted by `deploy.sh`.
+The agent isn't touched. IAM: the stage 2 policy already allows `transcribe:*Vocabulary` on `nudgelab-*`.
+
+1. `bash deploy/deploy.sh` → stops at the migration → review
+   `venv/bin/alembic upgrade 0009_testers:0010_publish_jobs --sql` (drop and re-create `ck_jobs_type`) →
+   `venv/bin/alembic upgrade head`.
+2. As an admin on RDS: `deploy/db-grants-0010-publish.sql`.
+3. `bash deploy/deploy.sh` again (restarts the API and the worker), then the preflight. Deploy the dashboard.
+4. Acceptance on the sample training (no real trainees): a bot pinned mid-way on its live version, a copy
+   published, the bot still on its version and a fresh start on the new one.
+
 ## Where things are
 
 | | |

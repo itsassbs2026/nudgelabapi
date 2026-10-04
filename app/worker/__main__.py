@@ -14,7 +14,7 @@ from app.config import Settings, get_settings
 from app.db import SessionLocal
 from app.exports import service as exports
 from app.services import email_sender, token_cleanup
-from app.studio import prepare, uploads
+from app.studio import prepare, publish, uploads
 from app.utils.logging import configure_logging
 
 logger = structlog.get_logger(__name__)
@@ -42,6 +42,7 @@ def build_scheduler() -> BlockingScheduler:
         # Training studio (Phase 12). Separate jobs: a long "prepare" never holds up checking an upload.
         ("uploads", uploads.run_extract_jobs, IntervalTrigger(seconds=5)),
         ("prepare", prepare.run_prepare_jobs, IntervalTrigger(seconds=10)),
+        ("publish", publish.run_publish_jobs, IntervalTrigger(seconds=5)),  # Phase 16
     ]
     for name, fn, trigger in jobs:
         scheduler.add_job(run_job, trigger, args=[name, fn], id=name, max_instances=1, coalesce=True)

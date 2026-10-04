@@ -179,6 +179,7 @@ class JobType(StrEnum):
     PREPARE_FOR_VOICE = "prepare_for_voice"  # Stage 2
     CREATE_VOCABULARY = "create_vocabulary"  # Stage 2
     EXTRACT_UPLOAD = "extract_upload"  # Stage 2: check an uploaded file and extract its text
+    PUBLISH_VERSION = "publish_version"  # Stage 2: make a version live (topic rows, vocabulary, switch)
 
 
 class JobStatus(StrEnum):

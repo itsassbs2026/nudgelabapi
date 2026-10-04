@@ -58,8 +58,26 @@ def test_studio_writes_are_column_limited() -> None:
         ("INSERT", "training_versions"): set(),
         ("UPDATE", "training_versions"): set(VERSION_UPDATABLE),
     }
-    assert "active_version_id" not in TRAINING_UPDATABLE  # publishing is Phase 16
+    assert "active_version_id" not in TRAINING_UPDATABLE  # only publishing switches it (Phase 16, below)
     assert "status" not in VERSION_UPDATABLE
+    assert "DELETE" not in sql.replace("No DELETE", "")
+
+
+def test_publish_writes_are_column_limited() -> None:
+    """Phase 16: topic and question rows, the live version switch, and the version's workflow columns."""
+    from app.studio.publish import PUBLISH_TRAINING_UPDATABLE, PUBLISH_VERSION_UPDATABLE
+
+    sql = (DEPLOY / "db-grants-0010-publish.sql").read_text(encoding="utf-8")
+    grants = re.findall(
+        r"^GRANT (INSERT|UPDATE)(?: \(([^)]*)\))? ON nudgeai\.(\w+) TO 'nudgelab_api'@", sql, re.M
+    )
+    found = {(priv, table): {c.strip() for c in cols.split(",") if c.strip()} for priv, cols, table in grants}
+    assert found == {
+        ("INSERT", "training_topics"): set(),
+        ("INSERT", "training_questions"): set(),
+        ("UPDATE", "trainings"): set(PUBLISH_TRAINING_UPDATABLE),
+        ("UPDATE", "training_versions"): set(PUBLISH_VERSION_UPDATABLE),
+    }
     assert "DELETE" not in sql.replace("No DELETE", "")
 
 

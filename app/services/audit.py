@@ -35,6 +35,9 @@ class AuditAction(StrEnum):
     SETTINGS_CHANGED = "settings_changed"  # voices and setups (Phase 14)
     TESTER_CHANGED = "tester_changed"
     PREVIEW_CALL = "preview_call"  # a preview call was started (Phase 15)
+    VERSION_SUBMITTED = "version_submitted"  # Phase 16
+    VERSION_SENT_BACK = "version_sent_back"
+    TRAINING_PUBLISHED = "training_published"
     # Later phases: training_published, settings_changed, …
 
 

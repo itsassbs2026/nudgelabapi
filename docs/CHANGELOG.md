@@ -221,3 +221,17 @@
   out of reports. Audited (`preview_call`).
 - `GET /setups`: the setups that are switched on, for the preview's choices.
 - New setting `PREVIEW_SECRET` (same value on the agent server). Tests: 577.
+
+## Phase 16 — Publish workflow & vocabulary (API part, 2026-10-04)
+
+- Workflow (SPEC 10.1): `POST /versions/{id}/submit` (draft → in review; content locked), `/send-back` (back to
+  draft with a note), `/publish` (in review, or retired for a rollback → a `publish_version` worker job),
+  `GET /versions/{id}/publish` (that job), `GET /versions/{id}/readiness` (check errors, the preview call,
+  the completion key, and what blocks publishing).
+- Publishing needs no check errors and, for a version never live before, a preview call on it since its last
+  edit in which the trainee spoke. No completion key: publishes only when confirmed.
+- The job writes the version's `training_topics` / `training_questions` rows (once), creates its Transcribe
+  vocabulary `nudgelab-<training>-v<id>` and waits for READY, then in one transaction publishes it, retires the
+  previous live version and switches `trainings.active_version_id`. Trainees mid-training stay pinned (agent).
+- New check: vocabulary terms Transcribe accepts. `0010_publish_jobs` (jobs type check) and
+  `deploy/db-grants-0010-publish.sql`. Tests: 607.

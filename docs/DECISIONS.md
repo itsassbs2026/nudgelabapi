@@ -350,3 +350,18 @@ Recorded as they're made (SPEC §0.2). Newest last.
      quiz doesn't take ten minutes; the start is part of the signed pass.
 104. **Previews run only versions without check errors** (warnings are fine): a broken draft could leave Anne
      silent. Any active setup can be chosen, not only requestable ones; one open preview per trainer.
+
+## Phase 16 — Publish workflow (2026-10-04)
+
+105. **A light review step**: submitting locks the content; anyone (Trainer or Admin, the author included) can
+     then publish it or send it back with a note. The lock means what was previewed and reviewed is what goes live.
+106. **"Completed preview" means** a preview call on that exact version, started after its last edit, in which
+     the trainee said something; reaching the end isn't required. A rollback (a retired version published again)
+     needs no new preview: it was live before.
+107. **One Transcribe vocabulary per published version** (`nudgelab-<training>-v<id>`), created and READY before
+     the switch, instead of updating one per training: updating makes a vocabulary unusable for minutes, which
+     would fail sessions starting then. Old ones stay for pinned trainees; cleanup later (account limit 100).
+108. **Publishing is a worker job and switches in one transaction at the end**: topic rows and the vocabulary
+     come first, so a failure leaves the live version untouched; a version sent back while queued isn't published.
+109. **No Wanaka completion-key picker**: the API has no Wanaka access by design; the key stays a typed setting,
+     and publishing without one asks for confirmation.

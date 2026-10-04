@@ -4929,6 +4929,277 @@
         }
       }
     },
+    "/api/v1/versions/{version_id}/readiness": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Version Readiness",
+        "description": "What stands between this version and publishing: check errors, the preview call, the completion key.",
+        "operationId": "version_readiness_api_v1_versions__version_id__readiness_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Readiness"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/versions/{version_id}/submit": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Submit Version",
+        "description": "Draft → in review. The content can't be edited while it's in review.",
+        "operationId": "submit_version_api_v1_versions__version_id__submit_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/versions/{version_id}/send-back": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Send Back Version",
+        "description": "In review → draft, with a note for the author.",
+        "operationId": "send_back_version_api_v1_versions__version_id__send_back_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendBackIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/versions/{version_id}/publish": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Publish Version",
+        "description": "Make this version live (a worker job: topic rows, speech vocabulary, then the switch). A retired\nversion can be published again (a rollback).",
+        "operationId": "publish_version_api_v1_versions__version_id__publish_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Publish Job",
+        "description": "The latest publish job for this version, if any.",
+        "operationId": "publish_job_api_v1_versions__version_id__publish_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/JobView"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Publish Job Api V1 Versions  Version Id  Publish Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/versions/{version_id}/preview-call": {
       "post": {
         "tags": [
@@ -9158,6 +9429,37 @@
         ],
         "title": "PreviewCallOut"
       },
+      "PreviewRef": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "started_at",
+          "by"
+        ],
+        "title": "PreviewRef"
+      },
       "ProfileOut": {
         "properties": {
           "profile_id": {
@@ -9554,6 +9856,18 @@
           "profiles"
         ],
         "title": "ProfilesOut"
+      },
+      "PublishIn": {
+        "properties": {
+          "no_completion_key_ok": {
+            "type": "boolean",
+            "title": "No Completion Key Ok",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PublishIn"
       },
       "QualityItem": {
         "properties": {
@@ -10313,6 +10627,98 @@
         ],
         "title": "RatingsOut"
       },
+      "Readiness": {
+        "properties": {
+          "version_id": {
+            "type": "integer",
+            "title": "Version Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "published",
+              "retired"
+            ],
+            "title": "Status"
+          },
+          "errors": {
+            "type": "integer",
+            "title": "Errors"
+          },
+          "warnings": {
+            "type": "integer",
+            "title": "Warnings"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreviewRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "needs_preview": {
+            "type": "boolean",
+            "title": "Needs Preview"
+          },
+          "completion_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Key"
+          },
+          "can_submit": {
+            "type": "boolean",
+            "title": "Can Submit"
+          },
+          "can_publish": {
+            "type": "boolean",
+            "title": "Can Publish"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          },
+          "publish_job": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "status",
+          "errors",
+          "warnings",
+          "preview",
+          "needs_preview",
+          "completion_key",
+          "can_submit",
+          "can_publish",
+          "blockers",
+          "publish_job"
+        ],
+        "title": "Readiness",
+        "description": "What stands between a version and publishing (SPEC 10.1)."
+      },
       "RecordingUrl": {
         "properties": {
           "url": {
@@ -10810,6 +11216,19 @@
           "topics"
         ],
         "title": "Section"
+      },
+      "SendBackIn": {
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SendBackIn"
       },
       "SessionCount": {
         "properties": {

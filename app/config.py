@@ -107,6 +107,11 @@ class Settings(BaseSettings):
     preview_minutes: int = 20
     preview_rate_limit: str = "10/minute"
 
+    # Publishing (SPEC 10.1, Phase 16): each published version's speech vocabulary, in Transcribe in the
+    # agent's region (its streaming sessions use it there). Creating one usually takes a minute or two.
+    transcribe_region: str = "us-east-1"
+    vocabulary_wait_seconds: int = 600
+
     # Exports (SPEC §7.2): CSV streams straight back; XLSX is built by the worker into EXPORT_DIR (on the API
     # server's own disk, shared by the API and the worker) and deleted after EXPORT_KEEP_HOURS.
     export_dir: str = "var/exports"

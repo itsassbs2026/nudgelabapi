@@ -248,6 +248,40 @@ class Issue(BaseModel):
     section: str | None = None
 
 
+class SendBackIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    note: str = Field(default="", max_length=2000)  # for the author: what to change
+
+
+class PublishIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    no_completion_key_ok: bool = False  # the trainer confirmed passes won't reach Wanaka or Portal
+
+
+class PreviewRef(BaseModel):
+    session_id: str
+    started_at: datetime
+    by: str | None
+
+
+class Readiness(BaseModel):
+    """What stands between a version and publishing (SPEC 10.1)."""
+
+    version_id: int
+    status: Literal["draft", "in_review", "published", "retired"]
+    errors: int
+    warnings: int
+    preview: PreviewRef | None
+    needs_preview: bool
+    completion_key: str | None
+    can_submit: bool
+    can_publish: bool
+    blockers: list[str]
+    publish_job: JobView | None
+
+
 class PreviewCallIn(BaseModel):
     """What the trainer picked for a preview call (SPEC 10.5). Left out: what the training would use."""
 
