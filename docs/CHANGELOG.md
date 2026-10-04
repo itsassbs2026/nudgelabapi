@@ -180,3 +180,6 @@
 - Checked for real (Bedrock, before deploy): the original Big 4 instructions became 12 topics and a 5-question
   quiz in about 80 s for about $0.17, matching the hand-made version's structure and much of its wording; long
   topics flagged; two planted false statements both flagged. Tests: 449.
+- Live 2026-10-04: migration 0008 and the uploads grant on production, `f30c702` deployed; IAM stage 2 policy,
+  bucket lifecycle (`training-content/prod/pending/`, 1 day) and CORS (POST from the dashboard) set by the
+  owner; preflight 26/26 with the uploads table; `check_prepare.py`: S3 and Bedrock pass from the server's role.
