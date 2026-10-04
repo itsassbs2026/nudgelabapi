@@ -100,6 +100,7 @@ def check_database(settings: object) -> None:
                 "jobs",
                 "saved_views",
                 "app_session_starts",
+                "content_uploads",
             ):
                 try:
                     conn.execute(text(f"SELECT 1 FROM `{table}` LIMIT 1"))  # noqa: S608 - fixed names
