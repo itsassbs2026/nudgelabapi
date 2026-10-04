@@ -309,6 +309,7 @@ def session_detail(db: Session, settings: Settings, session_id: str) -> dict[str
                     "dropped": "Connection dropped",
                     "reconnected": "Reconnected",
                     "not_reconnected": "Didn't reconnect",
+                    "no_trainee": "Trainee never joined",
                 }.get(r.issue_type, r.issue_type),
                 "data": {"detail": r.detail},
             }
