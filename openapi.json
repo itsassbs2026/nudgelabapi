@@ -5471,6 +5471,597 @@
         }
       }
     },
+    "/api/v1/admin/voices": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Voices",
+        "operationId": "voices_api_v1_admin_voices_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminVoiceOut"
+                  },
+                  "type": "array",
+                  "title": "Response Voices Api V1 Admin Voices Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Add Voice",
+        "operationId": "add_voice_api_v1_admin_voices_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceAdd"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminVoiceOut"
+                  },
+                  "type": "array",
+                  "title": "Response Add Voice Api V1 Admin Voices Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/voices/{voice_id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update Voice",
+        "operationId": "update_voice_api_v1_admin_voices__voice_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "voice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^[A-Za-z-]+$",
+              "title": "Voice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminVoiceOut"
+                  },
+                  "title": "Response Update Voice Api V1 Admin Voices  Voice Id  Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/voices/{voice_id}/default": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Default Voice",
+        "operationId": "default_voice_api_v1_admin_voices__voice_id__default_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "voice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^[A-Za-z-]+$",
+              "title": "Voice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminVoiceOut"
+                  },
+                  "title": "Response Default Voice Api V1 Admin Voices  Voice Id  Default Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/voices/available": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Available Voices",
+        "description": "Polly's generative English voices that aren't in the list yet.",
+        "operationId": "available_voices_api_v1_admin_voices_available_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PollyVoice"
+                  },
+                  "type": "array",
+                  "title": "Response Available Voices Api V1 Admin Voices Available Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/profiles": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Profiles",
+        "operationId": "profiles_api_v1_admin_profiles_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfilesOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/profiles/{profile_id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update Profile",
+        "operationId": "update_profile_api_v1_admin_profiles__profile_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 30,
+              "pattern": "^[a-z0-9_-]+$",
+              "title": "Profile Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfilesOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/profiles/{profile_id}/default": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Default Profile",
+        "operationId": "default_profile_api_v1_admin_profiles__profile_id__default_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "profile_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 30,
+              "pattern": "^[a-z0-9_-]+$",
+              "title": "Profile Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfilesOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/testers": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Testers",
+        "operationId": "testers_api_v1_admin_testers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TesterOut"
+                  },
+                  "type": "array",
+                  "title": "Response Testers Api V1 Admin Testers Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Create Tester",
+        "operationId": "create_tester_api_v1_admin_testers_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TesterCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TesterWithCode"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/testers/{tester_id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update Tester",
+        "operationId": "update_tester_api_v1_admin_testers__tester_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tester_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Tester Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TesterUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TesterOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/testers/{tester_id}/new-code": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "New Code",
+        "description": "A new access code (shown once); the old one stops working.",
+        "operationId": "new_code_api_v1_admin_testers__tester_id__new_code_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tester_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Tester Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TesterWithCode"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/testers/import": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Import Testers",
+        "description": "Testers from the agent server's testers.json (its contents as JSON). Everyone keeps their code.",
+        "operationId": "import_testers_api_v1_admin_testers_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TesterImport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/app/v1/trainings": {
       "get": {
         "tags": [
@@ -5839,6 +6430,66 @@
         "type": "object",
         "title": "AdminPasswordReset",
         "description": "Leave temporary_password out to email the user a reset link instead."
+      },
+      "AdminVoiceOut": {
+        "properties": {
+          "voice_id": {
+            "type": "string",
+            "title": "Voice Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "language_code": {
+            "type": "string",
+            "title": "Language Code"
+          },
+          "gender": {
+            "type": "string",
+            "title": "Gender"
+          },
+          "engine": {
+            "type": "string",
+            "title": "Engine"
+          },
+          "is_default": {
+            "type": "boolean",
+            "title": "Is Default"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order"
+          }
+        },
+        "type": "object",
+        "required": [
+          "voice_id",
+          "display_name",
+          "language_code",
+          "gender",
+          "engine",
+          "is_default",
+          "is_active",
+          "notes",
+          "sort_order"
+        ],
+        "title": "AdminVoiceOut"
       },
       "AnswerOut": {
         "properties": {
@@ -7594,6 +8245,41 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "ImportResult": {
+        "properties": {
+          "added": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Added"
+          },
+          "skipped": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Skipped"
+          },
+          "dropped_trainings": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Dropped Trainings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "added",
+          "skipped",
+          "dropped_trainings"
+        ],
+        "title": "ImportResult"
+      },
       "Issue": {
         "properties": {
           "where": {
@@ -8037,6 +8723,29 @@
         "title": "MeUpdate",
         "description": "Users can change only their own display preferences and time zone."
       },
+      "ModelChoice": {
+        "properties": {
+          "llm_model": {
+            "type": "string",
+            "title": "Llm Model"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "effort": {
+            "type": "boolean",
+            "title": "Effort"
+          }
+        },
+        "type": "object",
+        "required": [
+          "llm_model",
+          "label",
+          "effort"
+        ],
+        "title": "ModelChoice"
+      },
       "NamedCost": {
         "properties": {
           "id": {
@@ -8216,6 +8925,436 @@
           "timezone"
         ],
         "title": "Period"
+      },
+      "PollyVoice": {
+        "properties": {
+          "voice_id": {
+            "type": "string",
+            "title": "Voice Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "gender": {
+            "type": "string",
+            "title": "Gender"
+          },
+          "language_code": {
+            "type": "string",
+            "title": "Language Code"
+          },
+          "language_name": {
+            "type": "string",
+            "title": "Language Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "voice_id",
+          "name",
+          "gender",
+          "language_code",
+          "language_name"
+        ],
+        "title": "PollyVoice"
+      },
+      "ProfileOut": {
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "title": "Profile Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "llm_model": {
+            "type": "string",
+            "title": "Llm Model"
+          },
+          "llm_model_label": {
+            "type": "string",
+            "title": "Llm Model Label"
+          },
+          "llm_model_known": {
+            "type": "boolean",
+            "title": "Llm Model Known"
+          },
+          "llm_effort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Effort"
+          },
+          "llm_max_output_tokens": {
+            "type": "integer",
+            "title": "Llm Max Output Tokens"
+          },
+          "tts_engine": {
+            "type": "string",
+            "title": "Tts Engine"
+          },
+          "voice_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice Id"
+          },
+          "llm_input_per_m": {
+            "type": "number",
+            "title": "Llm Input Per M"
+          },
+          "llm_cached_per_m": {
+            "type": "number",
+            "title": "Llm Cached Per M"
+          },
+          "llm_cache_write_per_m": {
+            "type": "number",
+            "title": "Llm Cache Write Per M"
+          },
+          "llm_output_per_m": {
+            "type": "number",
+            "title": "Llm Output Per M"
+          },
+          "tts_per_m_chars": {
+            "type": "number",
+            "title": "Tts Per M Chars"
+          },
+          "stt_per_minute": {
+            "type": "number",
+            "title": "Stt Per Minute"
+          },
+          "is_default": {
+            "type": "boolean",
+            "title": "Is Default"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "allow_request": {
+            "type": "boolean",
+            "title": "Allow Request"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profile_id",
+          "display_name",
+          "description",
+          "llm_model",
+          "llm_model_label",
+          "llm_model_known",
+          "llm_effort",
+          "llm_max_output_tokens",
+          "tts_engine",
+          "voice_id",
+          "llm_input_per_m",
+          "llm_cached_per_m",
+          "llm_cache_write_per_m",
+          "llm_output_per_m",
+          "tts_per_m_chars",
+          "stt_per_minute",
+          "is_default",
+          "is_active",
+          "allow_request",
+          "notes"
+        ],
+        "title": "ProfileOut"
+      },
+      "ProfileUpdate": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "llm_model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Model"
+          },
+          "llm_effort": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Effort"
+          },
+          "llm_max_output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 4000.0,
+                "minimum": 100.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Max Output Tokens"
+          },
+          "tts_engine": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "generative",
+                  "neural",
+                  "standard"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tts Engine"
+          },
+          "voice_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice Id"
+          },
+          "llm_input_per_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,4}0*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Input Per M"
+          },
+          "llm_cached_per_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,4}0*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Cached Per M"
+          },
+          "llm_cache_write_per_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,4}0*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Cache Write Per M"
+          },
+          "llm_output_per_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,4}0*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Llm Output Per M"
+          },
+          "tts_per_m_chars": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,4}0*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tts Per M Chars"
+          },
+          "stt_per_minute": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,5}0*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stt Per Minute"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          },
+          "allow_request": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allow Request"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ProfileUpdate"
+      },
+      "ProfilesOut": {
+        "properties": {
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelChoice"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileOut"
+            },
+            "type": "array",
+            "title": "Profiles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "models",
+          "profiles"
+        ],
+        "title": "ProfilesOut"
       },
       "QualityItem": {
         "properties": {
@@ -10609,6 +11748,227 @@
           "role"
         ],
         "title": "TeamMember"
+      },
+      "TesterCreate": {
+        "properties": {
+          "uid": {
+            "type": "integer",
+            "maximum": 4294967295.0,
+            "minimum": 1.0,
+            "title": "Uid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "trainings": {
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{1,49}$"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Trainings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "uid",
+          "name",
+          "trainings"
+        ],
+        "title": "TesterCreate"
+      },
+      "TesterImport": {
+        "properties": {
+          "testers": {
+            "items": {
+              "$ref": "#/components/schemas/TesterImportEntry"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Testers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "testers"
+        ],
+        "title": "TesterImport"
+      },
+      "TesterImportEntry": {
+        "properties": {
+          "uid": {
+            "type": "integer",
+            "maximum": 4294967295.0,
+            "minimum": 1.0,
+            "title": "Uid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "trainings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Trainings"
+          },
+          "code_sha256": {
+            "type": "string",
+            "title": "Code Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "name",
+          "trainings",
+          "code_sha256"
+        ],
+        "title": "TesterImportEntry",
+        "description": "One tester from testers.json, as web.py writes it."
+      },
+      "TesterOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "uid": {
+            "type": "integer",
+            "title": "Uid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "trainings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Trainings"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "code_changed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code Changed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "uid",
+          "name",
+          "trainings",
+          "is_active",
+          "created_by",
+          "created_at",
+          "code_changed_at"
+        ],
+        "title": "TesterOut"
+      },
+      "TesterUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "trainings": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]{1,49}$"
+                },
+                "type": "array",
+                "maxItems": 50,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainings"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TesterUpdate"
+      },
+      "TesterWithCode": {
+        "properties": {
+          "tester": {
+            "$ref": "#/components/schemas/TesterOut"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tester",
+          "code"
+        ],
+        "title": "TesterWithCode",
+        "description": "The access code is shown once: only its hash is kept."
       },
       "Topic": {
         "properties": {
@@ -13025,6 +14385,23 @@
         ],
         "title": "VersionSummary"
       },
+      "VoiceAdd": {
+        "properties": {
+          "voice_id": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "pattern": "^[A-Za-z-]+$",
+            "title": "Voice Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "voice_id"
+        ],
+        "title": "VoiceAdd"
+      },
       "VoiceOut": {
         "properties": {
           "voice_id": {
@@ -13079,6 +14456,49 @@
           "notes"
         ],
         "title": "VoiceOut"
+      },
+      "VoiceUpdate": {
+        "properties": {
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "sort_order": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort Order"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "VoiceUpdate"
       }
     },
     "securitySchemes": {

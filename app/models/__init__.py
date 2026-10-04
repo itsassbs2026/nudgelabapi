@@ -13,6 +13,7 @@ from app.models.dashboard import (
     ReviewQueueItem,
     SavedView,
 )
+from app.models.testers import Tester
 
 API_TABLES = frozenset(Base.metadata.tables)
 
@@ -29,4 +30,5 @@ __all__ = [
     "Job",
     "ReviewQueueItem",
     "SavedView",
+    "Tester",
 ]

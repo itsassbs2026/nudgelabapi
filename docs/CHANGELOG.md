@@ -197,3 +197,15 @@
 - `GET /voices` (the voices Anne can use) and `POST /voices/{voice_id}/sample` (any text up to 600 characters read
   by that voice, as MP3, made by Amazon Polly with the voice's own engine; 20 a minute per user; nothing stored).
   Polly in `POLLY_REGION` (us-east-1, as the agent) through the instance role (stage 2 policy). Tests: 479.
+
+## Phase 14 — Voices, setups & testers (API part, 2026-10-04)
+
+- Admin only, under `/admin`: voices (switch on/off, notes, order, make default, add one of Polly's generative
+  English voices), setups (`training_profiles`: model from an allowlist, effort only where the model takes it,
+  limits, voice, prices, on/off, default) and testers (list, add with an access code shown once, edit name and
+  trainings, switch off, new code, import the agent server's `testers.json` with everyone keeping their code).
+- `0009_testers`: the `testers` table; codes stored only as web.py's hash. `deploy/db-grants-0009-admin.sql`:
+  column-level UPDATE on voices and setups (tested against the code), testers for the API, SELECT for the agent.
+- Changing the default voice or setup clears the old default then sets the new one in one transaction (one
+  UPDATE flipping both rows can trip the unique default marker, which MySQL checks row by row).
+- Tests: 553.

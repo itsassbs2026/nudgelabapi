@@ -36,6 +36,7 @@ def list_voices(db: Session) -> list[dict[str, Any]]:
             "is_default": bool(r.is_default),
             "is_active": bool(r.is_active),
             "notes": r.notes,
+            "sort_order": r.sort_order,
         }
         for r in rows
     ]

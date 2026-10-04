@@ -90,7 +90,28 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     # Voice samples (SPEC 10.3).
     ("GET", "/api/v1/voices", None, True),
     ("POST", "/api/v1/voices/{voice_id}/sample", {"text": "Hi"}, True),
+    # Voices, setups and testers (SPEC 10.3, Phase 14): Admin only. Polly is faked below.
+    ("GET", "/api/v1/admin/voices", None, False),
+    ("PATCH", "/api/v1/admin/voices/{voice_id}", {"notes": "x"}, False),
+    ("POST", "/api/v1/admin/voices/{voice_id}/default", None, False),
+    ("GET", "/api/v1/admin/voices/available", None, False),
+    ("POST", "/api/v1/admin/voices", {"voice_id": "Nobody"}, False),
+    ("GET", "/api/v1/admin/profiles", None, False),
+    ("PATCH", "/api/v1/admin/profiles/{profile_id}", {"notes": "x"}, False),
+    ("POST", "/api/v1/admin/profiles/{profile_id}/default", None, False),
+    ("GET", "/api/v1/admin/testers", None, False),
+    ("POST", "/api/v1/admin/testers", {"uid": 9, "name": "P", "trainings": ["big4"]}, False),
+    ("PATCH", "/api/v1/admin/testers/{tester_id}", {"name": "P"}, False),
+    ("POST", "/api/v1/admin/testers/{tester_id}/new-code", None, False),
+    ("POST", "/api/v1/admin/testers/import", {"testers": []}, False),
 ]
+
+
+@pytest.fixture(autouse=True)
+def _no_polly(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.studio import admin
+
+    monkeypatch.setattr(admin, "polly_voices", lambda _settings: [])
 
 
 # The Flutter app's routes (docs/APP_HANDOFF.md): a NudgeLab pass only. Dashboard logins, Trainer or Admin,
@@ -114,6 +135,7 @@ def _call(
     path = path.replace("{training_id}", "big4").replace("{version_id}", "999999")
     path = path.replace("{upload_id}", "999999").replace("{voice_id}", "Nobody")
     path = path.replace("{from_id}", "999998").replace("{to_id}", "999999")
+    path = path.replace("{profile_id}", "nobody").replace("{tester_id}", "999999")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 
 

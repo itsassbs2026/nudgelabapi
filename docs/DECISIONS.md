@@ -323,3 +323,16 @@ Recorded as they're made (SPEC §0.2). Newest last.
     trainer types, so they can hear a line from their own training in each voice. A sample costs a fraction of a
     cent; length (600 characters) and rate (20 a minute per user) are capped, and nothing is stored. Managing
     voices (switching on and off, the default) stays in Phase 14.
+
+## Phase 14 — Voices, setups & testers (2026-10-04)
+
+97. **Testers move from testers.json to a table the API owns** (`testers`); the agent only reads it. Codes stay
+    web.py's format and hash (trimmed, uppercased, SHA-256), so imported testers keep their codes and a code made
+    on the dashboard works on the tester page unchanged. A code is shown once; only "new code" replaces it.
+98. **A tester's trainings must exist and have an active version**: the tester page runs the active version, so
+    a draft-only training would fail at start. Imports drop unknown trainings and report them instead of failing.
+99. **Setups pick models from an allowlist** (`SETUP_MODELS`: Haiku 4.5, Sonnet 5.5, as Bedrock inference
+    profiles) rather than free text, and `effort` is refused for a model that doesn't take it: a typo in either
+    would break every session on that setup. Adding a model is a code change with a test.
+100. **The default voice or setup can't be switched off, and an off one can't become the default** (the tables'
+    CHECK would refuse it anyway); the API says why instead of a database error.

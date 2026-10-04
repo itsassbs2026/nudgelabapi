@@ -253,8 +253,22 @@ training_profiles = Table(
     agent_metadata,
     Column("profile_id", String(30), primary_key=True),
     Column("display_name", String(60)),
+    Column("description", String(255)),
+    Column("llm_model", String(100)),
+    Column("llm_effort", String(10)),
+    Column("llm_max_output_tokens", Integer),
+    Column("tts_engine", String(20)),
     Column("voice_id", String(40)),
+    Column("llm_input_per_m", Numeric(8, 4)),
+    Column("llm_cached_per_m", Numeric(8, 4)),
+    Column("llm_cache_write_per_m", Numeric(8, 4)),
+    Column("llm_output_per_m", Numeric(8, 4)),
+    Column("tts_per_m_chars", Numeric(8, 4)),
+    Column("stt_per_minute", Numeric(8, 5)),
     Column("is_default", Boolean),
+    Column("is_active", Boolean),
+    Column("allow_request", Boolean),
+    Column("notes", String(255)),
 )
 
 training_voices = Table(

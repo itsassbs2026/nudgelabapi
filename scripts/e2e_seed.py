@@ -77,6 +77,22 @@ def main(url: str) -> None:
                 ),
                 {"v": voice, "l": language, "d": default, "a": active, "o": order},
             )
+        # Setups for the setups page: `standard` on Haiku 4.5 is the default; `deep` on Sonnet 5.5.
+        db.execute(
+            text(
+                "UPDATE training_profiles SET llm_model = 'us.anthropic.claude-haiku-4-5-20251001-v1:0',"
+                " is_default = 1 WHERE profile_id = 'standard'"
+            )
+        )
+        db.execute(
+            text(
+                "INSERT INTO training_profiles (profile_id, display_name, llm_model, llm_effort,"
+                " llm_input_per_m, llm_cached_per_m, llm_cache_write_per_m, llm_output_per_m,"
+                " tts_per_m_chars, stt_per_minute)"
+                " VALUES ('deep', 'Deep', 'us.anthropic.claude-sonnet-5-5', 'low',"
+                " 3, 0.3, 3.75, 15, 30, 0.024)"
+            )
+        )
         # The session viewer test needs a recorded session with a transcript: give rec-new s1's lines.
         db.execute(
             text(

@@ -11,6 +11,7 @@ from app import __version__
 from app.auth.rate_limit import limiter, rate_limit_exceeded_handler
 from app.config import get_settings
 from app.routers import (
+    admin_stage2,
     admin_users,
     app_trainings,
     auth,
@@ -80,6 +81,7 @@ def create_app() -> FastAPI:
         views.router,
         studio.router,
         voices.router,
+        admin_stage2.router,
     ):
         app.include_router(router, prefix="/api/v1")
     # The Flutter app (docs/APP_HANDOFF.md): its own prefix and its own credentials (a NudgeLab pass).

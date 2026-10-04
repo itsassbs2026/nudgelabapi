@@ -32,6 +32,8 @@ class AuditAction(StrEnum):
     TRAINING_UPDATED = "training_updated"
     VERSION_CREATED = "version_created"
     UPLOAD_STARTED = "upload_started"
+    SETTINGS_CHANGED = "settings_changed"  # voices and setups (Phase 14)
+    TESTER_CHANGED = "tester_changed"
     # Later phases: training_published, settings_changed, …
 
 

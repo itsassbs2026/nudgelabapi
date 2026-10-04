@@ -61,3 +61,32 @@ def test_studio_writes_are_column_limited() -> None:
     assert "active_version_id" not in TRAINING_UPDATABLE  # publishing is Phase 16
     assert "status" not in VERSION_UPDATABLE
     assert "DELETE" not in sql.replace("No DELETE", "")
+
+
+def test_admin_writes_are_column_limited() -> None:
+    """Phase 14: voices and setups change only in the columns the admin pages edit; agent reads testers."""
+    from app.studio.admin import PROFILE_UPDATABLE, VOICE_UPDATABLE
+
+    sql = (DEPLOY / "db-grants-0009-admin.sql").read_text(encoding="utf-8")
+    grants = re.findall(r"^GRANT ([A-Z, ]+?)(?: \(([^)]*)\))? ON nudgeai\.(\w+) TO '(\w+)'@", sql, re.M)
+    found = {
+        (priv.strip(), table, who): {c.strip() for c in cols.split(",") if c.strip()}
+        for priv, cols, table, who in grants
+    }
+    assert found == {
+        ("SELECT, INSERT, UPDATE", "testers", "nudgelab_api"): set(),
+        ("INSERT", "training_voices", "nudgelab_api"): set(),
+        ("UPDATE", "training_voices", "nudgelab_api"): set(VOICE_UPDATABLE),
+        ("UPDATE", "training_profiles", "nudgelab_api"): set(PROFILE_UPDATABLE),
+        ("SELECT", "testers", "nudgeai_agent"): set(),
+    }
+    assert "DELETE" not in sql.replace("No DELETE", "")
+
+
+def test_admin_requests_stay_in_the_granted_columns() -> None:
+    from app.routers.admin_stage2 import ProfileUpdate, VoiceUpdate
+    from app.studio.admin import PROFILE_UPDATABLE, VOICE_UPDATABLE
+
+    assert set(VoiceUpdate.model_fields) <= VOICE_UPDATABLE
+    assert set(ProfileUpdate.model_fields) <= PROFILE_UPDATABLE
+
