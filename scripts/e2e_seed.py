@@ -93,6 +93,12 @@ def main(url: str) -> None:
                 " 3, 0.3, 3.75, 15, 30, 0.024)"
             )
         )
+        # Big 4's live version gets real content, for the preview call test (it passes the checks).
+        big4 = (ROOT / "tests" / "fixtures" / "content" / "big4.json").read_text(encoding="utf-8")
+        db.execute(
+            text("UPDATE training_versions SET content = :c, status = 'published' WHERE version_id = 1"),
+            {"c": big4},
+        )
         # The session viewer test needs a recorded session with a transcript: give rec-new s1's lines.
         db.execute(
             text(

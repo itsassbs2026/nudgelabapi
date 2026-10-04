@@ -1,4 +1,5 @@
-"""Voices and voice samples (SPEC 10.3). Trainers and Admins listen; managing voices comes with Phase 14."""
+"""Voices, voice samples and the setups to choose from (SPEC 10.3, 10.5). Trainers and Admins; managing
+voices and setups is admin_stage2.py."""
 
 from __future__ import annotations
 
@@ -7,12 +8,14 @@ from typing import Any
 from fastapi import APIRouter, Depends, Path, Response
 from limits import parse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, get_user
 from app.auth.rate_limit import limiter
 from app.config import Settings, get_settings
 from app.db import get_db
+from app.reference.agent_tables import training_profiles
 from app.services import voices
 from app.utils.errors import ApiError
 
@@ -28,6 +31,13 @@ class VoiceOut(BaseModel):
     is_default: bool
     is_active: bool
     notes: str | None
+
+
+class SetupChoice(BaseModel):
+    profile_id: str
+    display_name: str
+    description: str | None
+    is_default: bool
 
 
 class SampleIn(BaseModel):
@@ -72,3 +82,15 @@ def voice_sample(
     voice = voices.find_voice(db, voice_id)
     audio = voices.synthesize(settings, voice.voice_id, voice.engine or "generative", body.text)
     return Response(content=audio, media_type="audio/mpeg", headers={"Cache-Control": "no-store"})
+
+
+@router.get("/setups", response_model=list[SetupChoice])
+def setups(_: CurrentUser = Depends(get_user), db: Session = Depends(get_db)) -> Any:
+    """The setups that are switched on (for a preview call's choices); the default first."""
+    p = training_profiles.c
+    rows = db.execute(
+        select(p.profile_id, p.display_name, p.description, p.is_default)
+        .where(p.is_active == 1)
+        .order_by(p.is_default.desc(), p.display_name)
+    ).all()
+    return [{**r._mapping, "is_default": bool(r.is_default)} for r in rows]

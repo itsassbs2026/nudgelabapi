@@ -89,4 +89,3 @@ def test_admin_requests_stay_in_the_granted_columns() -> None:
 
     assert set(VoiceUpdate.model_fields) <= VOICE_UPDATABLE
     assert set(ProfileUpdate.model_fields) <= PROFILE_UPDATABLE
-

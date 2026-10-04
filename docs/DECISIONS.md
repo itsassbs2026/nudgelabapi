@@ -336,3 +336,17 @@ Recorded as they're made (SPEC §0.2). Newest last.
     would break every session on that setup. Adding a model is a code change with a test.
 100. **The default voice or setup can't be switched off, and an off one can't become the default** (the tables'
     CHECK would refuse it anyway); the API says why instead of a database error.
+
+## Phase 15 — Preview calls (2026-10-04)
+
+101. **A preview is proven by a signed pass, not by the token alone** (SPEC 10.6.3): HMAC-SHA256 with a secret
+     only the API and the agent hold, over version, training, uid, start and expiry. Without a valid pass the
+     agent refuses the room outright; it never falls back to a normal session, which would write progress under
+     the preview uid.
+102. **Previews write the session, transcript, issues and usage, and nothing else**: no progress, completions,
+     acknowledgments, feedback, quiz answers or topic events (reports can't pick them up), and no audio recording
+     or recording notice. The session row is what Phase 16's "at least one completed preview" will check.
+103. **A preview can start after the topics** (straight to the quiz, or the end of a walkthrough) so testing the
+     quiz doesn't take ten minutes; the start is part of the signed pass.
+104. **Previews run only versions without check errors** (warnings are fine): a broken draft could leave Anne
+     silent. Any active setup can be chosen, not only requestable ones; one open preview per trainer.

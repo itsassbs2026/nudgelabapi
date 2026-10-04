@@ -209,3 +209,15 @@
 - Changing the default voice or setup clears the old default then sets the new one in one transaction (one
   UPDATE flipping both rows can trip the unique default marker, which MySQL checks row by row).
 - Tests: 553.
+
+## Phase 15 — Preview calls (API part, 2026-10-04)
+
+- `POST /versions/{id}/preview-call` (Trainers and Admins): a 20-minute LiveKit token for a browser call with
+  Anne running that version as saved, drafts included. Its dispatch metadata carries a preview pass signed with
+  `PREVIEW_SECRET` (HMAC-SHA256; the agent checks it), the trainer's preview uid (900000 + their id), and their
+  choices: start (beginning / after the topics), voice, setup, trainer name, store type. Refused when the
+  version's checks have errors, when the trainer already has a preview open (LiveKit's room list), or 10 a
+  minute. Rooms are named `pv-…`, so the Live page skips them; sessions are `client = 'preview'`, already left
+  out of reports. Audited (`preview_call`).
+- `GET /setups`: the setups that are switched on, for the preview's choices.
+- New setting `PREVIEW_SECRET` (same value on the agent server). Tests: 577.

@@ -87,8 +87,10 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/versions/{version_id}/prepare", None, True),
     ("GET", "/api/v1/jobs/{job_id}", None, True),
     ("POST", "/api/v1/versions/{version_id}/validate", None, True),
+    ("POST", "/api/v1/versions/{version_id}/preview-call", {}, True),
     # Voice samples (SPEC 10.3).
     ("GET", "/api/v1/voices", None, True),
+    ("GET", "/api/v1/setups", None, True),
     ("POST", "/api/v1/voices/{voice_id}/sample", {"text": "Hi"}, True),
     # Voices, setups and testers (SPEC 10.3, Phase 14): Admin only. Polly is faked below.
     ("GET", "/api/v1/admin/voices", None, False),

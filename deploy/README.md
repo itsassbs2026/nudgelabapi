@@ -270,6 +270,16 @@ One migration (`0009_testers`, a new table), one grants file, then the agent's t
 5. Agent server: copy the new `web.py`, restart **only** `nudgelab-web` (not the agent), sign in on the tester
    page with an existing code, then `mv testers.json testers.json.retired`.
 
+## Phase 15: preview calls
+
+No migration and no new grants. One new secret, shared with the agent server, and an agent restart.
+
+1. **Secret (you):** generate one value, `openssl rand -hex 32`, and add it as `PREVIEW_SECRET=` to
+   `/srv/nudgelabapi/.env` here **and** to `~/nudgelab/.env.local` on the agent server. Same value in both;
+   never paste it anywhere else.
+2. `bash deploy/deploy.sh`, then the preflight. Deploy the dashboard (its security policy now allows LiveKit).
+3. Agent server: deploy the agent (live-room check first, then restart), then the preview bot test.
+
 ## Where things are
 
 | | |

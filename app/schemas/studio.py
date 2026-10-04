@@ -248,6 +248,29 @@ class Issue(BaseModel):
     section: str | None = None
 
 
+class PreviewCallIn(BaseModel):
+    """What the trainer picked for a preview call (SPEC 10.5). Left out: what the training would use."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    start: Literal["beginning", "after_topics"] = (
+        "beginning"  # after_topics: straight to the quiz (or the end)
+    )
+    voice: str | None = Field(default=None, max_length=40, pattern=r"^[A-Za-z-]+$")
+    profile: str | None = Field(default=None, max_length=30, pattern=r"^[a-z0-9_-]+$")
+    trainer_name: str | None = Field(default=None, max_length=40)
+    location_type: Literal["fiber", "aia_only", "alaska_only"] | None = None
+
+
+class PreviewCallOut(BaseModel):
+    server_url: str
+    participant_token: str
+    room_name: str
+    expires_in: int
+    version_id: int
+    training_id: str
+
+
 class ValidationOut(BaseModel):
     """SPEC 10.4: errors block publishing, warnings don't."""
 

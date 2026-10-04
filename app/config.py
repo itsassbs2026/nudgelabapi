@@ -101,6 +101,12 @@ class Settings(BaseSettings):
     voice_sample_max_chars: int = 600
     voice_sample_rate_limit: str = "20/minute"
 
+    # Preview calls (SPEC 10.5): PREVIEW_SECRET signs the preview pass the agent checks; the same value goes
+    # in the agent server's .env.local. 32+ characters (`openssl rand -hex 32`). Without it, previews are 503.
+    preview_secret: str | None = None
+    preview_minutes: int = 20
+    preview_rate_limit: str = "10/minute"
+
     # Exports (SPEC §7.2): CSV streams straight back; XLSX is built by the worker into EXPORT_DIR (on the API
     # server's own disk, shared by the API and the worker) and deleted after EXPORT_KEEP_HOURS.
     export_dir: str = "var/exports"
@@ -114,6 +120,10 @@ class Settings(BaseSettings):
     @property
     def livekit_configured(self) -> bool:
         return bool(self.livekit_url and self.livekit_api_key and self.livekit_api_secret)
+
+    @property
+    def previews_configured(self) -> bool:
+        return self.livekit_configured and len(self.preview_secret or "") >= 32
 
     @property
     def app_pass_key_files(self) -> dict[str, str]:

@@ -9,9 +9,11 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Depends, Path, Request, status
+from limits import parse
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, get_user
+from app.auth.rate_limit import limiter
 from app.config import Settings, get_settings
 from app.db import get_db
 from app.models.dashboard import Job, JobType
@@ -20,6 +22,8 @@ from app.schemas.studio import (
     TRAINING_ID_PATTERN,
     ContentSave,
     JobView,
+    PreviewCallIn,
+    PreviewCallOut,
     TrainingCreate,
     TrainingDetail,
     TrainingListItem,
@@ -37,6 +41,7 @@ from app.schemas.studio import (
 from app.services import audit
 from app.services.audit import AuditAction
 from app.studio import prepare, service, uploads
+from app.studio import preview as previews
 from app.utils.errors import ApiError
 
 router = APIRouter(tags=["studio"])
@@ -121,6 +126,24 @@ def validate_version(
 ) -> Any:
     """The publish checks (SPEC 10.4) on the version as saved. Errors block publishing; warnings don't."""
     return service.validate_version(db, version_id)
+
+
+@router.post("/versions/{version_id}/preview-call", response_model=PreviewCallOut)
+def preview_call(
+    body: PreviewCallIn,
+    request: Request,
+    version_id: int = VersionId,
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> Any:
+    """A LiveKit token for a browser call with Anne running this version as saved (SPEC 10.5). Nothing the
+    call does counts: no progress, completions or recording, and reports leave it out."""
+    limit = settings.preview_rate_limit
+    if not limiter.limiter.hit(parse(limit), "preview-call", str(current.user.id)):
+        raise ApiError(429, "rate_limited", "Too many preview calls. Wait a minute and try again.",
+                       {"limit": limit})  # fmt: skip
+    return previews.start(db, settings, current, version_id, body.model_dump(), client_ip(request))
 
 
 @router.get("/versions/{from_id}/diff/{to_id}", response_model=VersionDiff)

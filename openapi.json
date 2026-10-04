@@ -4929,6 +4929,65 @@
         }
       }
     },
+    "/api/v1/versions/{version_id}/preview-call": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Preview Call",
+        "description": "A LiveKit token for a browser call with Anne running this version as saved (SPEC 10.5). Nothing the\ncall does counts: no progress, completions or recording, and reports leave it out.",
+        "operationId": "preview_call_api_v1_versions__version_id__preview_call_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewCallIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewCallOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/versions/{from_id}/diff/{to_id}": {
       "get": {
         "tags": [
@@ -5469,6 +5528,37 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/setups": {
+      "get": {
+        "tags": [
+          "voices"
+        ],
+        "summary": "Setups",
+        "description": "The setups that are switched on (for a preview call's choices); the default first.",
+        "operationId": "setups_api_v1_setups_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SetupChoice"
+                  },
+                  "type": "array",
+                  "title": "Response Setups Api V1 Setups Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/admin/voices": {
@@ -8959,6 +9049,115 @@
         ],
         "title": "PollyVoice"
       },
+      "PreviewCallIn": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "enum": [
+              "beginning",
+              "after_topics"
+            ],
+            "title": "Start",
+            "default": "beginning"
+          },
+          "voice": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40,
+                "pattern": "^[A-Za-z-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30,
+                "pattern": "^[a-z0-9_-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile"
+          },
+          "trainer_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Name"
+          },
+          "location_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "fiber",
+                  "aia_only",
+                  "alaska_only"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location Type"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PreviewCallIn",
+        "description": "What the trainer picked for a preview call (SPEC 10.5). Left out: what the training would use."
+      },
+      "PreviewCallOut": {
+        "properties": {
+          "server_url": {
+            "type": "string",
+            "title": "Server Url"
+          },
+          "participant_token": {
+            "type": "string",
+            "title": "Participant Token"
+          },
+          "room_name": {
+            "type": "string",
+            "title": "Room Name"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          },
+          "version_id": {
+            "type": "integer",
+            "title": "Version Id"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "server_url",
+          "participant_token",
+          "room_name",
+          "expires_in",
+          "version_id",
+          "training_id"
+        ],
+        "title": "PreviewCallOut"
+      },
       "ProfileOut": {
         "properties": {
           "profile_id": {
@@ -11621,6 +11820,41 @@
           "cost"
         ],
         "title": "SessionUsage"
+      },
+      "SetupChoice": {
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "title": "Profile Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "is_default": {
+            "type": "boolean",
+            "title": "Is Default"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profile_id",
+          "display_name",
+          "description",
+          "is_default"
+        ],
+        "title": "SetupChoice"
       },
       "StoreOut": {
         "properties": {

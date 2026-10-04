@@ -142,3 +142,16 @@ def test_synthesize_asks_polly_for_mp3(monkeypatch: pytest.MonkeyPatch) -> None:
         "OutputFormat": "mp3",
         "SampleRate": "24000",
     }
+
+
+def test_setups_to_choose_from(
+    client: TestClient, trainer_headers: dict[str, str], voice_list: None, db_session: Session
+) -> None:
+    prices = {"llm_input_per_m": 1, "llm_cached_per_m": 0.1, "llm_cache_write_per_m": 1.25,
+              "llm_output_per_m": 5, "tts_per_m_chars": 30, "stt_per_minute": 0.024}  # fmt: skip
+    insert(db_session, "training_profiles", profile_id="deep", display_name="Deep", llm_model="m",
+           is_default=1, **prices)  # fmt: skip
+    insert(db_session, "training_profiles", profile_id="old", display_name="Old", llm_model="m",
+           is_active=0, **prices)  # fmt: skip
+    rows = client.get("/api/v1/setups", headers=trainer_headers).json()
+    assert [(r["profile_id"], r["is_default"]) for r in rows] == [("deep", True), ("standard", False)]
