@@ -182,10 +182,15 @@ def test_one_preview_at_a_time(
     client: TestClient, trainer_headers: dict[str, str], studio_data: None, rooms: list[Any]
 ) -> None:
     uid = preview.PREVIEW_UID_BASE + my_id(client, trainer_headers)
-    rooms.append(SimpleNamespace(name=f"nl-big4-{uid}-abc123"))  # not a preview room
-    rooms.append(SimpleNamespace(name=f"pv-big4-{uid + 1}-abc123"))  # someone else's preview
+    rooms.append(SimpleNamespace(name=f"nl-big4-{uid}-abc123", num_participants=1))  # not a preview room
+    rooms.append(
+        SimpleNamespace(name=f"pv-big4-{uid + 1}-abc123", num_participants=2)
+    )  # someone else's preview
+    rooms.append(
+        SimpleNamespace(name=f"pv-big4-{uid}-0ld000", num_participants=0)
+    )  # mine, empty: LiveKit's leftover
     assert call(client, trainer_headers).status_code == 200
-    rooms.append(SimpleNamespace(name=f"pv-walk-{uid}-def456"))
+    rooms.append(SimpleNamespace(name=f"pv-walk-{uid}-def456", num_participants=1))
     r = call(client, trainer_headers)
     assert (r.status_code, r.json()["error"]["code"]) == (409, "preview_running")
 

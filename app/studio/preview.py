@@ -56,13 +56,21 @@ def sign(secret: str, version_id: int, training_id: str, uid: int, start: str, e
 
 
 def _live_preview(settings: Settings, uid: int) -> str | None:
-    """A preview room of this trainer's that's still open, if any (one at a time)."""
+    """A preview room of this trainer's with someone still in it, if any (one at a time). LiveKit keeps an
+    empty room for a few minutes after everyone leaves; that one doesn't count."""
     try:
         rooms = asyncio.run(live.fetch_rooms(settings))
     except ApiError as exc:
         raise ApiError(503, "previews_unavailable", "Preview calls aren't available right now.") from exc
     marker = f"-{uid}-"
-    return next((r.name for r in rooms if (r.name or "").startswith("pv-") and marker in r.name), None)
+    return next(
+        (
+            r.name
+            for r in rooms
+            if (r.name or "").startswith("pv-") and marker in r.name and r.num_participants
+        ),
+        None,
+    )
 
 
 def _profile(db: Session, profile_id: str | None) -> str | None:
