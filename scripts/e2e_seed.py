@@ -60,6 +60,23 @@ def main(url: str) -> None:
         seed(db)
         add_assignments(db)
         add_session_details(db)
+        # Voices for the voice samples page: Ruth is the default; Amy is switched off.
+        db.execute(
+            text("UPDATE training_voices SET is_default = 0, sort_order = 60 WHERE voice_id = :v"),
+            {"v": "Matthew"},
+        )
+        for voice, language, default, active, order in (
+            ("Ruth", "en-US", 1, 1, 10),
+            ("Danielle", "en-US", 0, 1, 20),
+            ("Amy", "en-GB", 0, 0, 80),
+        ):
+            db.execute(
+                text(
+                    "INSERT INTO training_voices (voice_id, display_name, language_code, gender, is_default,"
+                    " is_active, sort_order) VALUES (:v, :v, :l, 'Female', :d, :a, :o)"
+                ),
+                {"v": voice, "l": language, "d": default, "a": active, "o": order},
+            )
         # The session viewer test needs a recorded session with a transcript: give rec-new s1's lines.
         db.execute(
             text(

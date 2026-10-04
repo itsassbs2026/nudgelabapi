@@ -316,3 +316,10 @@ Recorded as they're made (SPEC §0.2). Newest last.
 95. **Saves drop explicit nulls in training settings and lines**: to the agent a missing `completion_type` means
     "quiz" but a null one is an error, so a client sending nulls must not be able to break a training. Only the
     top-level `quiz` and `vocabulary` keep null ("none").
+
+## Voice samples (2026-10-04)
+
+96. **Samples are made on demand, not pre-recorded** (SPEC 10.3 planned stored clips): Polly reads whatever the
+    trainer types, so they can hear a line from their own training in each voice. A sample costs a fraction of a
+    cent; length (600 characters) and rate (20 a minute per user) are capped, and nothing is stored. Managing
+    voices (switching on and off, the default) stays in Phase 14.

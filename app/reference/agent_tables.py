@@ -262,6 +262,11 @@ training_voices = Table(
     agent_metadata,
     Column("voice_id", String(40), primary_key=True),
     Column("display_name", String(60)),
+    Column("language_code", String(10)),
+    Column("gender", String(10)),
+    Column("engine", String(20)),
+    Column("sort_order", Integer),
+    Column("notes", String(255)),
     Column("is_active", Boolean),
     Column("is_default", Boolean),
 )

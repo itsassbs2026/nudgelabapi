@@ -22,6 +22,7 @@ from app.routers import (
     sessions,
     studio,
     views,
+    voices,
 )
 from app.utils.errors import (
     ApiError,
@@ -78,6 +79,7 @@ def create_app() -> FastAPI:
         exports.router,
         views.router,
         studio.router,
+        voices.router,
     ):
         app.include_router(router, prefix="/api/v1")
     # The Flutter app (docs/APP_HANDOFF.md): its own prefix and its own credentials (a NudgeLab pass).

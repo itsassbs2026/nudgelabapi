@@ -5385,6 +5385,92 @@
         }
       }
     },
+    "/api/v1/voices": {
+      "get": {
+        "tags": [
+          "voices"
+        ],
+        "summary": "List Voices",
+        "operationId": "list_voices_api_v1_voices_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VoiceOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Voices Api V1 Voices Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/voices/{voice_id}/sample": {
+      "post": {
+        "tags": [
+          "voices"
+        ],
+        "summary": "Voice Sample",
+        "operationId": "voice_sample_api_v1_voices__voice_id__sample_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "voice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "pattern": "^[A-Za-z-]+$",
+              "title": "Voice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SampleIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The text read aloud, as MP3.",
+            "content": {
+              "audio/mpeg": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/app/v1/trainings": {
       "get": {
         "tags": [
@@ -9091,6 +9177,22 @@
           "trainees"
         ],
         "title": "RoundCount"
+      },
+      "SampleIn": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "SampleIn"
       },
       "SavedViewIn": {
         "properties": {
@@ -12922,6 +13024,61 @@
           "source_upload_id"
         ],
         "title": "VersionSummary"
+      },
+      "VoiceOut": {
+        "properties": {
+          "voice_id": {
+            "type": "string",
+            "title": "Voice Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "language_code": {
+            "type": "string",
+            "title": "Language Code"
+          },
+          "gender": {
+            "type": "string",
+            "title": "Gender"
+          },
+          "engine": {
+            "type": "string",
+            "title": "Engine"
+          },
+          "is_default": {
+            "type": "boolean",
+            "title": "Is Default"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "voice_id",
+          "display_name",
+          "language_code",
+          "gender",
+          "engine",
+          "is_default",
+          "is_active",
+          "notes"
+        ],
+        "title": "VoiceOut"
       }
     },
     "securitySchemes": {

@@ -87,6 +87,9 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/versions/{version_id}/prepare", None, True),
     ("GET", "/api/v1/jobs/{job_id}", None, True),
     ("POST", "/api/v1/versions/{version_id}/validate", None, True),
+    # Voice samples (SPEC 10.3).
+    ("GET", "/api/v1/voices", None, True),
+    ("POST", "/api/v1/voices/{voice_id}/sample", {"text": "Hi"}, True),
 ]
 
 
@@ -109,7 +112,7 @@ def _call(
     path = path.replace("{user_id}", "1").replace("{training_key}", "big4").replace("{uid}", "1001")
     path = path.replace("{session_id}", "s1").replace("{job_id}", "1").replace("{view_id}", "999999")
     path = path.replace("{training_id}", "big4").replace("{version_id}", "999999")
-    path = path.replace("{upload_id}", "999999")
+    path = path.replace("{upload_id}", "999999").replace("{voice_id}", "Nobody")
     path = path.replace("{from_id}", "999998").replace("{to_id}", "999999")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 

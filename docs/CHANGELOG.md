@@ -191,3 +191,9 @@
 - Content saves drop explicit nulls the agent reads differently from "missing" (`completion_type`, other
   settings, a line's `locations`, question fields beside `variants`).
 - The studio itself is in nudgelabdashboard (`d373bbc`). Tests: 464.
+
+## Voice samples (SPEC 10.3, 2026-10-04)
+
+- `GET /voices` (the voices Anne can use) and `POST /voices/{voice_id}/sample` (any text up to 600 characters read
+  by that voice, as MP3, made by Amazon Polly with the voice's own engine; 20 a minute per user; nothing stored).
+  Polly in `POLLY_REGION` (us-east-1, as the agent) through the instance role (stage 2 policy). Tests: 479.

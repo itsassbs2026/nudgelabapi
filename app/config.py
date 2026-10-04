@@ -96,6 +96,11 @@ class Settings(BaseSettings):
     prep_max_tokens: int = 32_000
     prep_timeout_seconds: int = 900
 
+    # Voice samples (SPEC 10.3): Polly in the agent's region, where the generative voices are.
+    polly_region: str = "us-east-1"
+    voice_sample_max_chars: int = 600
+    voice_sample_rate_limit: str = "20/minute"
+
     # Exports (SPEC §7.2): CSV streams straight back; XLSX is built by the worker into EXPORT_DIR (on the API
     # server's own disk, shared by the API and the worker) and deleted after EXPORT_KEEP_HOURS.
     export_dir: str = "var/exports"
