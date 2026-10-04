@@ -141,3 +141,5 @@
   against the code (test) and against a local user holding exactly these grants; the preflight reads them.
 - Reports leave out trainings never published and versions never live (drafts, in review).
 - Tests: 363.
+- Live 2026-10-04: migration 0006 and `db-grants-0006-studio.sql` on production, `dcecdd8` deployed, preflight
+  25/25; the studio API lists the four trainings with their live versions (Big 4 v18, Q4 v19, samples v16/v17).
