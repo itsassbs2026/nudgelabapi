@@ -2,6 +2,7 @@
 
 from app.models.app import AppSessionStart
 from app.models.base import Base
+from app.models.content import ContentUpload
 from app.models.dashboard import (
     DashAuditLog,
     DashEmailOutbox,
@@ -19,6 +20,7 @@ __all__ = [
     "API_TABLES",
     "AppSessionStart",
     "Base",
+    "ContentUpload",
     "DashAuditLog",
     "DashEmailOutbox",
     "DashPasswordResetToken",

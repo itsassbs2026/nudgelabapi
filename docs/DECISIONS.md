@@ -281,3 +281,29 @@ Recorded as they're made (SPEC §0.2). Newest last.
     starting over runs the active version), read from the content's `training.trainer_name`, else "Anne".
 85. **Recorded:** `app_session_starts` keeps the name and voice put in each token; `training_sessions.trainer_name`
     (migration 0007) is for the agent to fill in step 2.
+
+## Phase 12 — Uploads & prepare for voice (2026-10-04)
+
+86. **Files go straight to S3 by presigned POST**, under a random key, with the content type and a 1 byte–10 MB
+    range in S3's own policy; the API confirms the object and the worker does everything with the bytes. The
+    file name is stored only to show people.
+87. **Files are checked by content, not name**, in the worker: a Word file must be a ZIP holding
+    `word/document.xml` (parsed with defusedxml; ≤ 2,000 entries, ≤ 100 MB unpacked), a PDF must start `%PDF-`
+    (pypdf; not encrypted; ≤ 300 pages), text must be UTF-8 without NUL bytes. Scanned PDFs have no text and are
+    rejected with that message.
+88. **A document over 200,000 characters is rejected, not cut**: a training made from part of a document would
+    be missing things without anyone noticing.
+89. **Claude's answer comes back as a `submit` tool call, not structured output.** Tested on Bedrock with Sonnet
+    5.5: `output_config.format` and `strict` tools are rejected there, and a forced tool choice is rejected by
+    the model. So the tool is offered with the default choice, and everything that reads its input checks it
+    (the converter ignores anything off-schema, the content schema validates the result).
+90. **The prompt's examples are the sample trainings, never Big 4**, so the acceptance test on the Big 4
+    document proves the method instead of copying the answer.
+91. **Fact check in two layers:** every number written in digits must appear in the source (deterministic), and
+    a second Claude pass must quote, per statement, a passage that supports it; the API checks the quote is
+    really in the source (normalized). Either failing flags the statement. Structural flags too: no question,
+    a missing line, `{trainer_name}` missing from the welcome, a topic over 30 seconds (SPEC 10.4's warning).
+92. **Preparing never overwrites a trainer's edits:** the job saves only if the draft's revision is still the
+    one it started from; otherwise it fails and keeps its result in the job.
+93. **Bedrock from the API server goes to us-east-1** (`BEDROCK_REGION`, the `us.` inference profile, as the
+    agent): the pingitapi server is in us-west-1, where the model isn't served directly.

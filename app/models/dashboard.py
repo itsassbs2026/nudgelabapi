@@ -178,6 +178,7 @@ class JobType(StrEnum):
     EXPORT = "export"
     PREPARE_FOR_VOICE = "prepare_for_voice"  # Stage 2
     CREATE_VOCABULARY = "create_vocabulary"  # Stage 2
+    EXTRACT_UPLOAD = "extract_upload"  # Stage 2: check an uploaded file and extract its text
 
 
 class JobStatus(StrEnum):

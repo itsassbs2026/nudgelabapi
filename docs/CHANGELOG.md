@@ -163,3 +163,20 @@
 - Bot checks on production: no name → "I'm Anne", recorded Anne/Matthew; `Dana` + `Ruth` → "I'm Dana", in
   Ruth's voice, answers "are you really Dana?" with "I'm an AI voice trainer for Prime Communications…", recorded
   Dana/Ruth. uid 3784's sample progress restored after; 0 agent errors since the deploy.
+
+## Phase 12 — Uploads & prepare for voice (2026-10-04)
+
+- Uploads: `POST /trainings/{id}/uploads/presign` (presigned POST to `training-content/<env>/pending/<random>`,
+  type and size fixed by S3's policy), `POST /uploads/{id}/complete`, `GET /uploads/{id}`, `/uploads/{id}/text`,
+  `GET /trainings/{id}/uploads`. The worker checks each file by its content (Word = ZIP with document.xml via
+  defusedxml and unzip limits; PDF via pypdf; UTF-8 text), extracts the text (≤ 200,000 characters, else
+  rejected), and keeps the original under `uploads/`.
+- Prepare for voice: a draft made from a document (`POST /trainings/{id}/versions` with `source: "upload"`) is
+  prepared by a worker job with Claude Sonnet 5.5 on Bedrock (`prompts/prepare_for_voice.md`), converted into the
+  agent's content format, validated, fact-checked (numbers must be in the source; a second pass must quote a
+  supporting passage that really is in the source), and saved only if nobody edited the draft meanwhile.
+  `POST/GET /versions/{id}/prepare`, `GET /jobs/{id}`.
+- Migration `0008_content_uploads`; grant `deploy/db-grants-0008-uploads.sql`; `scripts/check_prepare.py`.
+- Checked for real (Bedrock, before deploy): the original Big 4 instructions became 12 topics and a 5-question
+  quiz in about 80 s for about $0.17, matching the hand-made version's structure and much of its wording; long
+  topics flagged; two planted false statements both flagged. Tests: 449.

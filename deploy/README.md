@@ -231,6 +231,31 @@ own `app_session_starts`; `training_sessions.trainer_name` is the agent's, step 
 1. `bash deploy/deploy.sh` (stops at the migration) → review `venv/bin/alembic upgrade 0006_version_editing:0007_trainer_persona --sql`
    → with "Live now" empty, `venv/bin/alembic upgrade head` → `bash deploy/deploy.sh` → preflight.
 
+## Phase 12: uploads and prepare for voice
+
+One migration (`0008_content_uploads`), one grant, new Python packages (installed by `deploy.sh`), and three AWS
+changes (you, in the console). The agent isn't touched.
+
+**AWS (before or after the code; the feature answers 503 until they're done):**
+1. **IAM:** on `Prime-nudgeapi-ec2-role`, replace the inline policy `nudgelab-dashboard-play-recordings` with
+   the contents of `deploy/iam-policy-stage2.json` (it keeps recordings playback and adds training-content
+   storage, Bedrock for Sonnet 5.5, Transcribe vocabularies and Polly samples for later phases).
+2. **Bucket lifecycle (add a rule, don't replace):** S3 → `nudgeailab` → Management → *Create lifecycle rule*:
+   name `training-content-pending`, prefix `training-content/prod/pending/`, *Expire current versions after 1
+   day*. Files whose upload was never confirmed are deleted. Leave the recordings rule as it is.
+3. **Bucket CORS (for the studio screens, Phase 13):** S3 → `nudgeailab` → Permissions → CORS. If it's empty,
+   paste this; if not, add the object inside it to the existing list:
+   `[{"AllowedOrigins": ["https://nudgelab.myprimeportal.com"], "AllowedMethods": ["POST"], "AllowedHeaders": ["*"], "MaxAgeSeconds": 3000}]`
+
+**Code:**
+1. `bash deploy/deploy.sh` → stops at the migration → review
+   `venv/bin/alembic upgrade 0007_trainer_persona:0008_content_uploads --sql` (a `CREATE TABLE content_uploads`,
+   and the jobs type check gaining `extract_upload`) → `venv/bin/alembic upgrade head`.
+2. As an admin on RDS: `deploy/db-grants-0008-uploads.sql`.
+3. `bash deploy/deploy.sh` again (installs the new packages, restarts the API and the worker), then the preflight.
+4. After the IAM change: `venv/bin/python scripts/check_prepare.py` → `PASS S3 ...` and `PASS Bedrock ...`
+   (a tiny real preparation, about a cent).
+
 ## Where things are
 
 | | |

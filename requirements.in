@@ -36,3 +36,8 @@ types-openpyxl  # dev only: type stubs for mypy
 
 # Phase 7 — live sessions on the Overview (SPEC §7.2: LiveKit list_rooms, read-only).
 livekit-api
+
+# Phase 12 — uploads & prepare for voice (SPEC 10.2, §12.4–12.5).
+anthropic[bedrock]  # Claude on Bedrock (AnthropicBedrock), credentials from the instance role
+pypdf               # PDF text extraction (worker)
+defusedxml          # .docx text extraction: parse word/document.xml without XML entity attacks

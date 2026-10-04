@@ -80,6 +80,22 @@ class Settings(BaseSettings):
     livekit_agent_name: str = "nudgelab-trainer"
     app_session_token_minutes: int = 30
 
+    # Training content uploads (SPEC 10.2, §12.4): presigned POST straight to S3 under a random key, then the
+    # worker checks the file and extracts its text. The prefix defaults to training-content/<APP_ENV>; the
+    # bucket's lifecycle rule deletes <prefix>/pending/ after a day (files never completed).
+    content_bucket: str = "nudgeailab"
+    content_region: str = "us-west-1"
+    content_prefix: str | None = None
+    upload_max_bytes: int = 10 * 1024 * 1024
+    upload_url_seconds: int = 300
+    extracted_text_max_chars: int = 200_000
+
+    # "Prepare for voice" (SPEC 10.2): Claude on Bedrock via the instance role (iam-policy-stage2.json).
+    bedrock_region: str = "us-east-1"
+    bedrock_prep_model: str = "us.anthropic.claude-sonnet-5-5"
+    prep_max_tokens: int = 32_000
+    prep_timeout_seconds: int = 900
+
     # Exports (SPEC §7.2): CSV streams straight back; XLSX is built by the worker into EXPORT_DIR (on the API
     # server's own disk, shared by the API and the worker) and deleted after EXPORT_KEEP_HOURS.
     export_dir: str = "var/exports"
@@ -103,6 +119,10 @@ class Settings(BaseSettings):
             if sep and kid.strip() and path.strip():
                 out[kid.strip()] = path.strip()
         return out
+
+    @property
+    def content_key_prefix(self) -> str:
+        return (self.content_prefix or f"training-content/{self.app_env.value}").strip("/")
 
     @property
     def is_prod(self) -> bool:

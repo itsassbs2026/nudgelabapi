@@ -33,5 +33,5 @@ filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]
 
 [[tool.mypy.overrides]]
 # No published type stubs (password-reset email through Microsoft Graph; the worker's scheduler).
-module = ["msal.*", "apscheduler.*"]
+module = ["msal.*", "apscheduler.*", "defusedxml.*"]
 ignore_missing_imports = true

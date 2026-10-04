@@ -72,6 +72,20 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/versions/{version_id}/content", None, True),
     ("PUT", "/api/v1/versions/{version_id}/content", {"revision": 1, "content": {}}, True),
     ("GET", "/api/v1/versions/{from_id}/diff/{to_id}", None, True),
+    # Uploads and prepare for voice (Phase 12).
+    (
+        "POST",
+        "/api/v1/trainings/{training_id}/uploads/presign",
+        {"filename": "a.txt", "content_type": "text/plain", "size_bytes": 5},
+        True,
+    ),
+    ("GET", "/api/v1/trainings/{training_id}/uploads", None, True),
+    ("POST", "/api/v1/uploads/{upload_id}/complete", None, True),
+    ("GET", "/api/v1/uploads/{upload_id}", None, True),
+    ("GET", "/api/v1/uploads/{upload_id}/text", None, True),
+    ("POST", "/api/v1/versions/{version_id}/prepare", None, True),
+    ("GET", "/api/v1/versions/{version_id}/prepare", None, True),
+    ("GET", "/api/v1/jobs/{job_id}", None, True),
 ]
 
 
@@ -94,6 +108,7 @@ def _call(
     path = path.replace("{user_id}", "1").replace("{training_key}", "big4").replace("{uid}", "1001")
     path = path.replace("{session_id}", "s1").replace("{job_id}", "1").replace("{view_id}", "999999")
     path = path.replace("{training_id}", "big4").replace("{version_id}", "999999")
+    path = path.replace("{upload_id}", "999999")
     path = path.replace("{from_id}", "999998").replace("{to_id}", "999999")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 

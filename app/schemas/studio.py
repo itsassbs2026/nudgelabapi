@@ -121,6 +121,7 @@ class VersionSummary(BaseModel):
     updated_at: datetime | None
     updated_by: str | None
     published_at: datetime | None
+    source_upload_id: int | None
 
 
 class TrainingDetail(TrainingSettings):
@@ -131,8 +132,9 @@ class TrainingDetail(TrainingSettings):
 class VersionCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    source: Literal["blank", "version"] = "version"
+    source: Literal["blank", "version", "upload"] = "version"
     source_version_id: int | None = None
+    upload_id: int | None = None  # source "upload": a ready document; the draft is then prepared for voice
     label: str | None = Field(default=None, max_length=50)
     notes: str | None = Field(default=None, max_length=2000)
 
@@ -140,8 +142,10 @@ class VersionCreate(BaseModel):
     def _source(self) -> VersionCreate:
         if self.source == "version" and self.source_version_id is None:
             raise ValueError("source_version_id is required to copy a version.")
-        if self.source == "blank" and self.source_version_id is not None:
+        if self.source != "version" and self.source_version_id is not None:
             raise ValueError("source_version_id is only for copying a version.")
+        if (self.source == "upload") != (self.upload_id is not None):
+            raise ValueError("upload_id is required for, and only for, a draft made from a document.")
         self.label = _strip(self.label)
         self.notes = _strip(self.notes)
         return self
@@ -170,3 +174,66 @@ class VersionDiff(BaseModel):
     topics: list[dict[str, Any]]
     quiz: dict[str, Any]
     vocabulary: dict[str, list[str]]
+
+
+class UploadPresignIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    filename: str = Field(min_length=1, max_length=255)
+    content_type: Literal[
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/pdf",
+        "text/plain",
+        "text/markdown",
+    ]
+    size_bytes: int = Field(ge=1)
+
+    @field_validator("filename")
+    @classmethod
+    def _filename(cls, value: str) -> str:
+        """Kept only to show people; never used in a storage key. Any folder part is dropped."""
+        value = value.strip().replace("\\", "/").rsplit("/", 1)[-1]
+        if not value or any(ord(c) < 32 for c in value):
+            raise ValueError("Not a valid file name.")
+        return value
+
+
+class UploadPresignOut(BaseModel):
+    upload_id: int
+    url: str
+    fields: dict[str, str]
+    expires_in: int
+    max_bytes: int
+
+
+class UploadSummary(BaseModel):
+    upload_id: int
+    training_id: str
+    filename: str
+    content_type: str
+    size_bytes: int | None
+    status: Literal["pending", "processing", "ready", "rejected"]
+    error: str | None
+    text_chars: int | None
+    uploaded_by: str | None
+    created_at: datetime
+    completed_at: datetime | None
+
+
+class UploadText(BaseModel):
+    upload_id: int
+    filename: str
+    text: str
+
+
+class JobView(BaseModel):
+    job_id: int
+    type: str
+    status: Literal["queued", "running", "done", "failed"]
+    training_id: str | None
+    version_id: int | None
+    error: str | None
+    result: dict[str, Any] | None
+    created_at: datetime
+    started_at: datetime | None
+    finished_at: datetime | None

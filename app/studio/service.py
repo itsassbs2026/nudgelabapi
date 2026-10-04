@@ -23,11 +23,13 @@ from sqlalchemy import case, func, insert, select, update
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser
+from app.models.content import ContentUpload, UploadStatus
 from app.models.dashboard import DashUser
 from app.reference.agent_tables import training_profiles, training_versions, trainings
 from app.schemas.training_content import TrainingContent
 from app.services import audit
 from app.services.audit import AuditAction
+from app.studio import prepare
 from app.studio.blank import blank_content
 from app.studio.diff import diff
 from app.utils.errors import ApiError
@@ -260,6 +262,7 @@ def _version_summary(row: Any, active_version_id: int | None, names: dict[int, s
         "updated_at": row.updated_at,
         "updated_by": names.get(row.updated_by) if row.updated_by else None,
         "published_at": row.published_at if row.status not in ("draft", "in_review") else None,
+        "source_upload_id": row.source_upload_id,
     }
 
 
@@ -281,6 +284,7 @@ def _insert_version(
     content: dict[str, Any],
     label: str | None,
     notes: str | None,
+    source_upload_id: int | None = None,
 ) -> int:
     now = _now()
     result = db.execute(
@@ -294,6 +298,7 @@ def _insert_version(
             created_by=current.user.id,
             created_at=now,
             revision=1,
+            source_upload_id=source_upload_id,
         )
     )
     return int(result.inserted_primary_key[0])  # type: ignore[attr-defined]
@@ -303,6 +308,7 @@ def create_version(
     db: Session, current: CurrentUser, training_id: str, data: dict[str, Any], ip: str | None
 ) -> dict[str, Any]:
     t = _training(db, training_id)
+    upload_id = None
     if data["source"] == "version":
         source = _version(db, data["source_version_id"])
         if source.training_id != training_id:
@@ -311,13 +317,22 @@ def create_version(
             raise ApiError(422, "no_content", "That version has no content to copy.")
         content = _json(source.content)
     else:
+        if data["source"] == "upload":
+            upload = db.get(ContentUpload, data["upload_id"])
+            if upload is None or upload.training_id != training_id:
+                raise ApiError(422, "wrong_upload", "That document wasn't uploaded for this training.")
+            if upload.status != UploadStatus.READY.value:
+                raise ApiError(409, "upload_not_ready", "The document's text isn't ready yet.")
+            upload_id = upload.id
         content = blank_content(
             title=t.title,
             completion_type=t.completion_type,
             uses_location=bool(t.uses_location),
             trainer_name=DEFAULT_TRAINER_NAME,
         )
-    version_id = _insert_version(db, current, training_id, content, data.get("label"), data.get("notes"))
+    version_id = _insert_version(
+        db, current, training_id, content, data.get("label"), data.get("notes"), source_upload_id=upload_id
+    )
     audit.record(
         db,
         AuditAction.VERSION_CREATED,
@@ -328,10 +343,13 @@ def create_version(
             "version_id": version_id,
             "source": data["source"],
             "source_version_id": data.get("source_version_id"),
+            "upload_id": upload_id,
         },
         ip=ip,
     )
     db.commit()
+    if upload_id is not None:  # made from a document: prepare it for voice straight away (worker job)
+        prepare.queue(db, current, version_id)
     return version_summary(db, version_id)
 
 
