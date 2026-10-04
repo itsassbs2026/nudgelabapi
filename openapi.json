@@ -9479,6 +9479,32 @@
             "type": "boolean",
             "title": "Start Over",
             "default": false
+          },
+          "trainer_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Name"
+          },
+          "trainer_voice": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Voice"
           }
         },
         "additionalProperties": false,
@@ -9502,6 +9528,28 @@
           "expires_in": {
             "type": "integer",
             "title": "Expires In"
+          },
+          "trainer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Name"
+          },
+          "trainer_voice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Voice"
           }
         },
         "type": "object",
@@ -9509,7 +9557,9 @@
           "server_url",
           "participant_token",
           "room_name",
-          "expires_in"
+          "expires_in",
+          "trainer_name",
+          "trainer_voice"
         ],
         "title": "SessionStartOut"
       },
@@ -10099,6 +10149,21 @@
               }
             ],
             "title": "Due At"
+          },
+          "trainer_voice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Voice"
+          },
+          "default_trainer_name": {
+            "type": "string",
+            "title": "Default Trainer Name"
           }
         },
         "type": "object",
@@ -10122,7 +10187,9 @@
           "completion_type",
           "status",
           "progress",
-          "due_at"
+          "due_at",
+          "trainer_voice",
+          "default_trainer_name"
         ],
         "title": "TrainingCard"
       },

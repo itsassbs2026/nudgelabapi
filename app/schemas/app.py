@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TrainingProgress(BaseModel):
@@ -34,6 +34,8 @@ class TrainingCard(BaseModel):
     status: Literal["not_started", "in_progress", "completed"]
     progress: TrainingProgress
     due_at: str | None
+    trainer_voice: str | None
+    default_trainer_name: str
 
 
 class TrainingList(BaseModel):
@@ -60,6 +62,9 @@ class SessionStartIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     start_over: bool = False
+    # Send back what the list offered: trainer_person_name (or default_trainer_name) and trainer_voice.
+    trainer_name: str | None = Field(default=None, min_length=1, max_length=120)
+    trainer_voice: str | None = Field(default=None, min_length=1, max_length=40)
 
 
 class SessionStartOut(BaseModel):
@@ -67,3 +72,5 @@ class SessionStartOut(BaseModel):
     participant_token: str
     room_name: str
     expires_in: int
+    trainer_name: str | None  # the name the trainer will say (first name)
+    trainer_voice: str | None

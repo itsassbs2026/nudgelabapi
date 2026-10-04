@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings
 from app.mobile.passes import Employee
+from app.mobile.persona import Chosen
 from app.models.app import AppSessionStart
 from app.utils.errors import ApiError
 
@@ -25,13 +26,30 @@ CLIENT_LABEL = "flutter"
 
 
 def start(
-    db: Session, settings: Settings, employee: Employee, training_id: str, *, start_over: bool, ip: str | None
+    db: Session,
+    settings: Settings,
+    employee: Employee,
+    training_id: str,
+    chosen: Chosen,
+    *,
+    start_over: bool,
+    ip: str | None,
 ) -> dict[str, Any]:
     if not settings.livekit_configured:
         raise ApiError(503, "sessions_unavailable", "Voice sessions aren't available right now.")
     uid = employee.uid
     room_name = f"nl-{training_id}-{uid}-{secrets.token_hex(3)}"
-    metadata = {"uid": uid, "training_id": training_id, "reset": start_over, "client": CLIENT_LABEL}
+    metadata: dict[str, Any] = {
+        "uid": uid,
+        "training_id": training_id,
+        "reset": start_over,
+        "client": CLIENT_LABEL,
+    }
+    # The trainer's name and voice (app/mobile/persona.py). Without a name the agent uses the training's own.
+    if chosen.spoken:
+        metadata["trainer_name"] = chosen.spoken
+    if chosen.voice:
+        metadata["voice"] = chosen.voice
     ttl = timedelta(minutes=settings.app_session_token_minutes)
     dispatch = api.RoomAgentDispatch(agent_name=settings.livekit_agent_name, metadata=json.dumps(metadata))
     token = (
@@ -51,6 +69,8 @@ def start(
             start_over=start_over,
             pass_jti=employee.jti,
             ip=ip,
+            trainer_name=chosen.spoken,
+            voice_id=chosen.voice,
         )
     )
     db.commit()
@@ -59,4 +79,6 @@ def start(
         "participant_token": token,
         "room_name": room_name,
         "expires_in": int(ttl.total_seconds()),
+        "trainer_name": chosen.spoken,
+        "trainer_voice": chosen.voice,
     }

@@ -20,6 +20,7 @@ from sqlalchemy import Select, and_, func, select
 from sqlalchemy.orm import Session
 
 from app.config import Settings
+from app.mobile.persona import Voices, default_names, session_version, trainer_persona
 from app.reference.agent_tables import training_assignments, training_progress, training_topics, trainings
 
 LISTED_ASSIGNMENT_STATUSES = ("assigned", "completed")
@@ -50,6 +51,7 @@ def _listed(uid: int) -> Select[Any]:
             t.c.completion_key,
             t.c.completion_type,
             t.c.active_version_id,
+            t.c.profile_id,
             p.c.version_id.label("progress_version_id"),
             p.c.topics_covered,
             p.c.quiz_attempted,
@@ -104,8 +106,11 @@ def training_cards(db: Session, uid: int, profile: dict[str, Any]) -> list[dict[
     rows = db.execute(_listed(uid)).all()
     versions = {int(r.progress_version_id or r.active_version_id) for r in rows}
     topic_counts = _topic_counts(db, versions)
+    names = default_names(db, {session_version(r) for r in rows})
+    voices = Voices(db)
     cards = []
     for r in rows:
+        persona = trainer_persona(profile, r.profile_id, voices)
         version = int(r.progress_version_id or r.active_version_id)
         completed = r.passed_at is not None
         cards.append(
@@ -119,7 +124,7 @@ def training_cards(db: Session, uid: int, profile: dict[str, Any]) -> list[dict[
                 "trainer_category": r.category,
                 "elevenlabs_agent_id": r.completion_key,
                 "trainer_description": r.description,
-                "trainer_person_name": profile.get("district_manager_name"),
+                "trainer_person_name": persona.name,
                 "trainer_picture": profile.get("district_manager_picture"),
                 "matched_rule_group_id": r.matched_rule_group_id,
                 "matched_rule_name": r.matched_rule_name,
@@ -136,6 +141,10 @@ def training_cards(db: Session, uid: int, profile: dict[str, Any]) -> list[dict[
                     "quiz_retry": bool(r.quiz_attempted) and not completed and r.completion_type == "quiz",
                 },
                 "due_at": _wanaka_time(r.due_at),
+                # The trainer's name and voice for this employee (app/mobile/persona.py): the app uses
+                # trainer_person_name, or default_trainer_name when it's null, and sends them back at start.
+                "trainer_voice": persona.voice,
+                "default_trainer_name": names[session_version(r)],
             }
         )
     return sorted(cards, key=_sort_key)

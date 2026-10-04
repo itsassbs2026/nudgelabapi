@@ -143,3 +143,12 @@
 - Tests: 363.
 - Live 2026-10-04: migration 0006 and `db-grants-0006-studio.sql` on production, `dcecdd8` deployed, preflight
   25/25; the studio API lists the four trainings with their live versions (Big 4 v18, Q4 v19, samples v16/v17).
+
+## Trainer persona, step 1: API (2026-10-04)
+
+- The app's list adds `trainer_voice` and `default_trainer_name` per card; session start accepts `trainer_name` and
+  `trainer_voice` (only values the list offered, or the training's default name; active voices) and puts the
+  spoken first name and the voice in the token (`app/mobile/persona.py`).
+- Migration `0007_trainer_persona`: `trainer_name`, `voice_id` on `app_session_starts`; `trainer_name` on
+  `training_sessions` (for the agent, step 2).
+- Flutter guide and APP_HANDOFF updated.

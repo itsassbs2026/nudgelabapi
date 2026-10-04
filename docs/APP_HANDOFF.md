@@ -106,8 +106,16 @@ list** (required and not completed), so the badge and the list can never disagre
 
 ### 3.3 `POST /app/v1/trainings/{training_id}/session`
 
-Body: `{"start_over": false}`. Returns `{"server_url", "participant_token", "room_name", "expires_in"}`, the same
-field names as the tester page.
+Body: `{"start_over": false, "trainer_name": "...", "trainer_voice": "..."}` (the last two optional). Returns
+`{"server_url", "participant_token", "room_name", "expires_in", "trainer_name", "trainer_voice"}`.
+
+**Trainer persona** (`app/mobile/persona.py`, decided 2026-10-04): one function, `trainer_persona`, gives each
+employee and training a name and a voice; the list shows them (`trainer_person_name`, `trainer_voice`, plus
+`default_trainer_name`), and a session start accepts back only those or the training's default name, and any
+active voice. Today: the district manager's name and the voice the agent would pick anyway (the setup's voice,
+else the `default_marker` voice). Changing the rule means changing that function only; the app sends back
+whatever it was given. The trainer says the first name only; names that aren't plain letters aren't spoken
+(the default is used). The agent (step 2) uses `trainer_name` and says it's an AI trainer if asked.
 
 - Refused (403) unless the training is **assigned** to this uid, not cancelled, and has a published version.
 - The token is signed with the LiveKit secret and carries the dispatch metadata (`uid`, `training_id`, `reset`,

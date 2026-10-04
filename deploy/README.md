@@ -223,6 +223,14 @@ One migration (`0006_version_editing`), one grant file. No change to the agent o
 3. As an admin on RDS: `deploy/db-grants-0006-studio.sql`, then `SHOW GRANTS FOR 'nudgelab_api'@'10.0.1.148';`.
 4. `bash /srv/nudgelabapi/deploy/deploy.sh` again, then the preflight: `PASS studio grants`.
 
+## Trainer persona, step 1 (API)
+
+One migration (`0007_trainer_persona`, three nullable columns), no new grants (the API already inserts into its
+own `app_session_starts`; `training_sessions.trainer_name` is the agent's, step 2).
+
+1. `bash deploy/deploy.sh` (stops at the migration) → review `venv/bin/alembic upgrade 0006_version_editing:0007_trainer_persona --sql`
+   → with "Live now" empty, `venv/bin/alembic upgrade head` → `bash deploy/deploy.sh` → preflight.
+
 ## Where things are
 
 | | |

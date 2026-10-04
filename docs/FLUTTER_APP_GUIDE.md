@@ -88,8 +88,13 @@ class NudgeLabApi {
 
   Future<Map<String, dynamic>> pendingCount() => _send('GET', '/trainings/pending-count');
   Future<Map<String, dynamic>> trainings() => _send('GET', '/trainings');
-  Future<Map<String, dynamic>> startSession(String trainingId, {bool startOver = false}) =>
-      _send('POST', '/trainings/$trainingId/session', {'start_over': startOver});
+  // Pass the card: the trainer's name and voice are sent back exactly as the list gave them.
+  Future<Map<String, dynamic>> startSession(Map<String, dynamic> card, {bool startOver = false}) =>
+      _send('POST', '/trainings/${card['training_id']}/session', {
+        'start_over': startOver,
+        'trainer_name': card['trainer_person_name'] ?? card['default_trainer_name'],
+        if (card['trainer_voice'] != null) 'trainer_voice': card['trainer_voice'],
+      });
 }
 ```
 
@@ -117,6 +122,8 @@ Each card has these new keys:
 | `status` | `not_started` \| `in_progress` \| `completed` | button text: Start / Resume / Completed |
 | `progress` | `{"topics_done": 1, "topics_total": 16, "quiz_retry": false}` | progress bar; "Retake quiz" when `quiz_retry` |
 | `due_at` | `"2026-10-31 23:59:59.000000"` or `null` | optional due date |
+| `trainer_voice` | e.g. `"Matthew"`, or `null` | send back on session start |
+| `default_trainer_name` | e.g. `"Anne"` | the trainer's name when `trainer_person_name` is null |
 
 A real card from production:
 
@@ -143,11 +150,26 @@ Notes:
 
 ## 4. Starting a session
 
-`POST /app/v1/trainings/{training_id}/session`, body `{"start_over": false}` (or no body). Returns:
+`POST /app/v1/trainings/{training_id}/session`, body:
 
 ```json
-{"server_url": "wss://...livekit.cloud", "participant_token": "<jwt>", "room_name": "nl-big4-3784-327fe5", "expires_in": 1800}
+{"start_over": false, "trainer_name": "Dana Manager", "trainer_voice": "Matthew"}
 ```
+
+Returns:
+
+```json
+{"server_url": "wss://...livekit.cloud", "participant_token": "<jwt>", "room_name": "nl-big4-3784-327fe5",
+ "expires_in": 1800, "trainer_name": "Dana", "trainer_voice": "Matthew"}
+```
+
+**The trainer's name and voice** come from the card, and are sent back as they are:
+- `trainer_name` = the card's `trainer_person_name`, or its `default_trainer_name` when that's null.
+- `trainer_voice` = the card's `trainer_voice` (omit it when null).
+- Both are optional: without them the server picks the same ones. Anything the card didn't offer is refused
+  (422 `trainer_name_not_allowed` / `trainer_voice_not_allowed`).
+- The trainer says only the first name ("Dana"); the response's `trainer_name` is what it will say, e.g. for
+  "Anne is joining…" → "Dana is joining…". The app can still show the full name on the card.
 
 - **Start / Resume** (`status` `not_started` or `in_progress`): `start_over: false`. Anne resumes where they left
   off.
@@ -216,6 +238,7 @@ Every error is `{"error": {"code": "...", "message": "...", "details": {}}}`.
 | 403 | `not_assigned` | reload the list (it changed); "This training is no longer assigned to you." |
 | 404 | `not_found` | reload the list |
 | 422 | `validation_error` | a bug in the app: log it, generic message |
+| 422 | `trainer_name_not_allowed`, `trainer_voice_not_allowed` | reload the list (the persona changed), start again |
 | 429 | `rate_limited` | "Please wait a moment and try again." (60 reads or 6 starts a minute per person) |
 | 503 | `app_not_configured`, `sessions_unavailable` | "Trainings are temporarily unavailable." |
 | network | | the app's usual offline message; the badge can keep its last value |

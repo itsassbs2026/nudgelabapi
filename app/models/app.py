@@ -27,6 +27,8 @@ class AppSessionStart(Base):
     start_over: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     pass_jti: Mapped[str | None] = mapped_column(String(64))
     ip: Mapped[str | None] = mapped_column(String(45))
+    trainer_name: Mapped[str | None] = mapped_column(String(40))  # the name the trainer said (persona)
+    voice_id: Mapped[str | None] = mapped_column(String(40))
     created_at: Mapped[datetime] = mapped_column(
         UtcDateTime, server_default=func.utc_timestamp(6), nullable=False
     )

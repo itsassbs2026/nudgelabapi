@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
 from app.db import get_db
-from app.mobile import sessions, trainings
+from app.mobile import persona, sessions, trainings
 from app.mobile.limits import reader, session_starter
 from app.mobile.passes import Employee
 from app.reference.agent_tables import trainings as trainings_table
@@ -50,13 +50,24 @@ def start_session(
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> Any:
-    if trainings.listed_training(db, employee.uid, training_id) is None:
+    row = trainings.listed_training(db, employee.uid, training_id)
+    if row is None:
         exists = db.execute(
             select(trainings_table.c.training_id).where(trainings_table.c.training_id == training_id)
         ).first()
         if exists is None:
             raise ApiError(404, "not_found", "Training not found.")
         raise ApiError(403, "not_assigned", "This training isn't assigned to you.")
+    # Starting over runs the active version; otherwise a trainee mid-training stays on theirs.
+    version = int(row.active_version_id) if body.start_over else persona.session_version(row)
+    voices = persona.Voices(db)
+    chosen = persona.choose(
+        persona=persona.trainer_persona(employee.profile, row.profile_id, voices),
+        default_name=persona.default_names(db, {version})[version],
+        voices=voices,
+        requested_name=body.trainer_name,
+        requested_voice=body.trainer_voice,
+    )
     return sessions.start(
-        db, settings, employee, training_id, start_over=body.start_over, ip=client_ip(request)
+        db, settings, employee, training_id, chosen, start_over=body.start_over, ip=client_ip(request)
     )

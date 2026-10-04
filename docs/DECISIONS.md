@@ -263,3 +263,20 @@ Recorded as they're made (SPEC §0.2). Newest last.
     saved last and when. Creating trainings and versions and changing settings are audit-logged.
 80. **Per-training default voice** (SPEC 10.2) isn't a column the agent reads: the voice comes from the training's
     setup (`profile_id` → `training_profiles.voice_id`). Choosing a voice per training waits for Phase 14.
+
+## Trainer persona, step 1: API (2026-10-04)
+
+81. **The trainer's name and voice are decided in one place** (`app/mobile/persona.py`, owner's decision, option
+    B: the trainer uses the name). The list offers them; the app sends them back on session start; the server
+    accepts only what it offered (that persona's name or the training's default name) and active voices. So the
+    rule can change server-side without any app change, and nobody can make the trainer say an arbitrary name.
+82. **Today's persona:** the district manager's name (`vw_app_profile`), and the voice the agent would pick
+    anyway: the training's setup voice if set and active, else the `default_marker` voice. No change in voice
+    until someone changes those.
+83. **First name only, plain letters only:** the trainer says the first word of the name; anything that isn't
+    letters with single spaces, hyphens or apostrophes (≤ 40) isn't spoken, and the training's default is used.
+    Keeps names natural and keeps anything else out of the agent's instructions.
+84. **The default name comes from the version the session will run** (a trainee mid-training stays on theirs;
+    starting over runs the active version), read from the content's `training.trainer_name`, else "Anne".
+85. **Recorded:** `app_session_starts` keeps the name and voice put in each token; `training_sessions.trainer_name`
+    (migration 0007) is for the agent to fill in step 2.

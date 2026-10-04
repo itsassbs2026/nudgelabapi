@@ -122,6 +122,7 @@ training_sessions = Table(
     Column("profile_id", String(30)),
     Column("llm_model", String(60)),
     Column("voice_id", String(40)),
+    Column("trainer_name", String(40)),  # migration 0007: the name the trainer used (persona), NULL before
     Column("recording_s3_key", String(300)),
     Column("agent_version", String(40)),
     Column("summary", Text),
@@ -252,6 +253,8 @@ training_profiles = Table(
     agent_metadata,
     Column("profile_id", String(30), primary_key=True),
     Column("display_name", String(60)),
+    Column("voice_id", String(40)),
+    Column("is_default", Boolean),
 )
 
 training_voices = Table(
@@ -260,6 +263,7 @@ training_voices = Table(
     Column("voice_id", String(40), primary_key=True),
     Column("display_name", String(60)),
     Column("is_active", Boolean),
+    Column("is_default", Boolean),
 )
 
 # Views: the org hierarchy without exposing v_users* personal-data columns (SPEC §6.2).
