@@ -41,3 +41,23 @@ def test_no_personal_tables_are_granted() -> None:
     assert not any(t.startswith("v_") for t in reads), (
         "v_users* / v_stores* stay off limits; use the vw_ views"
     )
+
+
+def test_studio_writes_are_column_limited() -> None:
+    """Phase 11: INSERT on two agent tables, UPDATE only on the columns the code changes, never DELETE."""
+    from app.studio.service import TRAINING_UPDATABLE, VERSION_UPDATABLE
+
+    sql = (DEPLOY / "db-grants-0006-studio.sql").read_text(encoding="utf-8")
+    grants = re.findall(
+        r"^GRANT (INSERT|UPDATE)(?: \(([^)]*)\))? ON nudgeai\.(\w+) TO 'nudgelab_api'@", sql, re.M
+    )
+    found = {(priv, table): {c.strip() for c in cols.split(",") if c.strip()} for priv, cols, table in grants}
+    assert found == {
+        ("INSERT", "trainings"): set(),
+        ("UPDATE", "trainings"): set(TRAINING_UPDATABLE),
+        ("INSERT", "training_versions"): set(),
+        ("UPDATE", "training_versions"): set(VERSION_UPDATABLE),
+    }
+    assert "active_version_id" not in TRAINING_UPDATABLE  # publishing is Phase 16
+    assert "status" not in VERSION_UPDATABLE
+    assert "DELETE" not in sql.replace("No DELETE", "")

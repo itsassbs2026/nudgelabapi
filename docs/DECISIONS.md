@@ -239,3 +239,27 @@ Recorded as they're made (SPEC §0.2). Newest last.
     `app_session_starts` (uid, training, room, pass id, IP). The session itself is still the agent's row.
 71. **Errors use this API's shape** (`{"error": {"code", "message", "details"}}`), never database messages.
 
+## Phase 11 — Training CRUD & versions (2026-10-04)
+
+72. **Nothing in Phase 11 can change what the voice agent runs.** The agent runs a training's active version or
+    a trainee's pinned version, never "the latest", so drafts are invisible to it. The API is granted UPDATE on
+    named columns only: not `trainings.active_version_id`, not `training_versions.status` (Phase 16 adds them
+    with publishing). A test asserts the active versions and their content are unchanged by studio work.
+73. **Versions made in the studio get a random content hash**, fixed at creation: `training_versions` is unique on
+    (training, hash), and the agent finds file-published versions by their file hash, so neither can collide.
+74. **Optimistic locking:** every save sends the revision it started from; the update matches on it and bumps it.
+    A stale save gets 409 `edit_conflict` with the current revision and who saved it, and changes nothing. No
+    locks to release, nothing lost silently (SPEC §15 Phase 11 acceptance, tested with two editors).
+75. **Only drafts are editable.** A published or retired version is changed by copying it into a new draft.
+76. **A new training starts as `draft`** (`trainings.status`) with no active version: not in reports, not in the
+    app, not runnable. Blank content has the line keys the agent reads for the completion type, all empty; the
+    trainer writes them and validation (Phase 13/16) blocks publishing empty required lines.
+77. **Completion type and location setting lock once a version is published**: changing them would change what
+    the content must contain under trainees already on it.
+78. **Archive = `trainings.status = 'retired'`** (Admin): out of the app's list; the published version and history
+    stay. Restoring makes it `active` again, or `draft` if it was never published.
+79. **Content is stored exactly as sent** (`exclude_unset`), the same round-trip the agent's export is tested with.
+    Saves are limited to 2 MB. Content saves aren't audit-logged (they're frequent); the version row keeps who
+    saved last and when. Creating trainings and versions and changing settings are audit-logged.
+80. **Per-training default voice** (SPEC 10.2) isn't a column the agent reads: the voice comes from the training's
+    setup (`profile_id` → `training_profiles.voice_id`). Choosing a voice per training waits for Phase 14.

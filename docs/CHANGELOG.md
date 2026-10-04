@@ -127,3 +127,17 @@
   answer 401 until Wanaka's public key is set (`APP_PASS_PUBLIC_KEYS`). Preflight now also reads
   `vw_app_profile` and `app_session_starts` (the 0005 grants).
 
+## Phase 11 — Training CRUD & versions (2026-10-04)
+
+- `GET/POST /trainings`, `GET/PATCH /trainings/{id}`, `GET/POST /trainings/{id}/versions`,
+  `GET/PUT /versions/{id}/content` (optimistic locking on `revision`), `GET /versions/{a}/diff/{b}` (structured:
+  settings, lines, preamble, topics, quiz, vocabulary). Trainers and Admins; archiving and hiding from the app
+  are Admin-only.
+- New trainings start as `draft` with a blank first version: the content structure and the line keys the agent
+  needs for the completion type, all empty (nothing invented).
+- Migration `0006_version_editing`: `revision`, `created_at`, `updated_at`, `updated_by` on `training_versions`.
+- Grants `deploy/db-grants-0006-studio.sql`: INSERT and **column-level** UPDATE on `trainings` and
+  `training_versions`; `active_version_id` and version `status` are not writable until Phase 16. Checked
+  against the code (test) and against a local user holding exactly these grants; the preflight reads them.
+- Reports leave out trainings never published and versions never live (drafts, in review).
+- Tests: 363.

@@ -48,7 +48,7 @@ def _active_label(db: Session, version_id: int | None) -> str | None:
 
 def trainings_table(db: Session, f: ReportFilters) -> list[dict[str, Any]]:
     """One row per training: type, active version, cohort progress and period activity."""
-    q = select(trainings).order_by(trainings.c.title)
+    q = select(trainings).where(trainings.c.status != "draft").order_by(trainings.c.title)
     if f.training_id:
         q = q.where(trainings.c.training_id == f.training_id)
     if f.completion_type:
@@ -250,7 +250,13 @@ def training_detail(db: Session, f: ReportFilters, training_id: str) -> dict[str
     versions = []
     for v in db.execute(
         select(training_versions)
-        .where(training_versions.c.training_id == training_id)
+        .where(
+            training_versions.c.training_id == training_id,
+            # Drafts and versions in review (training studio) were never live; legacy rows have no status.
+            or_(
+                training_versions.c.status.is_(None), training_versions.c.status.in_(("published", "retired"))
+            ),
+        )
         .order_by(training_versions.c.version_id.desc())
     ).all():
         sessions_n = db.execute(

@@ -47,7 +47,10 @@ def filter_options(db: Session, *, district_id: int | None = None) -> dict[str, 
     return {
         "trainings": [
             {"id": r.training_id, "title": r.title, "completion_type": r.completion_type, "status": r.status}
-            for r in db.execute(select(trainings).order_by(trainings.c.title))
+            # Trainings still being written in the studio (never published) have nothing to report yet.
+            for r in db.execute(
+                select(trainings).where(trainings.c.status != "draft").order_by(trainings.c.title)
+            )
         ],
         "regions": [{"id": k, "name": v} for k, v in sorted(regions.items(), key=lambda kv: str(kv[1]))],
         "markets": sorted(markets.values(), key=lambda m: str(m["name"])),

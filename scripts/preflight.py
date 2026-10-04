@@ -110,10 +110,33 @@ def check_database(settings: object) -> None:
                         f"API table {table}",
                         f"{_short(exc)} (normal before `alembic upgrade head` + grants)",
                     )
+            _check_studio_grants(conn)
     except Exception as exc:
         report("FAIL", "database (app login)", _short(exc))
     finally:
         engine.dispose()
+
+
+def _check_studio_grants(conn: object) -> None:
+    """Phase 11 writes: INSERT and column UPDATE on two tables (deploy/db-grants-0006-studio.sql)."""
+    from sqlalchemy import text
+
+    try:
+        lines = [str(r[0]) for r in conn.execute(text("SHOW GRANTS FOR CURRENT_USER"))]  # type: ignore[attr-defined]
+    except Exception as exc:
+        report("WARN", "studio grants", _short(exc))
+        return
+    missing = []
+    for table in ("trainings", "training_versions"):
+        on_table = [ln for ln in lines if f"`{table}`" in ln]
+        if not any("INSERT" in ln for ln in on_table) or not any("UPDATE (" in ln for ln in on_table):
+            missing.append(table)
+    if missing:
+        report(
+            "WARN", "studio grants", f"missing on {', '.join(missing)}: run deploy/db-grants-0006-studio.sql"
+        )
+    else:
+        report("PASS", "studio grants", "INSERT and column UPDATE on trainings, training_versions")
 
 
 def check_migrations(settings: object) -> None:

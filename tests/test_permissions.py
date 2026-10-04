@@ -62,6 +62,16 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("POST", "/api/v1/exports", {"report": "daily", "format": "csv"}, True),
     ("GET", "/api/v1/exports/{job_id}", None, True),
     ("GET", "/api/v1/exports/{job_id}/download", None, True),
+    # Training studio (Phase 11). Archiving and hiding from the app are Admin-only fields: test_studio.py.
+    ("GET", "/api/v1/trainings", None, True),
+    ("POST", "/api/v1/trainings", {"training_id": "perm_test", "title": "P"}, True),
+    ("GET", "/api/v1/trainings/{training_id}", None, True),
+    ("PATCH", "/api/v1/trainings/{training_id}", {"title": "P"}, True),
+    ("GET", "/api/v1/trainings/{training_id}/versions", None, True),
+    ("POST", "/api/v1/trainings/{training_id}/versions", {"source": "blank"}, True),
+    ("GET", "/api/v1/versions/{version_id}/content", None, True),
+    ("PUT", "/api/v1/versions/{version_id}/content", {"revision": 1, "content": {}}, True),
+    ("GET", "/api/v1/versions/{from_id}/diff/{to_id}", None, True),
 ]
 
 
@@ -83,7 +93,8 @@ def _call(
 ) -> int:
     path = path.replace("{user_id}", "1").replace("{training_key}", "big4").replace("{uid}", "1001")
     path = path.replace("{session_id}", "s1").replace("{job_id}", "1").replace("{view_id}", "999999")
-    path = path.replace("{training_id}", "big4")
+    path = path.replace("{training_id}", "big4").replace("{version_id}", "999999")
+    path = path.replace("{from_id}", "999998").replace("{to_id}", "999999")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 
 

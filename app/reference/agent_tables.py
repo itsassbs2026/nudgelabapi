@@ -29,6 +29,7 @@ trainings = Table(
     Column("title", String(200)),
     Column("status", String(20)),
     Column("completion_type", String(20)),
+    Column("uses_location", Boolean),
     Column("completion_key", String(64)),
     Column("profile_id", String(30)),
     Column("active_version_id", Integer),
@@ -48,12 +49,20 @@ training_versions = Table(
     Column("version_id", Integer, primary_key=True),
     Column("training_id", String(50)),
     Column("version_label", String(50)),
+    Column("content_hash", String(64)),
     Column("published_at", DateTime),
+    Column("published_by", Integer),
+    Column("notes", Text),
     # Phase 10 (migration 0004): the training as one JSON document, and where the version is in its workflow.
     Column("status", String(16)),
     Column("content", JSON),
     Column("created_by", Integer),
     Column("source_upload_id", Integer),
+    # Migration 0006: editing drafts in the dashboard (optimistic locking on `revision`).
+    Column("revision", Integer),
+    Column("created_at", DateTime),
+    Column("updated_at", DateTime),
+    Column("updated_by", Integer),
 )
 
 training_topics = Table(

@@ -4490,6 +4490,454 @@
         ]
       }
     },
+    "/api/v1/trainings": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "List Trainings",
+        "operationId": "list_trainings_api_v1_trainings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TrainingListItem"
+                  },
+                  "type": "array",
+                  "title": "Response List Trainings Api V1 Trainings Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Create Training",
+        "operationId": "create_training_api_v1_trainings_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainingCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trainings/{training_id}": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Get Training",
+        "operationId": "get_training_api_v1_trainings__training_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "training_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{2,49}$",
+              "title": "Training Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Update Training",
+        "operationId": "update_training_api_v1_trainings__training_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "training_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{2,49}$",
+              "title": "Training Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainingUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/trainings/{training_id}/versions": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "List Versions",
+        "operationId": "list_versions_api_v1_trainings__training_id__versions_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "training_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{2,49}$",
+              "title": "Training Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VersionSummary"
+                  },
+                  "title": "Response List Versions Api V1 Trainings  Training Id  Versions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Create Version",
+        "operationId": "create_version_api_v1_trainings__training_id__versions_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "training_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{2,49}$",
+              "title": "Training Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/versions/{version_id}/content": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Get Content",
+        "operationId": "get_content_api_v1_versions__version_id__content_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionContent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Save Content",
+        "operationId": "save_content_api_v1_versions__version_id__content_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentSave"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/versions/{from_id}/diff/{to_id}": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Diff Versions",
+        "operationId": "diff_versions_api_v1_versions__from_id__diff__to_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "from_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "From Id"
+            }
+          },
+          {
+            "name": "to_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "To Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionDiff"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/app/v1/trainings": {
       "get": {
         "tags": [
@@ -5326,6 +5774,25 @@
           "created_at"
         ],
         "title": "Comment"
+      },
+      "ContentSave": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision"
+          },
+          "content": {
+            "$ref": "#/components/schemas/TrainingContent"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "content"
+        ],
+        "title": "ContentSave"
       },
       "CostOut": {
         "properties": {
@@ -6612,6 +7079,94 @@
         ],
         "title": "IssueCount"
       },
+      "KbLine": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "say",
+              "say_exactly",
+              "ask",
+              "expected",
+              "accept",
+              "key_point",
+              "key_point_exactly",
+              "then_say",
+              "then_add",
+              "if_missed",
+              "if_right",
+              "first_say",
+              "text"
+            ],
+            "title": "Kind"
+          },
+          "prefix": {
+            "type": "string",
+            "title": "Prefix"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "locations": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "fiber",
+                    "aia_only",
+                    "alaska_only"
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "prefix",
+          "text"
+        ],
+        "title": "KbLine"
+      },
+      "KnowledgeBase": {
+        "properties": {
+          "preamble": {
+            "items": {
+              "$ref": "#/components/schemas/KbLine"
+            },
+            "type": "array",
+            "title": "Preamble"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/Topic"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "ends_with_newline": {
+            "type": "boolean",
+            "title": "Ends With Newline"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "preamble",
+          "topics",
+          "ends_with_newline"
+        ],
+        "title": "KnowledgeBase"
+      },
       "LiveOut": {
         "properties": {
           "configured": {
@@ -6825,6 +7380,46 @@
           "cost"
         ],
         "title": "NamedCost"
+      },
+      "OpeningStep": {
+        "properties": {
+          "say": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Say"
+          },
+          "ask": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ask"
+          },
+          "otherwise": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Otherwise"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "OpeningStep"
       },
       "OverviewOut": {
         "properties": {
@@ -7250,6 +7845,150 @@
         "title": "QualityUpdate",
         "description": "Only the fields sent are changed; send null to clear resolution, note or assignee."
       },
+      "Question": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Number"
+          },
+          "section": {
+            "type": "string",
+            "title": "Section"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "propertyNames": {
+                  "enum": [
+                    "A",
+                    "B",
+                    "C"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "correct": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "variants": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/QuestionBody"
+                },
+                "propertyNames": {
+                  "enum": [
+                    "fiber",
+                    "aia_only",
+                    "alaska_only"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variants"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "number",
+          "section"
+        ],
+        "title": "Question"
+      },
+      "QuestionBody": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "options": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "A",
+                "B",
+                "C"
+              ]
+            },
+            "type": "object",
+            "title": "Options"
+          },
+          "correct": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C"
+            ],
+            "title": "Correct"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question",
+          "options",
+          "correct",
+          "explanation"
+        ],
+        "title": "QuestionBody"
+      },
       "QuestionStat": {
         "properties": {
           "question_number": {
@@ -7407,6 +8146,31 @@
           "questions"
         ],
         "title": "QuestionsOut"
+      },
+      "Quiz": {
+        "properties": {
+          "sections": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Section"
+            },
+            "type": "object",
+            "title": "Sections"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/Question"
+            },
+            "type": "array",
+            "title": "Questions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sections",
+          "questions"
+        ],
+        "title": "Quiz"
       },
       "RatingPoint": {
         "properties": {
@@ -7965,6 +8729,28 @@
           "title"
         ],
         "title": "SearchTraining"
+      },
+      "Section": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "topics": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Topics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "topics"
+        ],
+        "title": "Section"
       },
       "SessionCount": {
         "properties": {
@@ -9053,6 +9839,34 @@
         ],
         "title": "TeamMember"
       },
+      "Topic": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Number"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/KbLine"
+            },
+            "type": "array",
+            "title": "Lines"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "number",
+          "title",
+          "lines"
+        ],
+        "title": "Topic"
+      },
       "TopicTiming": {
         "properties": {
           "topic_number": {
@@ -9312,6 +10126,55 @@
         ],
         "title": "TrainingCard"
       },
+      "TrainingContent": {
+        "properties": {
+          "format": {
+            "type": "integer",
+            "const": 1,
+            "title": "Format"
+          },
+          "training": {
+            "$ref": "#/components/schemas/TrainingSettings"
+          },
+          "knowledge_base": {
+            "$ref": "#/components/schemas/KnowledgeBase"
+          },
+          "quiz": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quiz"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vocabulary": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vocabulary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "format",
+          "training",
+          "knowledge_base",
+          "quiz",
+          "vocabulary"
+        ],
+        "title": "TrainingContent"
+      },
       "TrainingCount": {
         "properties": {
           "training_id": {
@@ -9346,6 +10209,226 @@
           "completions"
         ],
         "title": "TrainingCount"
+      },
+      "TrainingCreate": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{2,49}$",
+            "title": "Training Id"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "completion_type": {
+            "type": "string",
+            "enum": [
+              "quiz",
+              "walkthrough",
+              "acknowledgment"
+            ],
+            "title": "Completion Type",
+            "default": "quiz"
+          },
+          "uses_location": {
+            "type": "boolean",
+            "title": "Uses Location",
+            "default": false
+          },
+          "trainer_name": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Trainer Name",
+            "default": "Anne"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "completion_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "training_id",
+          "title"
+        ],
+        "title": "TrainingCreate"
+      },
+      "TrainingDetail": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "completion_type": {
+            "type": "string",
+            "enum": [
+              "quiz",
+              "walkthrough",
+              "acknowledgment"
+            ],
+            "title": "Completion Type"
+          },
+          "uses_location": {
+            "type": "boolean",
+            "title": "Uses Location"
+          },
+          "completion_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Key"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "app_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Title"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags"
+          },
+          "is_required": {
+            "type": "boolean",
+            "title": "Is Required"
+          },
+          "app_status": {
+            "type": "string",
+            "title": "App Status"
+          },
+          "wanaka_trainer_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wanaka Trainer Id"
+          },
+          "active_version_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Version Id"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/VersionSummary"
+            },
+            "type": "array",
+            "title": "Versions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "training_id",
+          "title",
+          "status",
+          "completion_type",
+          "uses_location",
+          "completion_key",
+          "profile_id",
+          "app_title",
+          "category",
+          "description",
+          "tags",
+          "is_required",
+          "app_status",
+          "wanaka_trainer_id",
+          "active_version_id",
+          "versions"
+        ],
+        "title": "TrainingDetail"
       },
       "TrainingDetailOut": {
         "properties": {
@@ -9574,6 +10657,172 @@
         ],
         "title": "TrainingList"
       },
+      "TrainingListItem": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "completion_type": {
+            "type": "string",
+            "enum": [
+              "quiz",
+              "walkthrough",
+              "acknowledgment"
+            ],
+            "title": "Completion Type"
+          },
+          "uses_location": {
+            "type": "boolean",
+            "title": "Uses Location"
+          },
+          "completion_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Key"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "app_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Title"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags"
+          },
+          "is_required": {
+            "type": "boolean",
+            "title": "Is Required"
+          },
+          "app_status": {
+            "type": "string",
+            "title": "App Status"
+          },
+          "wanaka_trainer_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wanaka Trainer Id"
+          },
+          "active_version": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VersionRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "drafts": {
+            "type": "integer",
+            "title": "Drafts"
+          },
+          "in_review": {
+            "type": "integer",
+            "title": "In Review"
+          },
+          "last_edited_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Edited At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "training_id",
+          "title",
+          "status",
+          "completion_type",
+          "uses_location",
+          "completion_key",
+          "profile_id",
+          "app_title",
+          "category",
+          "description",
+          "tags",
+          "is_required",
+          "app_status",
+          "wanaka_trainer_id",
+          "active_version",
+          "drafts",
+          "in_review",
+          "last_edited_at"
+        ],
+        "title": "TrainingListItem"
+      },
       "TrainingProgress": {
         "properties": {
           "topics_done": {
@@ -9705,6 +10954,259 @@
           "cost"
         ],
         "title": "TrainingRow"
+      },
+      "TrainingSettings": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "trainer_name": {
+            "type": "string",
+            "title": "Trainer Name"
+          },
+          "company": {
+            "type": "string",
+            "title": "Company"
+          },
+          "completion_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "quiz",
+                  "walkthrough",
+                  "acknowledgment"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Type"
+          },
+          "acknowledgment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acknowledgment"
+          },
+          "uses_location": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uses Location"
+          },
+          "stt_vocabulary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stt Vocabulary"
+          },
+          "opening": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/OpeningStep"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening"
+          },
+          "lines": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Lines"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "title",
+          "trainer_name",
+          "company",
+          "lines"
+        ],
+        "title": "TrainingSettings",
+        "description": "training.json. Extra keys are kept (the agent stores the file as written)."
+      },
+      "TrainingUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "completion_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "quiz",
+                  "walkthrough",
+                  "acknowledgment"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Type"
+          },
+          "uses_location": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uses Location"
+          },
+          "completion_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Key"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "app_title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Title"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags"
+          },
+          "is_required": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Required"
+          },
+          "app_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "active",
+                  "archived"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Status"
+          },
+          "archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TrainingUpdate",
+        "description": "Only the fields sent are changed. `archived` and `app_status` are Admin-only."
       },
       "TrainingsOut": {
         "properties": {
@@ -10019,6 +11521,286 @@
         ],
         "title": "ValidationError"
       },
+      "VersionContent": {
+        "properties": {
+          "version_id": {
+            "type": "integer",
+            "title": "Version Id"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "published",
+              "retired"
+            ],
+            "title": "Status"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "has_content": {
+            "type": "boolean",
+            "title": "Has Content"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "updated_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated By"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "training_id",
+          "label",
+          "status",
+          "is_active",
+          "revision",
+          "has_content",
+          "notes",
+          "created_at",
+          "created_by",
+          "updated_at",
+          "updated_by",
+          "published_at",
+          "content"
+        ],
+        "title": "VersionContent"
+      },
+      "VersionCreate": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "blank",
+              "version"
+            ],
+            "title": "Source",
+            "default": "version"
+          },
+          "source_version_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Version Id"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "VersionCreate"
+      },
+      "VersionDiff": {
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/VersionSummary"
+          },
+          "to": {
+            "$ref": "#/components/schemas/VersionSummary"
+          },
+          "identical": {
+            "type": "boolean",
+            "title": "Identical"
+          },
+          "settings": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Settings"
+          },
+          "lines": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "preamble": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Preamble"
+          },
+          "topics": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "quiz": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Quiz"
+          },
+          "vocabulary": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Vocabulary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "identical",
+          "settings",
+          "lines",
+          "preamble",
+          "topics",
+          "quiz",
+          "vocabulary"
+        ],
+        "title": "VersionDiff"
+      },
+      "VersionRef": {
+        "properties": {
+          "version_id": {
+            "type": "integer",
+            "title": "Version Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "label"
+        ],
+        "title": "VersionRef"
+      },
       "VersionRow": {
         "properties": {
           "version_id": {
@@ -10071,6 +11853,130 @@
           "completions"
         ],
         "title": "VersionRow"
+      },
+      "VersionSummary": {
+        "properties": {
+          "version_id": {
+            "type": "integer",
+            "title": "Version Id"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "in_review",
+              "published",
+              "retired"
+            ],
+            "title": "Status"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "has_content": {
+            "type": "boolean",
+            "title": "Has Content"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "updated_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated By"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "training_id",
+          "label",
+          "status",
+          "is_active",
+          "revision",
+          "has_content",
+          "notes",
+          "created_at",
+          "created_by",
+          "updated_at",
+          "updated_by",
+          "published_at"
+        ],
+        "title": "VersionSummary"
       }
     },
     "securitySchemes": {

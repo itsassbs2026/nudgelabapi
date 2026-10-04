@@ -28,6 +28,9 @@ class AuditAction(StrEnum):
     RECORDING_PLAYED = "recording_played"
     QUALITY_UPDATED = "quality_updated"
     EXPORT = "export"
+    TRAINING_CREATED = "training_created"
+    TRAINING_UPDATED = "training_updated"
+    VERSION_CREATED = "version_created"
     # Later phases: training_published, settings_changed, …
 
 

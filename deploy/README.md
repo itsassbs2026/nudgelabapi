@@ -213,6 +213,16 @@ Smoke test:
 - After Wanaka's endpoint is live: a tester's app (or a pass from `POST /v1/nudge/token`) lists their trainings,
   and starting one connects to Anne.
 
+## Phase 11: training studio API
+
+One migration (`0006_version_editing`), one grant file. No change to the agent or to what it runs.
+
+1. `bash /srv/nudgelabapi/deploy/deploy.sh`: pulls, stops at the pending migration.
+2. Review: `venv/bin/alembic upgrade 0005_app_handoff:0006_version_editing --sql` (4 `ADD COLUMN` on
+   `training_versions`, instant on MySQL 8). Then, with "Live now" empty: `venv/bin/alembic upgrade head`.
+3. As an admin on RDS: `deploy/db-grants-0006-studio.sql`, then `SHOW GRANTS FOR 'nudgelab_api'@'10.0.1.148';`.
+4. `bash /srv/nudgelabapi/deploy/deploy.sh` again, then the preflight: `PASS studio grants`.
+
 ## Where things are
 
 | | |
