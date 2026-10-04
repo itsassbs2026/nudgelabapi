@@ -31,7 +31,7 @@ mysql -u root -h 127.0.0.1 -e "CREATE DATABASE nudgeai_dev CHARACTER SET utf8mb4
 # Run the API
 .venv/Scripts/uvicorn app.main:app --reload --port 8002   # http://localhost:8002/api/docs
 
-# Run the worker (emails, token cleanup, XLSX exports) in a second terminal
+# Run the worker (emails, token cleanup, XLSX exports, uploads, prepare, publish) in a second terminal
 .venv/Scripts/python -m app.worker
 ```
 
@@ -48,12 +48,42 @@ TEST_DATABASE_URL="mysql+pymysql://root:@127.0.0.1:3306/nudgeai_test?charset=utf
 `requirements.in` lists direct dependencies; `requirements.lock` pins everything
 (`uv pip compile requirements.in -o requirements.lock --python-version 3.12`). Servers install from the lock.
 
+## Running it in production
+
+Everything operational is in **`deploy/README.md`**: first install, every phase's deploy steps (migrations,
+grants files, AWS changes), rollback, and where logs and settings live. In short:
+
+| Task | How |
+|---|---|
+| Deploy | `bash /srv/nudgelabapi/deploy/deploy.sh` on the API server; it stops at a pending migration |
+| Migration | review `venv/bin/alembic upgrade <current>:head --sql`, then `venv/bin/alembic upgrade head` |
+| Grants | `deploy/db-grants-*.sql`, run by an admin; `tests/test_deploy.py` checks them against the code |
+| Health | `bash deploy/preflight-check.sh` (read-only; any time) |
+| Logs | `journalctl -u nudgelabapi -f`, `journalctl -u nudgelabapi-worker -f` |
+| Slow pages | `journalctl -u nudgelabapi \| grep slow_request` (any request over 2 s, path only) |
+| Load check | `venv/bin/python scripts/load_test.py --email <admin> --users 5 --seconds 60` (GETs only) |
+
+The worker (`python -m app.worker`, unit `nudgelabapi-worker`) runs emails, token cleanup, exports, upload
+extraction, AI preparation and publishing; one instance only.
+
+### Performance at full rollout (Phase 17)
+
+`scripts/load_seed.py` builds a local `*_load` database at full-rollout size (50,500 trainees, 2,542 stores,
+300,000 sessions); `scripts/load_test.py` measures the report pages against it or against a server. Two things
+learned: the synced `v_stores_all.store_id` is utf8mb3 while `training_sessions.store_id_at_session` is
+utf8mb4, so never join those columns row by row (look stores up for a page of rows instead); and give a local
+MariaDB a realistic buffer pool (XAMPP's default 16 MB makes every report look slow).
+
 ## Layout
 
 ```
 app/            FastAPI app: config, db, routers, models (API tables only), utils
 alembic/        migrations: 0001 baseline (agent schema), 0002 API tables, …
 tests/          pytest; a disposable local database, migrated to head per run
-deploy/         IAM policies, database logins, (Phase 9) Nginx, systemd, deploy script
-docs/           SPEC.md, ASSIGNMENT_SYNC.md, DECISIONS.md, CHANGELOG.md
+app/reports/    the report queries (metrics.py has the shared definitions); app/studio/ the training studio
+app/mobile/     the Flutter app's API (passes, sessions, persona)
+scripts/        bootstrap_admin, preflight, export_openapi, e2e_seed, check_prepare, load_seed, load_test
+deploy/         deploy.sh, preflight, Nginx, systemd, IAM policies, database logins and grants
+docs/           SPEC.md (kept identical in both repos), DECISIONS.md, CHANGELOG.md, APP_HANDOFF.md,
+                FLUTTER_APP_GUIDE.md, WANAKA_NUDGE_TOKEN.md
 ```

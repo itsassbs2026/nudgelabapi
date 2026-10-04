@@ -235,3 +235,12 @@
   previous live version and switches `trainings.active_version_id`. Trainees mid-training stay pinned (agent).
 - New check: vocabulary terms Transcribe accepts. `0010_publish_jobs` (jobs type check) and
   `deploy/db-grants-0010-publish.sql`. Tests: 607.
+
+## Phase 17 — Hardening & handover (2026-10-04)
+
+- Security review against SPEC §12 and the Stage 2 additions (app and preview passes, tester codes, tokens,
+  CORS, dependencies): all hold. Fixed: a locked account no longer answers differently from a wrong password.
+- The sessions list scales: count and page on the sessions table, then look up names, stores, ratings and costs
+  for the page (at full rollout 539 s → 1.4 s; the store join couldn't use an index across character sets).
+- `slow_request` log for any request over 2 s. `scripts/load_seed.py` and `scripts/load_test.py`.
+- README: running it in production. SPEC copies kept identical in both repos. Tests: 608.

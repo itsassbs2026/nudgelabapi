@@ -365,3 +365,18 @@ Recorded as they're made (SPEC §0.2). Newest last.
      come first, so a failure leaves the live version untouched; a version sent back while queued isn't published.
 109. **No Wanaka completion-key picker**: the API has no Wanaka access by design; the key stays a typed setting,
      and publishing without one asks for confirmation.
+
+## Phase 17 — Hardening (2026-10-04)
+
+110. **Sign-in answers a locked account exactly like a wrong password** (the message mentions the lockout), so
+     nobody can learn which emails have accounts; the audit log still records the lockout.
+111. **Load-tested at full rollout, locally, and checked on production**: a local database at production's real
+     population (50,500 trainees, 2,542 stores) with 300,000 sessions, plus a read-only one-minute run on
+     production (5 users, 5,400 requests, 0 errors, p95 ≤ 102 ms). Production's own data is still small, so its
+     numbers say nothing about volume; the local run does.
+112. **Never join `store_id_at_session` to the store views row by row**: the synced `v_stores_all.store_id` is
+     utf8mb3 and the agent's column utf8mb4, so MySQL can't use the store index for that join (the sessions list
+     took minutes at full rollout). Count and page on the sessions table, then look up stores for the page.
+113. **No new index on the agent's training_sessions yet**: a covering index halved some report queries locally,
+     but changing the agent's live table isn't worth it on laptop numbers. Requests over 2 s are logged
+     (`slow_request`, path only) so the reports get tuned against real volume as it arrives.
