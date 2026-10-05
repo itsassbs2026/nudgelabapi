@@ -7,7 +7,13 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.reference.agent_tables import training_profiles, training_voices, trainings, vw_training_stores
+from app.reference.agent_tables import (
+    training_profiles,
+    training_voices,
+    trainings,
+    vw_trainees,
+    vw_training_stores,
+)
 
 
 def filter_options(db: Session, *, district_id: int | None = None) -> dict[str, Any]:
@@ -65,4 +71,15 @@ def filter_options(db: Session, *, district_id: int | None = None) -> dict[str, 
             for r in db.execute(select(training_voices).order_by(training_voices.c.display_name))
         ],
         "completion_types": ["quiz", "walkthrough", "acknowledgment"],
+        # Active employees' job titles (the Assignments page filter).
+        "job_titles": [
+            str(r.job_title)
+            for r in db.execute(
+                select(vw_trainees.c.job_title)
+                .where(vw_trainees.c.is_active == 1, vw_trainees.c.job_title.is_not(None))
+                .distinct()
+                .order_by(vw_trainees.c.job_title)
+            )
+            if str(r.job_title).strip()
+        ],
     }

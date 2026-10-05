@@ -49,7 +49,11 @@ class FeedbackParams(NoParams):
 
 
 class AssignmentParams(NoParams):
-    state: Literal["not_started", "in_progress", "completed", "overdue"] | None = None
+    state: Literal["not_started", "in_progress", "completed", "overdue", "due_soon"] | None = None
+    job_title: str | None = Field(default=None, max_length=100)
+    search: str | None = Field(default=None, max_length=100)
+    any_date: bool = False
+    active_only: bool = False
 
 
 class QualityParams(NoParams):
@@ -220,8 +224,11 @@ REPORTS: dict[str, Report] = {
             (
                 Col("UID", "uid", "int"),
                 Col("Trainee", "name"),
+                Col("Job title", "job_title"),
                 Col("Store", "store_name"),
                 Col("District", "district_name"),
+                Col("Market", "market_name"),
+                Col("Region", "region_name"),
                 Col("Training", "training_title"),
                 Col("Assigned", "assigned_at", "datetime"),
                 Col("Due", "due_at", "datetime"),
@@ -232,8 +239,16 @@ REPORTS: dict[str, Report] = {
             ),
             AssignmentParams,
             lambda db, st, f, p, limit: people.assignments_list(
-                db, f, state=p.state, page=1, page_size=limit
-            )["items"],
+                db,
+                f,
+                state=p.state,
+                page=1,
+                page_size=limit,
+                job_title=p.job_title,
+                search=p.search,
+                any_date=p.any_date,
+                active_only=p.active_only,
+            )["items"],  # fmt: skip
         ),
         Report(
             "quality",

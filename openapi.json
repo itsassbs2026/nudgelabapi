@@ -3019,6 +3019,7 @@
           "reports"
         ],
         "summary": "Get Assignments",
+        "description": "Assignments and each trainee's progress. `any_date` lists every current assignment, not only those\nmade in the period; `active_only` leaves out people who've left.",
         "operationId": "get_assignments_api_v1_assignments_get",
         "security": [
           {
@@ -3034,13 +3035,67 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "pattern": "^(not_started|in_progress|completed|overdue)$"
+                  "pattern": "^(not_started|in_progress|completed|overdue|due_soon)$"
                 },
                 {
                   "type": "null"
                 }
               ],
               "title": "State"
+            }
+          },
+          {
+            "name": "job_title",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Job Title"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "any_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Any Date"
+            }
+          },
+          {
+            "name": "active_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Active Only"
             }
           },
           {
@@ -6936,6 +6991,39 @@
             ],
             "title": "Name"
           },
+          "job_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Title"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          },
+          "store_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Id"
+          },
           "store_name": {
             "anyOf": [
               {
@@ -6957,6 +7045,28 @@
               }
             ],
             "title": "District Name"
+          },
+          "market_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Name"
+          },
+          "region_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region Name"
           },
           "training_id": {
             "type": "string",
@@ -6994,6 +7104,10 @@
             "type": "string",
             "title": "State"
           },
+          "due_soon": {
+            "type": "boolean",
+            "title": "Due Soon"
+          },
           "sessions": {
             "type": "integer",
             "title": "Sessions"
@@ -7027,13 +7141,19 @@
         "required": [
           "uid",
           "name",
+          "job_title",
+          "is_active",
+          "store_id",
           "store_name",
           "district_name",
+          "market_name",
+          "region_name",
           "training_id",
           "training_title",
           "assigned_at",
           "due_at",
           "state",
+          "due_soon",
           "sessions",
           "started_at",
           "completed_at"
@@ -8514,6 +8634,13 @@
             },
             "type": "array",
             "title": "Completion Types"
+          },
+          "job_titles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Job Titles"
           }
         },
         "type": "object",
@@ -8525,7 +8652,8 @@
           "stores",
           "setups",
           "voices",
-          "completion_types"
+          "completion_types",
+          "job_titles"
         ],
         "title": "FilterOptions"
       },

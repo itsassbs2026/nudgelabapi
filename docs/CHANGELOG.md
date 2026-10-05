@@ -244,3 +244,11 @@
   for the page (at full rollout 539 s → 1.4 s; the store join couldn't use an index across character sets).
 - `slow_request` log for any request over 2 s. `scripts/load_seed.py` and `scripts/load_test.py`.
 - README: running it in production. SPEC copies kept identical in both repos. Tests: 608.
+
+## Assignments page support (2026-10-04)
+
+- `GET /assignments`: `job_title`, `search` (name, or uid when numeric; LIKE characters escaped), `any_date`
+  (every current assignment, not only those made in the period), `active_only`, and the `due_soon` state (not
+  passed, due within 7 days; counted separately). Rows carry job title, store id, market and region. The export
+  takes the same parameters and adds job title, market and region columns.
+- `GET /reports/filter-options`: `job_titles` (active employees'). Tests: 610.

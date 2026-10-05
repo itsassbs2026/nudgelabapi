@@ -362,13 +362,19 @@ class AcknowledgmentPage(BaseModel):
 class AssignmentItem(BaseModel):
     uid: int
     name: str | None
+    job_title: str | None
+    is_active: bool | None
+    store_id: str | None
     store_name: str | None
     district_name: str | None
+    market_name: str | None
+    region_name: str | None
     training_id: str
     training_title: str | None
     assigned_at: datetime
     due_at: datetime | None
     state: str  # not_started | in_progress | completed | overdue
+    due_soon: bool  # not passed, due within the next 7 days
     sessions: int
     started_at: datetime | None
     completed_at: datetime | None
@@ -391,6 +397,7 @@ class FilterOptions(BaseModel):
     setups: list[dict[str, Any]]
     voices: list[dict[str, Any]]
     completion_types: list[str]
+    job_titles: list[str]
 
 
 # -- sessions (Phase 4) --------------------------------------------------------------------------------------

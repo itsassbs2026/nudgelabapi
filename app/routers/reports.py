@@ -131,13 +131,22 @@ def get_acknowledgments(
 
 @router.get("/assignments", response_model=AssignmentPage)
 def get_assignments(
-    state: str | None = Query(default=None, pattern="^(not_started|in_progress|completed|overdue)$"),
+    state: str | None = Query(default=None, pattern="^(not_started|in_progress|completed|overdue|due_soon)$"),
+    job_title: str | None = Query(default=None, max_length=100),
+    search: str | None = Query(default=None, max_length=100),
+    any_date: bool = False,
+    active_only: bool = False,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=50, ge=1, le=200),
     f: ReportFilters = Depends(report_filters),
     db: Session = Depends(get_db),
 ) -> Any:
-    return people.assignments_list(db, f, state=state, page=page, page_size=page_size)
+    """Assignments and each trainee's progress. `any_date` lists every current assignment, not only those
+    made in the period; `active_only` leaves out people who've left."""
+    return people.assignments_list(
+        db, f, state=state, page=page, page_size=page_size, job_title=job_title, search=search,
+        any_date=any_date, active_only=active_only,
+    )  # fmt: skip
 
 
 @router.get("/search", response_model=SearchOut)

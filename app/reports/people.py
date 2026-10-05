@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import and_, case, func, or_, select
+from sqlalchemy import ColumnElement, and_, case, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.reference.agent_tables import (
@@ -25,6 +25,7 @@ from app.reference.agent_tables import (
 )
 from app.reports import metrics
 from app.reports.filters import ReportFilters, session_conditions, trainee_conditions, training_conditions
+from app.reports.search import like_pattern
 from app.utils.errors import ApiError
 
 
@@ -285,36 +286,77 @@ def acknowledgments_list(db: Session, f: ReportFilters, *, page: int, page_size:
 
 
 ASSIGNMENT_STATES = ("not_started", "in_progress", "completed", "overdue")
+DUE_SOON_DAYS = 7
 
 
 def assignments_list(
-    db: Session, f: ReportFilters, *, state: str | None, page: int, page_size: int
+    db: Session,
+    f: ReportFilters,
+    *,
+    state: str | None,
+    page: int,
+    page_size: int,
+    job_title: str | None = None,
+    search: str | None = None,
+    any_date: bool = False,
+    active_only: bool = False,
 ) -> dict[str, Any]:
-    """Assignments made in the period (the same cohort as the "assigned" funnel) with each trainee's progress.
+    """Assignments with each trainee's progress, for the Assignments page and its export.
 
-    State: completed (passed), overdue (not passed and past due), in progress (started), or not started.
+    State: completed (passed), overdue (not passed and past due), in progress (started), or not started; plus
+    `due_soon` (not passed, due within the next 7 days), counted separately because it overlaps the others.
+    By default only assignments made in the period are listed (the "assigned" funnel's cohort); `any_date`
+    lists every current one. Place in the company (region to store) and job title are the trainee's current
+    ones (vw_trainees).
     """
     a = training_assignments.c
     p = training_progress.c
     t = vw_trainees.c
-    overdue = and_(p.passed_at.is_(None), a.due_at.is_not(None), a.due_at < func.utc_timestamp())
+    now = func.utc_timestamp()
+    now_utc = datetime.now(UTC).replace(tzinfo=None)
+    not_passed = p.passed_at.is_(None)
+    overdue = and_(not_passed, a.due_at.is_not(None), a.due_at < now)
+    due_soon = and_(not_passed, a.due_at >= now_utc, a.due_at < now_utc + timedelta(days=DUE_SOON_DAYS))
     state_col = case(
         (p.passed_at.is_not(None), "completed"),
         (overdue, "overdue"),
         (p.first_started_at.is_not(None), "in_progress"),
         else_="not_started",
     )
+    conditions: list[ColumnElement[bool]] = [
+        a.status != "cancelled",
+        *training_conditions(f, a.training_id),
+        *trainee_conditions(f, a.uid),
+    ]
+    if not any_date:
+        conditions += [a.assigned_at >= f.start_utc, a.assigned_at < f.end_utc]
+    if job_title:
+        conditions.append(t.job_title == job_title)
+    if active_only:
+        conditions.append(t.is_active == 1)
+    if search and search.strip():
+        term = search.strip()
+        options: list[ColumnElement[bool]] = [t.name.like(like_pattern(term))]
+        if term.isdigit():
+            options.append(a.uid == int(term))
+        conditions.append(or_(*options))
     base = (
         select(
             a.uid,
             t.name,
+            t.job_title,
+            t.is_active,
+            t.store_id,
             t.store_name,
             t.district_name,
+            t.market_name,
+            t.region_name,
             a.training_id,
             trainings.c.title,
             a.assigned_at,
             a.due_at,
             state_col.label("state"),
+            case((due_soon, 1), else_=0).label("due_soon"),
             p.sessions_count,
             p.first_started_at,
             p.passed_at,
@@ -326,19 +368,18 @@ def assignments_list(
             .outerjoin(trainings, trainings.c.training_id == a.training_id)
             .outerjoin(vw_trainees, t.uid == a.uid)
         )
-        .where(
-            a.status != "cancelled",
-            a.assigned_at >= f.start_utc,
-            a.assigned_at < f.end_utc,
-            *training_conditions(f, a.training_id),
-            *trainee_conditions(f, a.uid),
-        )
+        .where(and_(*conditions))
     ).subquery()
-    counts = {s: 0 for s in ASSIGNMENT_STATES}
-    for value, n in db.execute(select(base.c.state, func.count()).group_by(base.c.state)):
+    counts = {s: 0 for s in (*ASSIGNMENT_STATES, "due_soon")}
+    for value, n, soon_n in db.execute(
+        select(base.c.state, func.count(), func.sum(base.c.due_soon)).group_by(base.c.state)
+    ):
         counts[str(value)] = int(n)
+        counts["due_soon"] += int(soon_n or 0)
     q = select(base)
-    if state:
+    if state == "due_soon":
+        q = q.where(base.c.due_soon == 1)
+    elif state:
         q = q.where(base.c.state == state)
     total = int(db.execute(select(func.count()).select_from(q.subquery())).scalar_one())
     rows = db.execute(
@@ -352,13 +393,19 @@ def assignments_list(
             {
                 "uid": r.uid,
                 "name": r.name,
+                "job_title": r.job_title,
+                "is_active": None if r.is_active is None else bool(r.is_active),
+                "store_id": r.store_id,
                 "store_name": r.store_name,
                 "district_name": r.district_name,
+                "market_name": r.market_name,
+                "region_name": r.region_name,
                 "training_id": r.training_id,
                 "training_title": r.title,
                 "assigned_at": r.assigned_at,
                 "due_at": r.due_at,
                 "state": r.state,
+                "due_soon": bool(r.due_soon),
                 "sessions": int(r.sessions_count or 0),
                 "started_at": r.first_started_at,
                 "completed_at": r.passed_at,

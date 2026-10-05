@@ -6,6 +6,7 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from tests.agent_data import T, add_assignments, insert, seed
@@ -245,6 +246,7 @@ def test_assignments(
         "in_progress": 0,
         "completed": 1,
         "overdue": 1,
+        "due_soon": 0,
     }  # 1003 cancelled
     states = {i["uid"]: i["state"] for i in page["items"]}
     assert states == {1001: "completed", 1002: "overdue", 1005: "not_started"}
@@ -252,6 +254,52 @@ def test_assignments(
     overdue = get(client, trainer_headers, "/assignments", state="overdue")
     assert overdue["total"] == 1 and overdue["items"][0]["name"] == "Trainee 1002"
     assert get(client, trainer_headers, "/assignments", region_id=1)["total"] == 2
+
+
+def test_assignments_page_filters(
+    client: TestClient, trainer_headers: dict[str, str], db_session: Session, data: None
+) -> None:
+    """The Assignments page: job title, name or uid search, every current assignment, people who've left,
+    due within a week; the trainee's current place in the company on each row."""
+    add_assignments(db_session)
+    conn = db_session.connection()
+    conn.execute(text("UPDATE v_users_all SET job_title = 'Store Manager' WHERE uid = 1005"))
+    conn.execute(text("UPDATE v_users_all SET status = 0 WHERE uid = 1001"))  # has left
+    conn.execute(
+        text("UPDATE training_assignments SET due_at = UTC_TIMESTAMP() + INTERVAL 3 DAY WHERE uid = 1005")
+    )
+    insert(db_session, "training_assignments", uid=1004, training_id="walk", assigned_at=T(1, month=5))
+
+    page = get(client, trainer_headers, "/assignments")
+    row = next(i for i in page["items"] if i["uid"] == 1005)
+    assert (row["job_title"], row["store_id"], row["region_name"], row["due_soon"]) == (
+        "Store Manager", "S3", "East", True
+    )  # fmt: skip
+    assert page["counts"]["due_soon"] == 1
+    assert [i["uid"] for i in get(client, trainer_headers, "/assignments", state="due_soon")["items"]] == [
+        1005
+    ]
+    assert [
+        i["uid"] for i in get(client, trainer_headers, "/assignments", job_title="Store Manager")["items"]
+    ] == [1005]
+    assert [i["uid"] for i in get(client, trainer_headers, "/assignments", search="1002")["items"]] == [1002]
+    assert get(client, trainer_headers, "/assignments", search="Trainee 100")["total"] == 3
+    assert get(client, trainer_headers, "/assignments", search="50%")["total"] == 0  # LIKE characters escaped
+    assert {i["uid"] for i in get(client, trainer_headers, "/assignments", active_only=True)["items"]} == {
+        1002, 1005
+    }  # fmt: skip
+    # Assigned long before the period: only with any_date.
+    assert 1004 not in {i["uid"] for i in page["items"]}
+    assert 1004 in {i["uid"] for i in get(client, trainer_headers, "/assignments", any_date=True)["items"]}
+
+
+def test_job_titles_in_filter_options(
+    client: TestClient, trainer_headers: dict[str, str], db_session: Session, data: None
+) -> None:
+    conn = db_session.connection()
+    conn.execute(text("UPDATE v_users_all SET job_title = 'Store Manager' WHERE uid = 1005"))
+    conn.execute(text("UPDATE v_users_all SET job_title = 'Gone', status = 0 WHERE uid = 1004"))
+    assert get(client, trainer_headers, "/reports/filter-options")["job_titles"] == ["RSC", "Store Manager"]
 
 
 # -- quick search (⌘K) ---------------------------------------------------------------------------------------
@@ -304,6 +352,6 @@ def test_rating_trend(client: TestClient, trainer_headers: dict[str, str], data:
 
 
 def test_like_escaping() -> None:
-    from app.reports.search import _like
+    from app.reports.search import like_pattern
 
-    assert _like(r"50%_a\b") == r"%50\%\_a\\b%"
+    assert like_pattern(r"50%_a\b") == r"%50\%\_a\\b%"

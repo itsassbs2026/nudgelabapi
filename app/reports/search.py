@@ -13,7 +13,7 @@ from app.reference.agent_tables import training_sessions, trainings, vw_trainees
 _SESSION_ID = re.compile(r"^[0-9a-fA-F-]{4,36}$")
 
 
-def _like(term: str) -> str:
+def like_pattern(term: str) -> str:
     # Escape LIKE's own characters, so searching for "50%" finds the text 50%, not "50 then anything".
     return "%" + term.replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_") + "%"
 
@@ -23,9 +23,9 @@ def search(db: Session, q: str, *, limit: int = 8) -> dict[str, Any]:
     t = vw_trainees.c
     people = select(t.uid, t.name, t.store_name, t.is_active)
     if term.isdigit():
-        people = people.where(or_(t.uid == int(term), t.name.like(_like(term))))
+        people = people.where(or_(t.uid == int(term), t.name.like(like_pattern(term))))
     else:
-        people = people.where(t.name.like(_like(term)))
+        people = people.where(t.name.like(like_pattern(term)))
     employees = [
         {"uid": int(r.uid), "name": r.name, "store_name": r.store_name, "is_active": bool(r.is_active)}
         for r in db.execute(people.order_by(t.is_active.desc(), t.name).limit(limit))
@@ -60,7 +60,7 @@ def search(db: Session, q: str, *, limit: int = 8) -> dict[str, Any]:
         {"training_id": r.training_id, "title": r.title}
         for r in db.execute(
             select(tr.training_id, tr.title)
-            .where(or_(tr.title.like(_like(term)), tr.training_id.like(_like(term))))
+            .where(or_(tr.title.like(like_pattern(term)), tr.training_id.like(like_pattern(term))))
             .order_by(tr.title)
             .limit(5)
         )
@@ -71,7 +71,7 @@ def search(db: Session, q: str, *, limit: int = 8) -> dict[str, Any]:
         {"store_id": r.store_id, "store_name": r.store_name, "district_id": r.district_id}
         for r in db.execute(
             select(st.store_id, st.store_name, st.district_id)
-            .where(st.store_active == 1, or_(st.store_id == term, st.store_name.like(_like(term))))
+            .where(st.store_active == 1, or_(st.store_id == term, st.store_name.like(like_pattern(term))))
             .order_by(st.store_name)
             .limit(5)
         )
