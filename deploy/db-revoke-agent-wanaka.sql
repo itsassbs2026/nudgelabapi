@@ -5,5 +5,9 @@
 REVOKE SELECT, INSERT, UPDATE ON wanaka.prime_nudge_ai_completions FROM 'nudgeai_agent'@'35.173.142.66';
 REVOKE SELECT ON wanaka.prime_ai_training_agents FROM 'nudgeai_agent'@'35.173.142.66';
 
--- Check: no line mentioning `wanaka` should remain.
+-- Also unused: nudge.prime_nudge_ai_completions on this server. Prime Portal is the `primetwok` database on its
+-- own server (the agent's PORTAL_DB_* settings, a separate account there), so this doesn't affect Portal copies.
+REVOKE SELECT, INSERT, UPDATE ON nudge.prime_nudge_ai_completions FROM 'nudgeai_agent'@'35.173.142.66';
+
+-- Check: no line mentioning `wanaka` or `nudge`.`prime_nudge_ai_completions` should remain.
 -- SHOW GRANTS FOR 'nudgeai_agent'@'35.173.142.66';

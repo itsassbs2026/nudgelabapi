@@ -386,5 +386,6 @@ Recorded as they're made (SPEC §0.2). Newest last.
 114. **The agent no longer writes to Wanaka** (owner's decision): passes are copied to Prime Portal only, and the
      completion key comes from `nudgeai.trainings` (the dashboard's training settings), not Wanaka's old class
      catalog. The app already reads NudgeLab's own record of passes, so NudgeLab now uses no Wanaka table at all;
-     the agent login's two Wanaka grants can be revoked. Checked first: every live training that copies passes
+     the agent login's two Wanaka grants, and its unused one on `nudge.prime_nudge_ai_completions`, are revoked
+     (`deploy/db-revoke-agent-wanaka.sql`). Prime Portal is `primetwok` on its own server, so it's unaffected. Checked first: every live training that copies passes
      (Big 4, Q4 comp) already had its key in `nudgeai.trainings`.
