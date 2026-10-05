@@ -333,6 +333,12 @@ def _publish(db: Session, settings: Settings, job: Job) -> dict[str, Any]:
         .where(trainings.c.training_id == row.training_id)
         .values(active_version_id=version_id)
     )
+    # A new training's first publish makes it live (an archived one stays archived: that's an Admin's call).
+    db.execute(
+        update(trainings)
+        .where(trainings.c.training_id == row.training_id, trainings.c.status == service.DRAFT)
+        .values(status="active")
+    )
     audit.record(db, AuditAction.TRAINING_PUBLISHED, actor_user_id=job.created_by, target_type="version",
                  target_id=version_id, details={"training_id": row.training_id, "retired": list(previous),
                                                 "rollback": bool(job.input.get("rollback"))})  # fmt: skip

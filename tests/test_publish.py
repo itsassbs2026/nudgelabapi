@@ -246,6 +246,27 @@ def test_rollback(
     assert vocab[-1][0] == "nudgelab-big4-v1"
 
 
+@pytest.mark.parametrize(("before", "after"), [("draft", "active"), ("retired", "retired")])
+def test_a_new_trainings_first_publish_makes_it_live(
+    client: TestClient,
+    trainer_headers: Headers,
+    studio: None,
+    db_session: Session,
+    vocab: list[tuple[str, list[str]]],
+    before: str,
+    after: str,
+) -> None:
+    # 2026-10-05: RSM Sales Incentive Plan, the first training built and published in the studio, stayed
+    # "Not published yet" (and out of the Trainings report). An archived training stays archived.
+    vid = submitted_draft(client, trainer_headers)
+    preview_on(db_session, vid)
+    db_session.execute(text("UPDATE trainings SET status = :s WHERE training_id = 'big4'"), {"s": before})
+    go(client, trainer_headers, vid, no_completion_key_ok=True)
+    assert run_worker(db_session) == {"done": 1, "failed": 0}
+    status = db_session.execute(text("SELECT status FROM trainings WHERE training_id = 'big4'")).scalar()
+    assert status == after
+
+
 def test_a_failed_vocabulary_switches_nothing(
     client: TestClient,
     trainer_headers: Headers,

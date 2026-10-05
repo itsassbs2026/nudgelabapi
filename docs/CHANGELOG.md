@@ -258,3 +258,9 @@
 - Wording: the publish checks, the publish refusal and the studio's completion-key field say passes are copied to
   Prime Portal (not "Wanaka or Portal"); report captions no longer call assignments "Wanaka assignments".
 - `deploy/db-revoke-agent-wanaka.sql`: removes the agent login's two Wanaka grants (after the agent release).
+
+## Fix: a new training's first publish makes it live (2026-10-05)
+
+- The publish job now also sets the training's status from draft to active. RSM Sales Incentive Plan, the first
+  training built and published entirely in the studio, kept "Not published yet" and was left out of the
+  Trainings report (fixed by hand with one UPDATE). An archived training stays archived. Tests: 612.
