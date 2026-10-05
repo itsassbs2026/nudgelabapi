@@ -21,8 +21,9 @@ What it replaces:
 | `prime_ai_training_assignment_rules`, `prime_ai_training_rule_uids` (wanaka) | rows in `training_assignments`, by hand now; rules in nudgeai later (4.2) |
 | `prime_nudge_ai_completions` as the app's "done" flag | `training_progress.passed_at` (the agent's own record) |
 
-**Unchanged:** the agent still writes completions to Wanaka and Portal, so anything else that reads
-`prime_nudge_ai_completions` keeps working. The planned Wanaka → nudgeai assignment sync (`ASSIGNMENT_SYNC.md`) is
+**Completions:** the agent writes them to Prime Portal only. Until 2026-10-04 it also wrote Wanaka's
+`prime_nudge_ai_completions`; the owner stopped that (DECISIONS #114), since the app no longer reads it and
+NudgeLab now uses no Wanaka table. The planned Wanaka → nudgeai assignment sync (`ASSIGNMENT_SYNC.md`) is
 **replaced** by Section 4.
 
 ## 2. Sign-in hand-off: the NudgeLab pass

@@ -32,7 +32,7 @@ class ActivityOut(BaseModel):
 
 
 class FunnelOut(BaseModel):
-    basis: str  # "assigned" (Wanaka sync) or "started"
+    basis: str  # "assigned" (training_assignments) or "started"
     cohort: int
     started: int
     walkthrough_done: int

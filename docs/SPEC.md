@@ -206,7 +206,7 @@ All times are stored in UTC and displayed in the user's time zone (default `Amer
 | `session_reviews`, `daily_review_reports` | daily AI reviews (score, flagged, issues JSON) |
 | `session_issues` | safety corrections, refused hang-ups, etc. |
 | `training_acknowledgments` | acknowledgment statement and the trainee's exact words |
-| `completion_writes` | log of completion copies to Wanaka and Portal |
+| `completion_writes` | log of completion copies to Prime Portal (Wanaka too, before 2026-10-04) |
 | `training_assignments`, `vw_assignment_status` | assignments, **filled by the owner's Wanaka → nudgeai sync** (6.4); read-only for the API |
 | `training_voices`, `training_profiles` | voices and setups (**API writes in Stage 2, Admin only**) |
 | `vw_trainees`, `vw_training_stores`, `vw_session_report`, `vw_question_stats` | joins with the org hierarchy |
@@ -486,7 +486,7 @@ Still open: none for Stage 1. (Settled 2026-10-03: the new logins' host is the p
 ## 17. Glossary
 - **Agent:** the NudgeLab voice trainer (LiveKit + Transcribe + Claude + Polly), repo `nudgelab`.
 - **Completion type:** quiz, walkthrough or acknowledgment (how credit is earned).
-- **Completion key:** the Wanaka class id (`prime_ai_training_agents.elevenlabs_agent_id`) used for completion rows in Wanaka and Portal.
+- **Completion key:** the class id used for completion rows in Prime Portal (`trainings.completion_key`; originally Wanaka's `prime_ai_training_agents.elevenlabs_agent_id`). Since 2026-10-04 nothing is written to Wanaka.
 - **Setup / profile:** a named model + voice-engine combination (`training_profiles`), e.g. Standard (Haiku) or Enhanced (Sonnet).
 - **Bot test session:** an automated test conversation (`client = 'bot_test'`), excluded from reports.
 - **Preview call:** a trainer's test session against a draft version (`client = 'preview'`).

@@ -252,3 +252,9 @@
   passed, due within 7 days; counted separately). Rows carry job title, store id, market and region. The export
   takes the same parameters and adds job title, market and region columns.
 - `GET /reports/filter-options`: `job_titles` (active employees'). Tests: 610.
+
+## Completions to Prime Portal only (2026-10-04)
+
+- Wording: the publish checks, the publish refusal and the studio's completion-key field say passes are copied to
+  Prime Portal (not "Wanaka or Portal"); report captions no longer call assignments "Wanaka assignments".
+- `deploy/db-revoke-agent-wanaka.sql`: removes the agent login's two Wanaka grants (after the agent release).

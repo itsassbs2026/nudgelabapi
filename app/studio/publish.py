@@ -14,7 +14,7 @@
 
 Publishing needs no errors from the checks (10.4) and, for a version that has never been live, at least one
 preview call on it, made after its last edit, in which the trainee spoke (10.5). A version without a
-completion key publishes only when the trainer confirms that passes won't reach Wanaka or Portal.
+completion key publishes only when the trainer confirms that passes won't reach Prime Portal.
 """
 
 from __future__ import annotations
@@ -198,7 +198,7 @@ def start(
         raise ApiError(422, "not_ready", " ".join(ready["blockers"]), {"blockers": ready["blockers"]})
     if not ready["completion_key"] and not no_completion_key_ok:
         raise ApiError(409, "no_completion_key",
-                       "No completion key: passes won't be copied to Wanaka or Portal.")  # fmt: skip
+                       "No completion key: passes won't be copied to Prime Portal.")  # fmt: skip
     row = service._version(db, version_id)
     if _running_job(db, row.training_id):
         raise ApiError(409, "publishing", "This training is already being published.")

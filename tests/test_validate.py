@@ -70,7 +70,7 @@ def test_blank_training_lists_everything_to_do() -> None:
     assert ("Acknowledgment", "Write the statement the trainee confirms (10–300 characters).") in found
     for key in ("first_message", "completed", "acknowledgment_intro", "location_unknown"):
         assert (f"Line {key}", "Write this line.") in found
-    assert ("Settings", "No completion key: passes won't be copied to Wanaka or Portal.") in messages(
+    assert ("Settings", "No completion key: passes won't be copied to Prime Portal.") in messages(
         validate(blank, completion_key=None), "warnings"
     )
 

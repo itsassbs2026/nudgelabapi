@@ -380,3 +380,11 @@ Recorded as they're made (SPEC §0.2). Newest last.
 113. **No new index on the agent's training_sessions yet**: a covering index halved some report queries locally,
      but changing the agent's live table isn't worth it on laptop numbers. Requests over 2 s are logged
      (`slow_request`, path only) so the reports get tuned against real volume as it arrives.
+
+## Completions to Prime Portal only (2026-10-04)
+
+114. **The agent no longer writes to Wanaka** (owner's decision): passes are copied to Prime Portal only, and the
+     completion key comes from `nudgeai.trainings` (the dashboard's training settings), not Wanaka's old class
+     catalog. The app already reads NudgeLab's own record of passes, so NudgeLab now uses no Wanaka table at all;
+     the agent login's two Wanaka grants can be revoked. Checked first: every live training that copies passes
+     (Big 4, Q4 comp) already had its key in `nudgeai.trainings`.

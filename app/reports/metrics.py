@@ -4,8 +4,8 @@ Two kinds of figures:
 - Activity in the period: sessions, trainees, completions, ratings, review scores, cost. Each counts events
   whose own timestamp falls in the date range.
 - Cohort progress (funnel, completion rate): a cohort of trainees and how far they've got so far. The cohort
-  is trainees **assigned** in the period when assignment data exists for the scope (Wanaka sync), otherwise
-  trainees who **started** in the period. `basis` says which, so the dashboard can label it.
+  is trainees **assigned** in the period when assignment data exists for the scope (training_assignments),
+  otherwise trainees who **started** in the period. `basis` says which, so the dashboard can label it.
 """
 
 from __future__ import annotations

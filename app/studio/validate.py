@@ -16,7 +16,7 @@ Errors:
 Warnings:
 - a topic over 30 seconds of speech; an Ask without an Expected answer or with no Accept line
 - the welcome line doesn't use {trainer_name}, or a line says the trainer's name instead of {trainer_name}
-- no completion key (passes won't reach Wanaka or Portal)
+- no completion key (passes won't reach Prime Portal)
 """
 
 from __future__ import annotations
@@ -159,5 +159,5 @@ def validate(content: dict[str, Any], *, completion_key: str | None) -> dict[str
             message = f'"{term}": only letters with periods, hyphens or apostrophes (P.P.V.G.A., Pro-Plan)'
             errors.append(_issue("Vocabulary", message, term=str(term)))
     if not completion_key:
-        warnings.append(_issue("Settings", "No completion key: passes won't be copied to Wanaka or Portal."))
+        warnings.append(_issue("Settings", "No completion key: passes won't be copied to Prime Portal."))
     return {"errors": errors, "warnings": warnings}
