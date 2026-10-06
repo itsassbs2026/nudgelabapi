@@ -14,6 +14,7 @@ GRANT SELECT, INSERT, UPDATE         ON nudgeai.jobs                       TO 'n
 GRANT SELECT, INSERT                 ON nudgeai.app_session_starts         TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT, UPDATE         ON nudgeai.content_uploads            TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT, UPDATE         ON nudgeai.testers                    TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT                         ON nudgeai.agent_servers              TO 'nudgelab_api'@'10.0.1.148';
 
 -- Check:
 -- SHOW GRANTS FOR 'nudgelab_api'@'10.0.1.148';

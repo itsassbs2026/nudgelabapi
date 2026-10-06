@@ -207,9 +207,16 @@ events
 
 await room.connect(session['server_url'], session['participant_token']);
 await room.localParticipant?.setMicrophoneEnabled(true);
-// Anne's audio plays automatically once subscribed. Show "Anne is joining…"; if she hasn't joined within
-// 25 seconds, say the trainer may be offline and offer to end and try again.
+// Anne's audio plays automatically once subscribed. Show "Anne is joining…". If she hasn't joined within
+// 15 seconds, disconnect and show the busy message below (all trainers busy).
 ```
+
+**All trainers busy** (2026-10-06). Two places, the same message:
+- The session call answers **503 `trainers_busy`** when every trainer is taken. Show `error.message` as it is
+  ("All Nudge trainers are busy right now. Please try again in 10 to 15 minutes.") with an OK button, and don't
+  connect. `error.details.retry_after_minutes` is 10. No automatic retry.
+- No trainer joined within **15 seconds** of connecting (a burst of starts, or a server failing): disconnect,
+  and show the same message. Progress isn't affected: nothing happened yet.
 
 **Optional:**
 - **Status line:** Anne's attribute `lk.agent.state` is `initializing`, `listening`, `thinking` or `speaking`.
@@ -241,6 +248,7 @@ Every error is `{"error": {"code": "...", "message": "...", "details": {}}}`.
 | 422 | `trainer_name_not_allowed`, `trainer_voice_not_allowed` | reload the list (the persona changed), start again |
 | 429 | `rate_limited` | "Please wait a moment and try again." (60 reads or 6 starts a minute per person) |
 | 503 | `app_not_configured`, `sessions_unavailable` | "Trainings are temporarily unavailable." |
+| 503 | `trainers_busy` | show `error.message` ("All Nudge trainers are busy right now…"); don't connect |
 | network | | the app's usual offline message; the badge can keep its last value |
 
 ## 6. Rolling it out

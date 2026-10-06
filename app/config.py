@@ -79,6 +79,12 @@ class Settings(BaseSettings):
     # used to join or rejoin after a dropped connection (as the tester page).
     livekit_agent_name: str = "nudgelab-trainer"
     app_session_token_minutes: int = 30
+    # The busy check (app/mobile/capacity.py): no session when live calls reach the capacity of the agent
+    # servers that checked in within agent_server_stale_seconds (they check in every 30 seconds).
+    app_busy_check: bool = True
+    app_busy_message: str = "All Nudge trainers are busy right now. Please try again in 10 to 15 minutes."
+    app_busy_retry_minutes: int = 10
+    agent_server_stale_seconds: int = 90
 
     # Training content uploads (SPEC 10.2, §12.4): presigned POST straight to S3 under a random key, then the
     # worker checks the file and extracts its text. The prefix defaults to training-content/<APP_ENV>; the

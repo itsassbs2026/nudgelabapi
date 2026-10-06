@@ -465,6 +465,103 @@ def test_session_start_for_someone_elses_training(
     assert response.status_code == 403
 
 
+# --- All trainers busy (app/mobile/capacity.py, 2026-10-06) -----------------------------------------------
+
+
+def server(db: Session, name: str, capacity: int, *, accepting: bool = True, seconds_ago: int = 10) -> None:
+    db.execute(
+        text(
+            "INSERT INTO agent_servers (server_name, role, capacity, accepting, release_commit, last_seen)"
+            " VALUES (:n, 'worker', :c, :a, 'abc1234', UTC_TIMESTAMP(6) - INTERVAL :s SECOND)"
+        ),
+        {"n": name, "c": capacity, "a": accepting, "s": seconds_ago},
+    )
+
+
+@pytest.fixture
+def rooms(monkeypatch: pytest.MonkeyPatch) -> list[Any]:
+    """LiveKit's room list, faked: add rooms to it; a room with fail=True makes LiveKit unreadable."""
+    from types import SimpleNamespace
+
+    from app.services import live
+    from app.utils.errors import ApiError
+
+    class Rooms(list[Any]):
+        calls = 0
+
+    listed = Rooms()
+
+    async def fetch(_settings: Any) -> list[Any]:
+        listed.calls += 1
+        if any(getattr(r, "fail", False) for r in listed):
+            raise ApiError(503, "live_unavailable", "down")
+        return [r for r in listed if not getattr(r, "fail", False)]
+
+    monkeypatch.setattr(live, "fetch_rooms", fetch)
+    listed.append(SimpleNamespace(name="other-room", num_participants=3))  # not a call: never counted
+    listed.append(SimpleNamespace(name="nl-big4-1-empty", num_participants=0))  # nobody in it yet
+    return listed
+
+
+def call(name: str) -> Any:
+    from types import SimpleNamespace
+
+    return SimpleNamespace(name=name, num_participants=2)
+
+
+def start(client: TestClient, make_pass: Callable[..., str]) -> Any:
+    return client.post("/app/v1/trainings/big4/session", headers=bearer(make_pass()), json={})
+
+
+def test_busy_when_live_calls_fill_the_running_servers(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], livekit: str, db_session: Session,
+    rooms: list[Any],
+) -> None:  # fmt: skip
+    server(db_session, "main", 1)
+    server(db_session, "worker-1", 1)
+    server(db_session, "worker-2", 20, accepting=False)  # draining: takes no new calls
+    server(db_session, "worker-3", 20, seconds_ago=600)  # off
+    rooms += [call("nl-walk-7-aa11"), call("pv-big4-900001-bb22")]  # a training call and a preview call
+    r = start(client, make_pass)
+    assert r.status_code == 503, r.text
+    error = r.json()["error"]
+    assert error["code"] == "trainers_busy"
+    assert error["message"].startswith("All Nudge trainers are busy right now.")
+    assert error["details"] == {"retry_after_minutes": 10}
+    assert db_session.execute(text("SELECT COUNT(*) FROM app_session_starts")).scalar() == 0
+
+    rooms.pop()  # one call ends: room for one more
+    assert start(client, make_pass).status_code == 200
+
+
+def test_busy_when_no_server_is_running(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], livekit: str, db_session: Session,
+    rooms: list[Any],
+) -> None:  # fmt: skip
+    server(db_session, "main", 20, seconds_ago=600)
+    r = start(client, make_pass)
+    assert (r.status_code, r.json()["error"]["code"]) == (503, "trainers_busy")
+
+
+def test_never_blocks_when_it_cant_tell(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], livekit: str, db_session: Session,
+    rooms: list[Any], monkeypatch: pytest.MonkeyPatch,
+) -> None:  # fmt: skip
+    from types import SimpleNamespace
+
+    # No server has ever checked in (the check isn't set up): LiveKit isn't even asked.
+    assert start(client, make_pass).status_code == 200
+    assert rooms.calls == 0  # type: ignore[attr-defined]
+    # LiveKit unreadable: go ahead.
+    server(db_session, "main", 1)
+    rooms += [call("nl-walk-7-aa11"), SimpleNamespace(fail=True)]
+    assert start(client, make_pass).status_code == 200
+    # Switched off in the settings.
+    rooms.pop()
+    monkeypatch.setattr(get_settings(), "app_busy_check", False)
+    assert start(client, make_pass).status_code == 200
+
+
 def test_session_start_input_is_validated(
     client: TestClient, app_data: None, make_pass: Callable[..., str], livekit: str
 ) -> None:

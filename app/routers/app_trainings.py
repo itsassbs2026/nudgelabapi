@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
 from app.db import get_db
-from app.mobile import persona, sessions, trainings
+from app.mobile import capacity, persona, sessions, trainings
 from app.mobile.limits import reader, session_starter
 from app.mobile.passes import Employee
 from app.reference.agent_tables import trainings as trainings_table
@@ -68,6 +68,7 @@ def start_session(
         requested_name=body.trainer_name,
         requested_voice=body.trainer_voice,
     )
+    capacity.check(db, settings)  # all trainers busy: 503 trainers_busy, the app says to come back later
     return sessions.start(
         db, settings, employee, training_id, chosen, start_over=body.start_over, ip=client_ip(request)
     )

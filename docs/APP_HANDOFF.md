@@ -124,6 +124,15 @@ whatever it was given. The trainer says the first name only; names that aren't p
 - Room name `nl-<training>-<uid>-<random>`, as today: the dashboard's Live page and reports work unchanged.
 - One token per call, valid 30 minutes (to join, or to rejoin after a dropped connection, as the tester page).
 - Each start is logged in `app_session_starts` (uid, training, room, pass id, IP).
+- **All trainers busy** (2026-10-06): before a token is made, the API compares the calls live in LiveKit with
+  the capacity of the agent servers taking calls (`agent_servers`, each server checks in every 30 seconds). When
+  they're full it answers **503 `trainers_busy`**, with `details.retry_after_minutes` (10). The app shows the
+  message as given ("All Nudge trainers are busy right now. Please try again in 10 to 15 minutes.") and doesn't
+  join; the wording lives in the API settings, so it can change without an app release. No retry loop: the
+  trainee tries again later.
+- **No trainer joined** (app side): if no agent participant has joined within **15 seconds** of connecting,
+  leave the room and show the same busy message. That covers a server failing mid-day or a burst of starts in
+  the same few seconds.
 
 ### 3.4 Errors
 
@@ -136,6 +145,7 @@ whatever it was given. The trainer says the first name only; names that aren't p
 | 422 | `validation_error` | bad training id or body (the body takes only `start_over`) |
 | 429 | `rate_limited` | 60 reads or 6 session starts a minute per employee (defaults) |
 | 503 | `app_not_configured` / `sessions_unavailable` | pass keys or LiveKit not set on the server |
+| 503 | `trainers_busy` | every Nudge trainer is taken: show `error.message`, try again later (3.3) |
 
 Body: `{"error": {"code": "...", "message": "...", "details": {}}}`, the API's usual shape. Never a database
 message (the current procedures return `sql_state` and the database error to the app).

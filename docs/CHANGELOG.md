@@ -264,3 +264,14 @@
 - The publish job now also sets the training's status from draft to active. RSM Sales Incentive Plan, the first
   training built and published entirely in the studio, kept "Not published yet" and was left out of the
   Trainings report (fixed by hand with one UPDATE). An archived training stays archived. Tests: 612.
+
+## All trainers busy: the app's busy check (2026-10-06)
+
+- `agent_servers` (migration `0011_agent_servers`): each agent server checks in every 30 seconds with its
+  capacity and whether it's taking calls (the agent repo's `ops/heartbeat.py`).
+- `POST /app/v1/trainings/{id}/session` answers 503 `trainers_busy` (with `details.retry_after_minutes`) when the
+  calls live in LiveKit reach the capacity of the servers that checked in within 90 seconds. It never blocks by
+  mistake: no server rows yet, or LiveKit unreadable, and the session goes ahead. Settings: `APP_BUSY_CHECK`,
+  `APP_BUSY_MESSAGE`, `APP_BUSY_RETRY_MINUTES`, `AGENT_SERVER_STALE_SECONDS`.
+- `deploy/db-grants-0011-agent-servers.sql`. APP_HANDOFF §3.3 and FLUTTER_APP_GUIDE §4: the busy answer and the
+  app's 15-second "no trainer joined" timeout. Tests: 615.

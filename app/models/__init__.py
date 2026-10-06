@@ -1,5 +1,6 @@
 """Importing this package registers every API model on Base.metadata (used by Alembic)."""
 
+from app.models.agent_servers import AgentServer
 from app.models.app import AppSessionStart
 from app.models.base import Base
 from app.models.content import ContentUpload
@@ -19,6 +20,7 @@ API_TABLES = frozenset(Base.metadata.tables)
 
 __all__ = [
     "API_TABLES",
+    "AgentServer",
     "AppSessionStart",
     "Base",
     "ContentUpload",
