@@ -268,12 +268,14 @@ Tester checklist:
 2. The list shows the assigned trainings with the right status and progress.
 3. Start a training: microphone permission, "Anne is joining…", then Anne talks and hears you.
 4. Lock the screen for 10 seconds mid-call, then unlock: the call continues or rejoins.
-5. Turn on airplane mode for 15 seconds mid-call, then off: it rejoins and Anne carries on.
-6. End mid-training, then Resume: Anne picks up where you left off; the card shows progress.
-7. Start over (from an in-progress card): starts from the beginning after confirmation.
-8. Finish a training: the card shows Completed and the badge goes down.
-9. Leave the app open for more than 15 minutes, then open Nudge: it still works (pass refresh).
-10. Log out and in as another tester: only their trainings appear.
+5. A full training on speakerphone, no headset: the trainer is never cut off mid-sentence when you haven't spoken.
+6. Say "Hold on a minute", put the phone down for 30 seconds: the call stays connected; then say "Continue".
+7. Turn on airplane mode for 15 seconds mid-call, then off: it rejoins and Anne carries on.
+8. End mid-training, then Resume: Anne picks up where you left off; the card shows progress.
+9. Start over (from an in-progress card): starts from the beginning after confirmation.
+10. Finish a training: the card shows Completed and the badge goes down.
+11. Leave the app open for more than 15 minutes, then open Nudge: it still works (pass refresh).
+12. Log out and in as another tester: only their trainings appear.
 
 Each session shows up in the NudgeLab dashboard (Sessions, client `flutter`) with its transcript and recording,
 so problems can be looked up by time and person.
