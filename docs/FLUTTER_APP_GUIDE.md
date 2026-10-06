@@ -186,6 +186,12 @@ Platform setup:
   before connecting.
 - **Keep the screen awake** during the call (e.g. `wakelock_plus`). A locked phone was the main cause of dropped
   calls on the web tester page.
+- **Echo cancellation on (speakerphone).** Use the phone's voice-call audio mode, so its echo cancellation runs:
+  iOS `AVAudioSession` category `playAndRecord` with mode `voiceChat`; Android `MODE_IN_COMMUNICATION` (in
+  `livekit_client`, its communication audio configuration; check the option names in your version). Without it
+  the microphone hears the trainer's own voice from the speaker: in a speakerphone test (2026-10-06) stray words
+  ("One", "Yes", "7") cut the trainer off mid-sentence and its first call dropped. Output: the speaker by
+  default, switching to a headset when one connects.
 
 Sketch (check event and class names against the `livekit_client` version you install):
 
