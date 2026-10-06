@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the nudgelabapi reference-table sync twice daily (8 AM and 11 PM Chicago time)
+
+[Timer]
+# Chicago time, so daylight saving is followed. Persistent: a run missed while the server was down runs at boot.
+OnCalendar=*-*-* 08:00:00 America/Chicago
+OnCalendar=*-*-* 23:00:00 America/Chicago
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -275,3 +275,12 @@
   `APP_BUSY_MESSAGE`, `APP_BUSY_RETRY_MINUTES`, `AGENT_SERVER_STALE_SECONDS`.
 - `deploy/db-grants-0011-agent-servers.sql`. APP_HANDOFF §3.3 and FLUTTER_APP_GUIDE §4: the busy answer and the
   app's 15-second "no trainer joined" timeout. Tests: 615.
+
+## PortalLive reference-table sync (2026-10-06)
+
+- `app/reference/sync.py` + `scripts/sync_reference_tables.py` (`--dry-run`, `--table`): copies `v_users_all`,
+  `v_users`, `v_stores`, `v_stores_all` from PortalLive; guards (empty, under half, column mismatch), one-transaction
+  replace in batches of 2,000, per-table results, failures emailed to `REFERENCE_SYNC_ALERT_EMAIL`.
+- Migration `0012_sync_run_log`; `deploy/db-grants-0012-reference-sync.sql`, `deploy/reference-tables-utf8mb4.sql`,
+  `deploy/nudgelabapi-reference-sync.service` + `.timer` (08:00 and 23:00 America/Chicago, persistent).
+- Settings: `PORTALLIVE_DATABASE_URL`, `REFERENCE_SYNC_DATABASE_URL`, `REFERENCE_SYNC_ALERT_EMAIL`. Tests: 624.

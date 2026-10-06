@@ -389,3 +389,16 @@ Recorded as they're made (SPEC §0.2). Newest last.
      the agent login's two Wanaka grants, and its unused one on `nudge.prime_nudge_ai_completions`, are revoked
      (`deploy/db-revoke-agent-wanaka.sql`). Prime Portal is `primetwok` on its own server, so it's unaffected. Checked first: every live training that copies passes
      (Big 4, Q4 comp) already had its key in `nudgeai.trainings`.
+
+## PortalLive reference-table sync (2026-10-06)
+
+115. **NudgeLab fills its own copies of `v_users_all`, `v_users`, `v_stores`, `v_stores_all`** (owner's decision;
+     there was no sync before). A oneshot script on the API server, twice a day (08:00 and 23:00 Chicago), modelled
+     on joynapi's proven one: fetch first, refuse an empty fetch, a drop under half, or different columns, then
+     DELETE + INSERT by column name in one transaction, one `sync_run_log` row per table per run, failures emailed.
+     Every column is copied (owner's choice), so the personal-data columns stay out of the API's reach the way they
+     were: the sync uses its own logins (read-only on PortalLive; `nudgelab_sync` on nudgeai, which can replace only
+     these four tables), and the API's login still has no grant on them. The four tables become utf8mb4
+     (`deploy/reference-tables-utf8mb4.sql`), ending the utf8mb3 join problem of #112. The sync's INSERT is built
+     from identifiers (SPEC rule 7's one exception): the table names come from a fixed list and the column names
+     must equal the target's own columns before anything runs; every value is a bound parameter.

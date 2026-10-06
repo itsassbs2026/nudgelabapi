@@ -293,6 +293,37 @@ The agent isn't touched. IAM: the stage 2 policy already allows `transcribe:*Voc
 4. Acceptance on the sample training (no real trainees): a bot pinned mid-way on its live version, a copy
    published, the bot still on its version and a fresh start on the new one.
 
+## PortalLive reference-table sync (2026-10-06)
+
+`scripts/sync_reference_tables.py` copies `v_users_all`, `v_users`, `v_stores` and `v_stores_all` from PortalLive
+(`primetwok`) into nudgeai at **08:00 and 23:00 Chicago** (`nudgelabapi-reference-sync.timer`). These feed
+`vw_trainees`, `vw_training_stores` and `vw_app_profile`: names, stores and managers for the agent, reports and app.
+Per table: fetch everything first; refuse an empty fetch, one under half of what's on file, or different columns
+(nothing changes, a `failed` row is logged and the alert address gets an email); otherwise DELETE + INSERT in one
+transaction. One row per table per run in `sync_run_log`.
+
+First time (you):
+1. `git pull`, then `bash deploy/deploy.sh` → stops at the migration → review
+   `venv/bin/alembic upgrade 0011_agent_servers:0012_sync_run_log --sql` (one new table) → `venv/bin/alembic upgrade head`.
+2. As an admin on nudgeai: `deploy/reference-tables-utf8mb4.sql` (the four tables become utf8mb4; seconds each).
+3. As an admin: `deploy/db-grants-0012-reference-sync.sql`, part 1 on nudgeai, part 2 on PortalLive (a read-only
+   login there; allow the API server through PortalLive's security group on 3306).
+4. In `.env`: `PORTALLIVE_DATABASE_URL`, `REFERENCE_SYNC_DATABASE_URL`, `REFERENCE_SYNC_ALERT_EMAIL`
+   (see `env.production.example`). Passwords URL-encoded; never print the file.
+5. `venv/bin/python scripts/sync_reference_tables.py --dry-run`: per table, rows on file and on PortalLive. No
+   writes. Then once for real: `venv/bin/python scripts/sync_reference_tables.py` (all four `SUCCESS`).
+6. Install the timer:
+   ```bash
+   sudo cp deploy/nudgelabapi-reference-sync.service deploy/nudgelabapi-reference-sync.timer /etc/systemd/system/
+   sudo systemctl daemon-reload
+   sudo systemctl enable --now nudgelabapi-reference-sync.timer
+   systemctl list-timers | grep reference
+   ```
+
+Checking it: `journalctl -u nudgelabapi-reference-sync`, or as an admin
+`SELECT table_name, status, row_count, error_message, started_at FROM sync_run_log ORDER BY id DESC LIMIT 8;`
+A failed table keeps its previous rows; fix the cause and run the script again (it's safe to run any time).
+
 ## Where things are
 
 | | |
@@ -301,4 +332,5 @@ The agent isn't touched. IAM: the stage 2 policy already allows `transcribe:*Voc
 | Settings | `/srv/nudgelabapi/.env` (mode 600) |
 | Exports | `/var/lib/nudgelabapi/exports` (deleted after 24 hours by the worker) |
 | Restart | `sudo systemctl restart nudgelabapi nudgelabapi-worker` |
+| Reference sync | `journalctl -u nudgelabapi-reference-sync`, `sync_run_log`; next run: `systemctl list-timers \| grep reference` |
 | Health | `curl https://nudgelabapi.myprimeportal.com/api/v1/health` |

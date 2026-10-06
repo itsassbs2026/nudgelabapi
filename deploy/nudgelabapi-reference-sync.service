@@ -1,0 +1,17 @@
+[Unit]
+Description=nudgelabapi: copy v_users_all, v_users, v_stores, v_stores_all from PortalLive (scripts/sync_reference_tables.py)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/nudgelabapi
+# Same .env as nudgelabapi.service (pydantic-settings reads it): PORTALLIVE_DATABASE_URL,
+# REFERENCE_SYNC_DATABASE_URL, REFERENCE_SYNC_ALERT_EMAIL. A failed run exits 1 and emails the alert address.
+ExecStart=/srv/nudgelabapi/venv/bin/python scripts/sync_reference_tables.py
+TimeoutStartSec=900
+
+NoNewPrivileges=true
+PrivateTmp=true

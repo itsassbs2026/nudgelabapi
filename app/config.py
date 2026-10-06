@@ -86,6 +86,15 @@ class Settings(BaseSettings):
     app_busy_retry_minutes: int = 10
     agent_server_stale_seconds: int = 90
 
+    # The reference-table sync (app/reference/sync.py, scripts/sync_reference_tables.py), twice a day: copies
+    # v_users_all, v_users, v_stores and v_stores_all from PortalLive. Its own logins, never the API's: a
+    # read-only PortalLive login, and nudgeai's `nudgelab_sync` (can only replace those four tables and write
+    # sync_run_log).
+    # Both URLs with ?charset=utf8mb4 and the password URL-encoded. Failures are emailed to the alert address.
+    portallive_database_url: str | None = None
+    reference_sync_database_url: str | None = None
+    reference_sync_alert_email: str | None = None
+
     # Training content uploads (SPEC 10.2, §12.4): presigned POST straight to S3 under a random key, then the
     # worker checks the file and extracts its text. The prefix defaults to training-content/<APP_ENV>; the
     # bucket's lifecycle rule deletes <prefix>/pending/ after a day (files never completed).

@@ -14,7 +14,7 @@
 3. **The security rules in Section 12 are non-negotiable.** Every endpoint gets an authorization test, not just an authentication test.
 4. **`nudgeai` is a live production database** (on the `primetwok8-testing…` RDS host, which despite its name is production). **Never run tests, `alembic downgrade`, `alembic stamp base`, or anything that creates or drops tables against it.** Tests use a disposable local MySQL/MariaDB (as in pingit's `CLAUDE.md`).
 5. **The voice agent writes to `nudgeai` all day.** Never change, rename or drop a table or column the agent uses (Section 6.2) without a matching, tested agent change. Schema changes are additive by default.
-6. **Read-only sources, never written:** `v_users_all`, `v_stores_all`, `v_users`, `v_stores` and `training_assignments` (external syncs). The API has no access to `wanaka` or Prime Portal (`primetwok`).
+6. **Read-only sources, never written by the API:** `v_users_all`, `v_stores_all`, `v_users`, `v_stores` and `training_assignments`. The four `v_*` tables are refreshed twice a day from PortalLive by the reference-table sync (`scripts/sync_reference_tables.py`, its own logins; DECISIONS #115); the API's own login has no access to them, to `wanaka`, or to Prime Portal (`primetwok`).
 7. **All SQL through SQLAlchemy with bound parameters.** No string-built SQL, including `ORDER BY` and filter fields (use allowlists). Report queries may use SQLAlchemy Core or `text()` with bound parameters, never f-strings.
 8. **Keep the two repos independent.** The dashboard talks to the API only over HTTPS JSON. No shared code. The agent (`nudgelab` repo) is a third, independent codebase.
 9. Prefer boring, well-maintained libraries, the same ones pingit uses where possible. Pin versions in lockfiles.
@@ -210,7 +210,7 @@ All times are stored in UTC and displayed in the user's time zone (default `Amer
 | `training_assignments`, `vw_assignment_status` | assignments, **filled by the owner's Wanaka → nudgeai sync** (6.4); read-only for the API |
 | `training_voices`, `training_profiles` | voices and setups (**API writes in Stage 2, Admin only**) |
 | `vw_trainees`, `vw_training_stores`, `vw_session_report`, `vw_question_stats` | joins with the org hierarchy |
-| `v_users_all`, `v_stores_all`, `v_users`, `v_stores` | external sync, **read-only**, never in Alembic autogenerate |
+| `v_users_all`, `v_stores_all`, `v_users`, `v_stores` | copies of PortalLive, refreshed by the reference-table sync (08:00, 23:00 Chicago); **read-only** for the API; never in Alembic autogenerate |
 
 ### 6.3 New API tables (Stage 1)
 Conventions as in pingit: `BIGINT UNSIGNED` ids, `DATETIME(6)` UTC, enums as `VARCHAR(32)` + CHECK.
