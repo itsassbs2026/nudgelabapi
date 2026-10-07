@@ -45,9 +45,16 @@ class ManualSync(BaseModel):
     error: str | None
 
 
+class AutomaticRun(BaseModel):
+    at: datetime
+    status: str  # success | failed (any table)
+
+
 class SyncStatus(BaseModel):
     configured: bool
     schedule: str
+    last_automatic: AutomaticRun | None
+    next_automatic_at: datetime
     tables: list[SyncTable]
     manual: ManualSync | None
 

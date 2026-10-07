@@ -312,3 +312,9 @@
   `assigned_via`, `assigned_by_user_id`), `deploy/db-grants-0014-assignments.sql`. SPEC rule 6 and 6.4, DECISIONS
   #117. Tests: 682.
 
+
+## Portal sync: the automatic run shown on its own (2026-10-07)
+
+- `GET /admin/reference-sync` adds `last_automatic` (the timer's latest run: `sync_run_log` rows outside every
+  manual job's run window, and whether any table failed) and `next_automatic_at` (08:00 / 23:00 Chicago). The
+  page showed only the latest button press, so the 8:00 AM run looked missing. Tests: 684.

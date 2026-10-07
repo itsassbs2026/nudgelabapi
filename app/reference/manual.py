@@ -14,8 +14,9 @@ from __future__ import annotations
 import hashlib
 import hmac
 import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, time, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import structlog
 from sqlalchemy import create_engine, func, select, update
@@ -41,6 +42,10 @@ CODES_PER_WINDOW = 3
 CODE_WINDOW = timedelta(minutes=15)
 STALE_RUNNING = timedelta(minutes=15)
 SCHEDULE = "Every day at 8:00 AM and 11:00 PM Central"
+# The timer's OnCalendar times (deploy/nudgelabapi-reference-sync.timer).
+SCHEDULE_TZ = ZoneInfo("America/Chicago")
+SCHEDULE_TIMES = (time(8, 0), time(23, 0))
+RUN_GAP = timedelta(minutes=10)  # rows of one run start within minutes of each other
 
 
 def _now() -> datetime:
@@ -171,8 +176,46 @@ def _job_out(job: Job | None) -> dict[str, Any] | None:
             "tables": (job.result or {}).get("tables", []), "error": job.error}  # fmt: skip
 
 
+def next_scheduled(now: datetime) -> datetime:
+    """The timer's next run after `now` (naive UTC), in naive UTC."""
+    local = now.replace(tzinfo=UTC).astimezone(SCHEDULE_TZ)
+    for days in range(3):
+        day = local.date() + timedelta(days=days)
+        for at in SCHEDULE_TIMES:
+            when = datetime.combine(day, at, tzinfo=SCHEDULE_TZ)
+            if when > local:
+                return when.astimezone(UTC).replace(tzinfo=None)
+    raise AssertionError("unreachable")
+
+
+def last_automatic(db: Session) -> dict[str, Any] | None:
+    """The latest run of the timer: sync_run_log rows that no manual job's run window covers (2026-10-07: the
+    page showed only the manual run's time, so this morning's automatic run looked missing)."""
+    windows = [
+        (job.started_at - timedelta(seconds=5), (job.finished_at or _now()) + timedelta(seconds=5))
+        for job in db.scalars(
+            select(Job).where(Job.type == JobType.REFERENCE_SYNC.value, Job.started_at.is_not(None))
+            .order_by(Job.id.desc()).limit(50)
+        ).all()
+        if job.started_at
+    ]  # fmt: skip
+    rows = db.scalars(
+        select(SyncRunLog).where(SyncRunLog.sync_name == SYNC_NAME).order_by(SyncRunLog.id.desc()).limit(200)
+    ).all()
+    automatic = [r for r in rows if not any(start <= r.started_at <= end for start, end in windows)]
+    if not automatic:
+        return None
+    first = automatic[0]
+    run = [r for r in automatic if abs(r.started_at - first.started_at) <= RUN_GAP]
+    return {
+        "at": max(r.finished_at or r.started_at for r in run),
+        "status": "failed" if any(r.status != "success" for r in run) else "success",
+    }
+
+
 def status(db: Session, settings: Settings) -> dict[str, Any]:
-    """The last run of each table (scheduled or manual) and the latest manual sync."""
+    """The last run of each table (scheduled or manual), the timer's last and next runs, and the latest manual
+    sync."""
     tables = []
     for table in SOURCES:
         last = db.scalars(
@@ -194,6 +237,8 @@ def status(db: Session, settings: Settings) -> dict[str, Any]:
     return {
         "configured": configured(settings),
         "schedule": SCHEDULE,
+        "last_automatic": last_automatic(db),
+        "next_automatic_at": next_scheduled(_now()),
         "tables": tables,
         "manual": _job_out(latest),
     }

@@ -8074,6 +8074,25 @@
         ],
         "title": "AuditList"
       },
+      "AutomaticRun": {
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "at",
+          "status"
+        ],
+        "title": "AutomaticRun"
+      },
       "CancelOut": {
         "properties": {
           "cancelled": {
@@ -13714,6 +13733,21 @@
             "type": "string",
             "title": "Schedule"
           },
+          "last_automatic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutomaticRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_automatic_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Next Automatic At"
+          },
           "tables": {
             "items": {
               "$ref": "#/components/schemas/SyncTable"
@@ -13736,6 +13770,8 @@
         "required": [
           "configured",
           "schedule",
+          "last_automatic",
+          "next_automatic_at",
           "tables",
           "manual"
         ],

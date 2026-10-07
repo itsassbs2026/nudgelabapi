@@ -172,3 +172,40 @@ def test_mask_email() -> None:
     assert manual.mask_email("bgupta@primecomms.com") == "b*****@primecomms.com"
     assert manual.mask_email("al@x.com") == "a***@x.com"
     assert timedelta(minutes=manual.CODE_MINUTES) == timedelta(minutes=10)
+
+
+def test_next_scheduled_run() -> None:
+    # 2026-10-07 is CDT (UTC-5): 8:00 AM = 13:00 UTC, 11:00 PM = 04:00 UTC the next day.
+    from datetime import datetime
+
+    assert manual.next_scheduled(datetime(2026, 10, 7, 12, 0)) == datetime(2026, 10, 7, 13, 0)
+    assert manual.next_scheduled(datetime(2026, 10, 7, 13, 0)) == datetime(2026, 10, 8, 4, 0)
+    assert manual.next_scheduled(datetime(2026, 10, 8, 4, 30)) == datetime(2026, 10, 8, 13, 0)
+
+
+def test_the_last_automatic_run_isnt_the_manual_one(
+    client: TestClient, admin_headers: Headers, db_session: Session
+) -> None:
+    """2026-10-07: the page showed only the 12:04 AM button press, so the 8:00 AM timer run looked missing."""
+    from datetime import datetime
+
+    from app.models.dashboard import Job
+    from app.models.sync_run_log import SyncRunLog
+
+    def run(at: datetime, status: str = "success") -> None:
+        for table in ("v_users_all", "v_users", "v_stores", "v_stores_all"):
+            end = at + timedelta(seconds=8)
+            db_session.add(SyncRunLog(sync_name="portallive_reference", table_name=table, started_at=at,
+                                      finished_at=end, status=status, row_count=10))  # fmt: skip
+
+    assert client.get(URL, headers=admin_headers).json()["last_automatic"] is None
+    run(datetime(2026, 10, 7, 13, 0, 1))  # the timer, 8:00 AM CDT
+    manual_at = datetime(2026, 10, 7, 14, 30, 0)
+    db_session.add(Job(type="reference_sync", status="done", input={}, attempts=1, started_at=manual_at,
+                       finished_at=manual_at + timedelta(seconds=20)))  # fmt: skip
+    run(manual_at + timedelta(seconds=2))  # the button, later
+    db_session.flush()
+    body = client.get(URL, headers=admin_headers).json()
+    assert body["last_automatic"] == {"at": "2026-10-07T13:00:09", "status": "success"}
+    assert body["next_automatic_at"]
+    assert body["tables"][0]["last_run_at"] == "2026-10-07T14:30:10"  # the table shows the latest of either
