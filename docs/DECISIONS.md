@@ -430,3 +430,12 @@ Recorded as they're made (SPEC §0.2). Newest last.
      one wrong file can assign hundreds of people. The API checks the permission on every call; the dashboard only
      hides buttons.
 
+
+## Role Play training type (2026-10-07, design only; docs/ROLEPLAY.md)
+
+119. **Role Play is a training type with one engine and a standard template** (owner's goal): every topic is data
+     in `training_versions.content` (tracks, personas, coach items, quiz sets, rubric, settings), and the person's
+     details and track arrive at session start. Owner's choices: Quick pauses in the Beginner practice only; two
+     voices (coach and customer); multiple-choice quizzes only; quiz pass mark per training, default all correct;
+     a new assignment reason after a pass is a fresh start; one reason per upload. Code enforces the stages and
+     the quiz gate, and a separate grader scores each practice conversation.
