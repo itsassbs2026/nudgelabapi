@@ -345,6 +345,10 @@ assignments and UPDATE five columns; never DELETE) → `bash deploy/deploy.sh` a
 own assignment query keeps working; rows the dashboard made have `assigned_via` set, so leave those alone (for
 example `WHERE assigned_via IS NULL` when the query cancels rows it no longer wants).
 
+**Running a `deploy/db-grants-*.sql` file:** it's SQL, not a shell script, so it goes through the MySQL client as
+the RDS admin login: `mysql -h <RDS endpoint> -u <admin user> -p < deploy/db-grants-0014-assignments.sql` (the
+client asks for the password), or open `mysql` as admin and paste the file's `GRANT` lines at the `mysql>` prompt.
+
 ## Where things are
 
 | | |
