@@ -107,3 +107,23 @@ def test_admin_requests_stay_in_the_granted_columns() -> None:
 
     assert set(VoiceUpdate.model_fields) <= VOICE_UPDATABLE
     assert set(ProfileUpdate.model_fields) <= PROFILE_UPDATABLE
+
+
+def test_assignment_writes_are_column_limited() -> None:
+    """2026-10-07: the dashboard adds assignments and changes a few columns; it never deletes one."""
+    sql = (DEPLOY / "db-grants-0014-assignments.sql").read_text(encoding="utf-8")
+    grants = re.findall(
+        r"^GRANT ([A-Z, ]+?)(?: \(([^)]*)\))? ON nudgeai\.(\w+) TO 'nudgelab_api'@", sql, re.M
+    )
+    found = {(priv, table): {c.strip() for c in cols.split(",") if c.strip()} for priv, cols, table in grants}
+    assert found == {
+        ("SELECT, INSERT, UPDATE", "dash_permissions"): set(),
+        ("INSERT", "training_assignments"): set(),
+        ("UPDATE", "training_assignments"): {
+            "status",
+            "due_at",
+            "assigned_at",
+            "assigned_via",
+            "assigned_by_user_id",
+        },
+    }

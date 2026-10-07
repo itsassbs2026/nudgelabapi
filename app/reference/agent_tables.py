@@ -246,6 +246,9 @@ training_assignments = Table(
     Column("matched_rule_group_id", Integer),
     Column("matched_rule_name", String(150)),
     Column("ai_flag", String(50)),
+    # Migration 0014: rows made in the dashboard ('dashboard' or 'upload', and by whom); NULL for the query.
+    Column("assigned_via", String(16)),
+    Column("assigned_by_user_id", Integer),
 )
 
 training_profiles = Table(

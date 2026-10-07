@@ -409,3 +409,24 @@ Recorded as they're made (SPEC §0.2). Newest last.
      minutes, a new code cancels the old), and only the right code queues the run. The run is a worker job, never
      the API process: the worker uses the sync's own logins, so the API's login still has no access to the four
      tables. One run at a time; each table's result lands in `sync_run_log` like the scheduled runs.
+
+## Assigning training from the dashboard (2026-10-07)
+
+117. **The API now writes `training_assignments`** (owner's request): Trainers and Admins assign one person or a
+     CSV of uids, cancel, and change due dates on the Assignments page, alongside the owner's own database query.
+     The table stays shared, so the API's rights are the least that works: INSERT, and UPDATE only on `status`,
+     `due_at`, `assigned_at`, `assigned_via`, `assigned_by_user_id`; never DELETE (cancelling sets the status and
+     history stays). Rows it makes are tagged (`assigned_via` = `dashboard` | `upload`, plus the dashboard user)
+     rather than reusing `assigned_by`, which holds Wanaka uids, so the owner's query can tell them apart and leave
+     them alone. People are looked up in `vw_trainees`, so the API still has no access to `v_users*`. Every write
+     goes through the same plan the check showed and re-checks it; a CSV is applied in one transaction (valid rows
+     only; rows with problems are listed with their file row number). The CSV holds uids only, with trainings and
+     due date picked on screen (owner's choice: "these 200 people get RSM Fiber"). Re-assigning someone who
+     passed is allowed but flagged, since a pass is permanent today; a real retake (progress history and reset,
+     touching the agent and the Portal copy) is a separate, later step.
+118. **Per-role permissions live in a table** (`dash_permissions`, owner's request), not in code: Admins switch
+     each assignment action on or off for Trainers on Admin > Permissions; Admins themselves are always allowed,
+     so nobody can lock everyone out. A missing row means not allowed. Mass upload starts off for Trainers, since
+     one wrong file can assign hundreds of people. The API checks the permission on every call; the dashboard only
+     hides buttons.
+

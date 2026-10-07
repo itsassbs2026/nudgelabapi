@@ -14,7 +14,7 @@
 3. **The security rules in Section 12 are non-negotiable.** Every endpoint gets an authorization test, not just an authentication test.
 4. **`nudgeai` is a live production database** (on the `primetwok8-testing…` RDS host, which despite its name is production). **Never run tests, `alembic downgrade`, `alembic stamp base`, or anything that creates or drops tables against it.** Tests use a disposable local MySQL/MariaDB (as in pingit's `CLAUDE.md`).
 5. **The voice agent writes to `nudgeai` all day.** Never change, rename or drop a table or column the agent uses (Section 6.2) without a matching, tested agent change. Schema changes are additive by default.
-6. **Read-only sources, never written by the API:** `v_users_all`, `v_stores_all`, `v_users`, `v_stores` and `training_assignments`. The four `v_*` tables are refreshed twice a day from PortalLive by the reference-table sync (`scripts/sync_reference_tables.py`, its own logins; DECISIONS #115); the API's own login has no access to them, to `wanaka`, or to Prime Portal (`primetwok`).
+6. **Read-only sources, never written by the API:** `v_users_all`, `v_stores_all`, `v_users`, `v_stores`. `training_assignments` is shared: the owner's database query fills it, and since 2026-10-07 the dashboard adds, re-activates and cancels rows and changes due dates (never DELETE; column-limited UPDATE; rows it made are tagged `assigned_via`; DECISIONS #117). The four `v_*` tables are refreshed twice a day from PortalLive by the reference-table sync (`scripts/sync_reference_tables.py`, its own logins; DECISIONS #115); the API's own login has no access to them, to `wanaka`, or to Prime Portal (`primetwok`).
 7. **All SQL through SQLAlchemy with bound parameters.** No string-built SQL, including `ORDER BY` and filter fields (use allowlists). Report queries may use SQLAlchemy Core or `text()` with bound parameters, never f-strings.
 8. **Keep the two repos independent.** The dashboard talks to the API only over HTTPS JSON. No shared code. The agent (`nudgelab` repo) is a third, independent codebase.
 9. Prefer boring, well-maintained libraries, the same ones pingit uses where possible. Pin versions in lockfiles.
@@ -164,7 +164,7 @@ These definitions are used everywhere (API, charts, exports). Implement each **o
 |---|---|
 | **Session** | One row in `training_sessions` (one voice call). Bot test sessions (`client = 'bot_test'`) are **excluded by default** from every report (toggle for Admins). |
 | **Trainee** | A distinct `uid` with at least one session. |
-| **Assigned** | A `training_assignments` row with `status = 'assigned'` (synced from Wanaka, Section 6.4). |
+| **Assigned** | A `training_assignments` row with `status = 'assigned'` (from the owner's query or the dashboard, Section 6.4). |
 | **Started** | `training_progress` row exists with ≥ 1 session. |
 | **Walkthrough done** | `training_progress.walkthrough_finished_at` is set. |
 | **Completed** | `training_progress.passed_at` is set (quiz passed, walkthrough completed, or acknowledged, per `trainings.completion_type`). |
@@ -207,7 +207,7 @@ All times are stored in UTC and displayed in the user's time zone (default `Amer
 | `session_issues` | safety corrections, refused hang-ups, etc. |
 | `training_acknowledgments` | acknowledgment statement and the trainee's exact words |
 | `completion_writes` | log of completion copies to Prime Portal (Wanaka too, before 2026-10-04) |
-| `training_assignments`, `vw_assignment_status` | assignments, **filled by the owner's Wanaka → nudgeai sync** (6.4); read-only for the API |
+| `training_assignments`, `vw_assignment_status` | assignments, filled by the owner's database query (6.4) and by the dashboard's Assignments page (2026-10-07: INSERT, UPDATE on `status`, `due_at`, `assigned_at`, `assigned_via`, `assigned_by_user_id`; never DELETE) |
 | `training_voices`, `training_profiles` | voices and setups (**API writes in Stage 2, Admin only**) |
 | `vw_trainees`, `vw_training_stores`, `vw_session_report`, `vw_question_stats` | joins with the org hierarchy |
 | `v_users_all`, `v_stores_all`, `v_users`, `v_stores` | copies of PortalLive, refreshed by the reference-table sync (08:00, 23:00 Chicago); **read-only** for the API; never in Alembic autogenerate |
@@ -236,6 +236,8 @@ Wanaka builds assignments dynamically, so the owner runs a **sync from Wanaka in
 | `assigned_by` | assigning uid if known, else NULL |
 
 Upsert on the unique key (`uid`, `training_id`). The sync's own login needs INSERT and UPDATE on this table only. An additive `synced_at` column may be added in Phase 1 for freshness reporting ("assignments as of …").
+
+**From the dashboard (2026-10-07, DECISIONS #117).** Trainers and Admins assign one person or a CSV of uids (trainings and due date chosen on screen, up to 5,000 uids per file), cancel, and change due dates, on the Assignments page. Every write is checked first (`POST /assignments/check` changes nothing) and the write re-checks: the uid must be a current employee (`vw_trainees`), the training published and not archived; already assigned is skipped, cancelled is re-activated, and passes, other versions of the same Portal training (same `completion_key`) and hidden trainings are flagged. All valid rows go in one transaction. Rows made here carry `assigned_via` (`dashboard` | `upload`) and `assigned_by_user_id`, so the owner's query can leave them alone; `assigned_by` (Wanaka's uid) is untouched. Due dates are the end of the chosen day in the user's time zone. Passed assignments are never cancelled. Each action is audited. What Trainers may do is set per role on Admin → Permissions (`dash_permissions`; Admins always may).
 
 ### 6.5 Training content (Stage 2)
 The agent currently reads each training from files. In Stage 2 the content lives in the database, versioned:
@@ -301,6 +303,10 @@ Base path `/api/v1`. JSON. Errors: `{ "error": { "code", "message", "details" } 
 | `GET /reports/cost` | cost series and splits |
 | `GET /acknowledgments` | compliance list |
 | `GET /assignments` | assigned trainees and their state (not started, in progress, completed, overdue) |
+| `POST /assignments/check`, `POST /assignments` | check, then assign one person (`uid`) or a CSV of uids (`csv`); per-role permission |
+| `POST /assignments/cancel`, `POST /assignments/due-date` | cancel, or set/clear the due date of, ticked assignments |
+| `GET /assignments/people`, `GET /assignments/trainings` | the Assign dialog's employee search and assignable trainings |
+| `GET /me/permissions`, `GET/PUT /admin/permissions` | what the user may do; the per-role switches (Admin) |
 | `POST /exports` → `GET /exports/{id}` | export job (streamed CSV for small results; XLSX via job) |
 | `GET /live` | current live sessions (LiveKit rooms; names only) |
 | `GET /admin/users` … `POST/PATCH` | user management (Admin) |

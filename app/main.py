@@ -15,6 +15,7 @@ from app.routers import (
     admin_sync,
     admin_users,
     app_trainings,
+    assignments,
     auth,
     exports,
     health,
@@ -84,6 +85,7 @@ def create_app() -> FastAPI:
         voices.router,
         admin_stage2.router,
         admin_sync.router,
+        assignments.router,
     ):
         app.include_router(router, prefix="/api/v1")
     # The Flutter app (docs/APP_HANDOFF.md): its own prefix and its own credentials (a NudgeLab pass).

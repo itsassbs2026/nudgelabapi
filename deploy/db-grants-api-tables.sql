@@ -17,6 +17,7 @@ GRANT SELECT, INSERT, UPDATE         ON nudgeai.testers                    TO 'n
 GRANT SELECT                         ON nudgeai.agent_servers              TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT                         ON nudgeai.sync_run_log               TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT, UPDATE         ON nudgeai.dash_action_codes          TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, INSERT, UPDATE         ON nudgeai.dash_permissions           TO 'nudgelab_api'@'10.0.1.148';
 
 -- Check:
 -- SHOW GRANTS FOR 'nudgelab_api'@'10.0.1.148';

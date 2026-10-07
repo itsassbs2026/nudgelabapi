@@ -114,6 +114,21 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/admin/reference-sync", None, False),
     ("POST", "/api/v1/admin/reference-sync/code", None, False),
     ("POST", "/api/v1/admin/reference-sync", {"code": "123456"}, False),
+    # Assigning from the dashboard (2026-10-07), with the Trainer defaults; the switches: test_assignments.py.
+    ("GET", "/api/v1/me/permissions", None, True),
+    ("GET", "/api/v1/admin/permissions", None, False),
+    (
+        "PUT",
+        "/api/v1/admin/permissions",
+        {"changes": [{"action": "assign_bulk", "role": "trainer", "enabled": False}]},
+        False,
+    ),
+    ("GET", "/api/v1/assignments/people?q=ab", None, True),
+    ("GET", "/api/v1/assignments/trainings", None, True),
+    ("POST", "/api/v1/assignments/check", {"uid": 1001, "training_ids": ["big4"]}, True),
+    ("POST", "/api/v1/assignments", {"uid": 1001, "training_ids": ["big4"]}, True),
+    ("POST", "/api/v1/assignments/cancel", {"assignment_ids": [999999]}, True),
+    ("POST", "/api/v1/assignments/due-date", {"assignment_ids": [999999], "due_date": None}, True),
 ]
 
 

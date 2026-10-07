@@ -335,6 +335,16 @@ type check gains `reference_sync`) → `venv/bin/alembic upgrade head` → as ad
 → `bash deploy/deploy.sh` again (restarts the API and the worker) → deploy the dashboard. Codes go out through the
 email outbox (Graph), so email must be working, as for password resets.
 
+**Assigning training from the dashboard** (2026-10-07): the Assignments page assigns one person or a CSV of uids,
+cancels and changes due dates; Admin > *Permissions* sets what Trainers may do. Setup: `git pull`,
+`bash deploy/deploy.sh` → stops at the migration → review
+`venv/bin/alembic upgrade 0013_manual_reference_sync:0014_dashboard_assignments --sql` (new `dash_permissions` with
+four Trainer rows; two nullable columns on `training_assignments`, `assigned_via` and `assigned_by_user_id`) →
+`venv/bin/alembic upgrade head` → as admin `deploy/db-grants-0014-assignments.sql` (the API may now INSERT
+assignments and UPDATE five columns; never DELETE) → `bash deploy/deploy.sh` again → deploy the dashboard. Your
+own assignment query keeps working; rows the dashboard made have `assigned_via` set, so leave those alone (for
+example `WHERE assigned_via IS NULL` when the query cancels rows it no longer wants).
+
 ## Where things are
 
 | | |

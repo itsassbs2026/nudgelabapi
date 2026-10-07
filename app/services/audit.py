@@ -41,6 +41,10 @@ class AuditAction(StrEnum):
     REFERENCE_SYNC_CODE_SENT = "reference_sync_code_sent"  # 2026-10-06: the manual Portal sync
     REFERENCE_SYNC_CODE_FAILED = "reference_sync_code_failed"
     REFERENCE_SYNC_STARTED = "reference_sync_started"
+    ASSIGNMENTS_ADDED = "assignments_added"  # 2026-10-07: assigning training from the dashboard
+    ASSIGNMENTS_CANCELLED = "assignments_cancelled"
+    ASSIGNMENTS_DUE_DATE = "assignments_due_date"
+    PERMISSIONS_CHANGED = "permissions_changed"
     # Later phases: training_published, settings_changed, …
 
 

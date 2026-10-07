@@ -294,3 +294,21 @@
   `_started`. Email template `action_code`.
 - Migration `0013_manual_reference_sync` (`dash_action_codes`; jobs type check), `deploy/db-grants-0013-sync-button.sql`.
   Tests: 643.
+
+## Assigning training from the dashboard, and Admin > Permissions (2026-10-07)
+
+- `POST /assignments/check` (changes nothing) and `POST /assignments`: one person (`uid`) or a CSV of uids
+  (`csv`, `file_name`; up to 5,000) for one or more trainings, optional due date (end of that day in the user's
+  time zone). Unknown or departed uids are left out with their row number; duplicates counted once; already
+  assigned skipped; cancelled re-activated; passes, another version of the same Portal training and hidden
+  trainings flagged. One transaction; 409 if the rows changed meanwhile.
+- `POST /assignments/cancel` (never a pass; nothing deleted) and `POST /assignments/due-date` (set or clear; open
+  assignments only). `GET /assignments/people` (search `vw_trainees`), `GET /assignments/trainings`.
+- `GET /me/permissions`, `GET/PUT /admin/permissions`: per-role switches (`assign_single`, `assign_bulk`,
+  `assign_cancel`, `assign_due_date`); Admins always allowed; Trainer defaults on, off (upload), on, on.
+- `GET /assignments` items gain `assignment_id` and `assigned_via`; the export gains *Assigned from*. Audit
+  actions `assignments_added`, `assignments_cancelled`, `assignments_due_date`, `permissions_changed`.
+- Migration `0014_dashboard_assignments` (`dash_permissions` with the Trainer defaults; `training_assignments` +
+  `assigned_via`, `assigned_by_user_id`), `deploy/db-grants-0014-assignments.sql`. SPEC rule 6 and 6.4, DECISIONS
+  #117. Tests: 682.
+

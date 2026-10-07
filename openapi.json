@@ -3321,6 +3321,51 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "Assign",
+        "description": "Assigns every valid row in one go (rows with problems are left out, as the check showed).",
+        "operationId": "assign_api_v1_assignments_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/search": {
@@ -6574,6 +6619,338 @@
         ]
       }
     },
+    "/api/v1/me/permissions": {
+      "get": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "My Permissions",
+        "description": "What the signed-in user may do, so the dashboard shows only those buttons.",
+        "operationId": "my_permissions_api_v1_me_permissions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "type": "object",
+                  "title": "Response My Permissions Api V1 Me Permissions Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/permissions": {
+      "get": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "Permission Table",
+        "operationId": "permission_table_api_v1_admin_permissions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionRow"
+                  },
+                  "type": "array",
+                  "title": "Response Permission Table Api V1 Admin Permissions Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "Set Permissions",
+        "operationId": "set_permissions_api_v1_admin_permissions_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermissionsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionRow"
+                  },
+                  "type": "array",
+                  "title": "Response Set Permissions Api V1 Admin Permissions Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/assignments/people": {
+      "get": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "Find People",
+        "description": "Employees by name or uid, for the Assign training dialog.",
+        "operationId": "find_people_api_v1_assignments_people_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100,
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonOut"
+                  },
+                  "title": "Response Find People Api V1 Assignments People Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assignments/trainings": {
+      "get": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "Trainings To Assign",
+        "operationId": "trainings_to_assign_api_v1_assignments_trainings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AssignableTraining"
+                  },
+                  "type": "array",
+                  "title": "Response Trainings To Assign Api V1 Assignments Trainings Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/assignments/check": {
+      "post": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "Check Assignments",
+        "description": "What assigning would do, person by person and training by training. Changes nothing.",
+        "operationId": "check_assignments_api_v1_assignments_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/assignments/cancel": {
+      "post": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "Cancel Assignments",
+        "operationId": "cancel_assignments_api_v1_assignments_cancel_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/assignments/due-date": {
+      "post": {
+        "tags": [
+          "assignments"
+        ],
+        "summary": "Change Due Date",
+        "operationId": "change_due_date_api_v1_assignments_due_date_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DueDateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DueDateOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/app/v1/trainings": {
       "get": {
         "tags": [
@@ -6833,6 +7210,16 @@
         ],
         "title": "AcknowledgmentPage"
       },
+      "Action": {
+        "type": "string",
+        "enum": [
+          "assign_single",
+          "assign_bulk",
+          "assign_cancel",
+          "assign_due_date"
+        ],
+        "title": "Action"
+      },
       "ActivityOut": {
         "properties": {
           "sessions": {
@@ -7070,8 +7457,246 @@
         ],
         "title": "AnswerOut"
       },
+      "AssignCounts": {
+        "properties": {
+          "assign": {
+            "type": "integer",
+            "title": "Assign"
+          },
+          "reactivate": {
+            "type": "integer",
+            "title": "Reactivate"
+          },
+          "already": {
+            "type": "integer",
+            "title": "Already"
+          },
+          "problems": {
+            "type": "integer",
+            "title": "Problems"
+          },
+          "warnings": {
+            "type": "integer",
+            "title": "Warnings"
+          },
+          "duplicates": {
+            "type": "integer",
+            "title": "Duplicates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "assign",
+          "reactivate",
+          "already",
+          "problems",
+          "warnings",
+          "duplicates"
+        ],
+        "title": "AssignCounts"
+      },
+      "AssignIn": {
+        "properties": {
+          "uid": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uid"
+          },
+          "csv": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Csv"
+          },
+          "file_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Name"
+          },
+          "training_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Training Ids"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "training_ids"
+        ],
+        "title": "AssignIn",
+        "description": "One person (`uid`) or a CSV of uids (`csv`, with its `file_name`), the trainings, a due date if any."
+      },
+      "AssignReport": {
+        "properties": {
+          "applied": {
+            "type": "boolean",
+            "title": "Applied"
+          },
+          "people": {
+            "type": "integer",
+            "title": "People"
+          },
+          "person": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PersonPicked"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/AssignCounts"
+          },
+          "trainings": {
+            "items": {
+              "$ref": "#/components/schemas/TrainingOutcome"
+            },
+            "type": "array",
+            "title": "Trainings"
+          },
+          "problems": {
+            "items": {
+              "$ref": "#/components/schemas/ProblemOut"
+            },
+            "type": "array",
+            "title": "Problems"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/WarningOut"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "applied",
+          "people",
+          "person",
+          "due_at",
+          "counts",
+          "trainings",
+          "problems",
+          "warnings"
+        ],
+        "title": "AssignReport"
+      },
+      "AssignableTraining": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "app_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Title"
+          },
+          "hidden": {
+            "type": "boolean",
+            "title": "Hidden"
+          },
+          "completion_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "training_id",
+          "title",
+          "app_title",
+          "hidden",
+          "completion_key"
+        ],
+        "title": "AssignableTraining"
+      },
       "AssignmentItem": {
         "properties": {
+          "assignment_id": {
+            "type": "integer",
+            "title": "Assignment Id"
+          },
+          "assigned_via": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Via"
+          },
           "uid": {
             "type": "integer",
             "title": "Uid"
@@ -7235,6 +7860,8 @@
         },
         "type": "object",
         "required": [
+          "assignment_id",
+          "assigned_via",
           "uid",
           "name",
           "job_title",
@@ -7446,6 +8073,34 @@
           "page_size"
         ],
         "title": "AuditList"
+      },
+      "CancelOut": {
+        "properties": {
+          "cancelled": {
+            "type": "integer",
+            "title": "Cancelled"
+          },
+          "already_cancelled": {
+            "type": "integer",
+            "title": "Already Cancelled"
+          },
+          "passed": {
+            "type": "integer",
+            "title": "Passed"
+          },
+          "not_found": {
+            "type": "integer",
+            "title": "Not Found"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cancelled",
+          "already_cancelled",
+          "passed",
+          "not_found"
+        ],
+        "title": "CancelOut"
       },
       "ChangePasswordRequest": {
         "properties": {
@@ -7896,6 +8551,74 @@
           "trainees"
         ],
         "title": "DropoffStage"
+      },
+      "DueDateIn": {
+        "properties": {
+          "assignment_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Assignment Ids"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "assignment_ids",
+          "due_date"
+        ],
+        "title": "DueDateIn"
+      },
+      "DueDateOut": {
+        "properties": {
+          "updated": {
+            "type": "integer",
+            "title": "Updated"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped"
+          },
+          "not_found": {
+            "type": "integer",
+            "title": "Not Found"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "updated",
+          "skipped",
+          "not_found",
+          "due_at"
+        ],
+        "title": "DueDateOut"
       },
       "EmployeeOut": {
         "properties": {
@@ -8863,6 +9586,25 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "IdsIn": {
+        "properties": {
+          "assignment_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Assignment Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "assignment_ids"
+        ],
+        "title": "IdsIn"
+      },
       "ImportResult": {
         "properties": {
           "added": {
@@ -9626,6 +10368,202 @@
         ],
         "title": "Period"
       },
+      "PermissionChange": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/Action"
+          },
+          "role": {
+            "type": "string",
+            "maxLength": 32,
+            "title": "Role"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "role",
+          "enabled"
+        ],
+        "title": "PermissionChange"
+      },
+      "PermissionRow": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "roles": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Roles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action",
+          "label",
+          "roles"
+        ],
+        "title": "PermissionRow"
+      },
+      "PermissionsIn": {
+        "properties": {
+          "changes": {
+            "items": {
+              "$ref": "#/components/schemas/PermissionChange"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Changes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "changes"
+        ],
+        "title": "PermissionsIn"
+      },
+      "PersonOut": {
+        "properties": {
+          "uid": {
+            "type": "integer",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "job_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Title"
+          },
+          "store_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Id"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "name",
+          "is_active",
+          "job_title",
+          "store_id",
+          "store_name"
+        ],
+        "title": "PersonOut"
+      },
+      "PersonPicked": {
+        "properties": {
+          "uid": {
+            "type": "integer",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "job_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Title"
+          },
+          "store_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Id"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "name",
+          "job_title",
+          "store_id",
+          "store_name"
+        ],
+        "title": "PersonPicked"
+      },
       "PollyVoice": {
         "properties": {
           "voice_id": {
@@ -9798,6 +10736,36 @@
           "by"
         ],
         "title": "PreviewRef"
+      },
+      "ProblemOut": {
+        "properties": {
+          "row": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Row"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "row",
+          "value",
+          "message"
+        ],
+        "title": "ProblemOut"
       },
       "ProfileOut": {
         "properties": {
@@ -14134,6 +15102,68 @@
         ],
         "title": "TrainingListItem"
       },
+      "TrainingOutcome": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "app_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Title"
+          },
+          "hidden": {
+            "type": "boolean",
+            "title": "Hidden"
+          },
+          "completion_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completion Key"
+          },
+          "assign": {
+            "type": "integer",
+            "title": "Assign"
+          },
+          "reactivate": {
+            "type": "integer",
+            "title": "Reactivate"
+          },
+          "already": {
+            "type": "integer",
+            "title": "Already"
+          }
+        },
+        "type": "object",
+        "required": [
+          "training_id",
+          "title",
+          "app_title",
+          "hidden",
+          "completion_key",
+          "assign",
+          "reactivate",
+          "already"
+        ],
+        "title": "TrainingOutcome"
+      },
       "TrainingProgress": {
         "properties": {
           "topics_done": {
@@ -15662,6 +16692,41 @@
         "additionalProperties": false,
         "type": "object",
         "title": "VoiceUpdate"
+      },
+      "WarningOut": {
+        "properties": {
+          "uid": {
+            "type": "integer",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "name",
+          "training_id",
+          "message"
+        ],
+        "title": "WarningOut"
       }
     },
     "securitySchemes": {

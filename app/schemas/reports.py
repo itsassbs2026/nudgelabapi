@@ -360,6 +360,8 @@ class AcknowledgmentPage(BaseModel):
 
 
 class AssignmentItem(BaseModel):
+    assignment_id: int
+    assigned_via: str | None  # dashboard | upload; None for the owner's database query
     uid: int
     name: str | None
     job_title: str | None

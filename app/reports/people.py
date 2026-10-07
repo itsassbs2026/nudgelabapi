@@ -342,6 +342,8 @@ def assignments_list(
         conditions.append(or_(*options))
     base = (
         select(
+            a.assignment_id,
+            a.assigned_via,
             a.uid,
             t.name,
             t.job_title,
@@ -391,6 +393,8 @@ def assignments_list(
         "counts": counts,
         "items": [
             {
+                "assignment_id": r.assignment_id,
+                "assigned_via": r.assigned_via,
                 "uid": r.uid,
                 "name": r.name,
                 "job_title": r.job_title,
