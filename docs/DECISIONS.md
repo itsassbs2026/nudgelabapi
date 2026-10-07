@@ -439,3 +439,7 @@ Recorded as they're made (SPEC §0.2). Newest last.
      voices (coach and customer); multiple-choice quizzes only; quiz pass mark per training, default all correct;
      a new assignment reason after a pass is a fresh start; one reason per upload. Code enforces the stages and
      the quiz gate, and a separate grader scores each practice conversation.
+120. **A repeat pass updates Prime Portal to the newest date; every pass is logged** (owner, 2026-10-07): a
+     `training_pass_log` row per pass (first or repeat), so the first pass is never lost; `completion_writes`
+     still logs each copy to Portal. Applies to a roleplay fresh start now and to retakes later. The roleplay
+     customer's voice is a training setting picked on the studio (with a sample) by Trainers and Admins.

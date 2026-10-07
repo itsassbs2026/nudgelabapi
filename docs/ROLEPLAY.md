@@ -23,6 +23,8 @@ playing the customer); once added, every roleplay can use it.
 | 5 | Assigned again for a different reason after passing | **Fresh start** on the new track. |
 | 6 | Reason for an upload | **One per file**, picked on screen. Different reasons go in separate files. |
 | 7 | Generic engine | Template in the database, variables at session start (see 1). |
+| 8 | A second pass (after a fresh start, or a retake) | Prime Portal shows the **newest** pass date; every earlier pass is kept in a log table. |
+| 9 | Who picks the customer's voice | Whoever builds the training (Trainers and Admins), on the studio, with a sample to listen to. |
 
 Also agreed in discussion: code (not the prompt) enforces the rules; a separate grader scores each practice
 conversation; code switches stages; tone tags are never spoken.
@@ -79,7 +81,8 @@ Role Play editor; uploads can be drafted into it by the AI, as walkthroughs are 
 | Debrief shape | Fixed by the engine: Strength, Gap, Next-time tip, score, what a 5 needed | — |
 | Tracks | The list of tracks and which is the **default** (used when a person's reason is missing or unknown) | Compliance, Conduct, Knowledge, Billing, Wait, **General** |
 | Knowledge base | Reference text the coach can answer questions from | Sections 1–9 |
-| Settings | Unlock score (default 4); quiz pass mark (default all); Stress practice on/off; Quick pauses in Beginner on/off; scene length; customer voice | 4; 7 of 7; on; on; 6–12; (a second Polly voice) |
+| Settings | Unlock score (default 4); quiz pass mark (default all); Stress practice on/off; Quick pauses in Beginner on/off; scene length | 4; 7 of 7; on; on; 6–12 |
+| **Customer voice** | The voice the customer speaks in, picked from the active voices with a *Play sample* button; optionally a different one for a track's Stress customer | Chosen by the content owner on the studio |
 | Closing lines | Passed / not passed yet | "Great work — you've completed Win Every Customer!" / "Good work today — your progress is saved…" |
 
 ### 4.2 For each track
@@ -143,12 +146,25 @@ stands unless an Admin changes it (later, if wanted).
 - Assigning: the dashboard's Assign dialog and upload get a **Reason** picker when the training is a roleplay
   (the training's track names; one per file, decision 6). The owner's query sets `ai_flag` the same way.
 
+### 7.1 Passing again (decision 8)
+
+When someone passes a training they had already passed (a fresh start on a new reason, or later a retake):
+
+- **Prime Portal** gets the **newest** pass date (today the agent keeps the first one: `COALESCE` in
+  `completions.py`; that changes for a repeat pass).
+- **Every pass is logged**: a new `training_pass_log` table (uid, training, version, track, passed at, session,
+  how it was reached: first pass or repeat), written by the agent at each pass. The first pass is never lost.
+  `completion_writes` keeps logging each copy to Portal, as today.
+- The reports count a person as passed once; the pass log shows the history on the employee's page.
+
 ## 8. Engine changes (agent)
 
 - Stage controller for roleplay sessions (coach → practice → debrief → stress → quiz → rating), with
   stage-specific instructions, like walkthrough → quiz today.
 - **Two voices**: the coach marks customer lines; code sends them to the customer voice and strips any tone
-  tags (`[annoyed]` is never spoken). Customer emotion comes from wording.
+  tags (`[annoyed]` is never spoken). Customer emotion comes from wording. The customer voice comes from the
+  training's setting (or the track's Stress override); if it happens to be the coach's voice in a session, the
+  engine uses the next active voice so the two always sound different.
 - Quick pause counting (Beginner only) and scene boundaries in the session log.
 - The grader call (section 6) and `roleplay_attempts`.
 - Quiz grading with **four options** (today's code assumes A–C in a few places).
@@ -156,7 +172,9 @@ stands unless an Admin changes it (later, if wanted).
 
 ## 9. Dashboard and API
 
-- Studio: *Role Play* as a type; the template editor (training level, tracks, personas, quiz sets); publish
+- Studio: *Role Play* as a type; the template editor (training level, tracks, personas, quiz sets); the
+  **customer voice** picker with *Play sample* (the existing voice samples), editable by Trainers and Admins like
+  any other training field and saved with the version; publish
   checks (every track has a Beginner persona and enough quiz questions; a default track; the unlock score and
   pass mark are set); preview calls with a **track picker**.
 - Assignments: the Reason picker (dialog and upload).
@@ -180,7 +198,7 @@ stands unless an Admin changes it (later, if wanted).
 |---|---|
 | Agent engine (stages, two voices, grader, gate, track lock, fresh start, A–D quiz) | 4–5 |
 | Content format, studio editor, publish checks, preview with a track | 4–5 |
-| Assigning with a reason, API for attempts | 1 |
+| Assigning with a reason, API for attempts, pass log | 1–2 |
 | Reports and session viewer | 2 |
 | Win Every Customer converted and bot-tested on every track; Help & FAQ | 2–3 |
 | **Total** | **about 3 weeks** |
@@ -193,6 +211,5 @@ move a training to a stronger model if Haiku doesn't stay in character.
 
 ## 12. Still open
 
-- A second pass after a fresh start: does Prime Portal keep the first pass date or show the latest (the same
-  question as retakes)?
-- Which Polly voice is the customer by default (a setting per training; pick after hearing samples).
+Nothing blocking. Settled 2026-10-07: Portal shows the newest pass, earlier passes are logged (7.1); the
+customer voice is picked on the studio by whoever builds the training (sections 4.1, 9).
