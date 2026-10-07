@@ -648,7 +648,7 @@ class LiveRoom(BaseModel):
 
 class LiveSeats(BaseModel):
     seats_total: int  # calls the servers taking calls can handle together
-    seats_in_use: int  # every call room with someone in it, test and preview calls included
+    seats_in_use: int  # every open call room, test and preview calls included
     seats_open: int
     servers_on: int  # checked in recently and taking calls
     servers_total: int

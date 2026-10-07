@@ -46,10 +46,13 @@ def capacity(db: Session, settings: Settings) -> int | None:
 
 
 def calls_in(rooms: list[Any]) -> int:
-    """Training and preview rooms with someone in them: each one takes a trainer, tests included."""
-    return sum(
-        1 for r in rooms if (r.name or "").startswith(CALL_ROOM_PREFIXES) and int(r.num_participants or 0)
-    )
+    """Training and preview rooms: each one takes a trainer, tests included.
+
+    Every open call room counts. LiveKit's room list often reports 0 participants for a call that's under way
+    (2026-10-07: 40 rooms with the trainee connected, most listed with 0), so that number can't be trusted. A
+    room closes a few minutes after its call ends, so this can only overcount briefly, on the safe side.
+    """
+    return sum(1 for r in rooms if (r.name or "").startswith(CALL_ROOM_PREFIXES))
 
 
 def seats(db: Session, settings: Settings, rooms: list[Any]) -> dict[str, int] | None:

@@ -18,7 +18,7 @@ ROOMS = [
     SimpleNamespace(
         name="nl-sample_store_safety-1004-d4e5f6", num_participants=2, creation_time=1_790_000_100
     ),
-    SimpleNamespace(name="nl-big4-3784-bot339c", num_participants=2, creation_time=1_790_000_200),
+    SimpleNamespace(name="nl-big4-3784-bot339c", num_participants=0, creation_time=1_790_000_200),
     SimpleNamespace(name="some-other-room", num_participants=1, creation_time=1_790_000_300),
 ]
 
@@ -92,7 +92,8 @@ def test_seats_in_use_and_open(
     db_session.execute(sql, {"n": "agent-4", "on": 1, "ago": 3600})  # switched off for the night
     db_session.execute(sql, {"n": "agent-5", "on": 0, "ago": 5})  # draining for a deploy
     seats = client.get("/api/v1/live", headers=trainer_headers).json()["seats"]
-    # Three call rooms with people (the test call takes a seat even though trainers don't see it listed).
+    # Three call rooms, including the test call (trainers don't see it listed) and one LiveKit lists with 0
+    # participants though a call is under way; some-other-room isn't a call.
     assert seats == {
         "seats_total": 40,
         "seats_in_use": 3,

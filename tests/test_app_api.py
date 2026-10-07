@@ -499,14 +499,14 @@ def rooms(monkeypatch: pytest.MonkeyPatch) -> list[Any]:
 
     monkeypatch.setattr(live, "fetch_rooms", fetch)
     listed.append(SimpleNamespace(name="other-room", num_participants=3))  # not a call: never counted
-    listed.append(SimpleNamespace(name="nl-big4-1-empty", num_participants=0))  # nobody in it yet
     return listed
 
 
 def call(name: str) -> Any:
     from types import SimpleNamespace
 
-    return SimpleNamespace(name=name, num_participants=2)
+    # 2026-10-07: LiveKit's room list said 0 participants for most calls under way, so it's ignored.
+    return SimpleNamespace(name=name, num_participants=0)
 
 
 def start(client: TestClient, make_pass: Callable[..., str]) -> Any:

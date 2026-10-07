@@ -323,3 +323,7 @@
 
 - `GET /live` adds `seats`: seats total, in use (every call room with someone in it, tests and previews included),
   open, servers on, servers total (from `agent_servers`, as the busy check). `null` until a server has checked in.
+- Fix (same day): the busy check and the seat count now count every open call room. LiveKit's room list
+  reported 0 participants for most calls under way (40 live rooms seen, most at 0), so the old count ignored
+  them and "all trainers busy" could never trigger at a real peak. A room closes a few minutes after its call,
+  so this can only overcount briefly, on the safe side. API only; no agent change.
