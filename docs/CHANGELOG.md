@@ -318,3 +318,8 @@
 - `GET /admin/reference-sync` adds `last_automatic` (the timer's latest run: `sync_run_log` rows outside every
   manual job's run window, and whether any table failed) and `next_automatic_at` (08:00 / 23:00 Chicago). The
   page showed only the latest button press, so the 8:00 AM run looked missing. Tests: 684.
+
+## Live calls: open seats (2026-10-07)
+
+- `GET /live` adds `seats`: seats total, in use (every call room with someone in it, tests and previews included),
+  open, servers on, servers total (from `agent_servers`, as the busy check). `null` until a server has checked in.

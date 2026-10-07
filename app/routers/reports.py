@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.auth.deps import CurrentUser, get_user
 from app.config import Settings, get_settings
 from app.db import get_db
+from app.mobile import capacity
 from app.reports import cost, drilldown, options, overview, people, search, trainings
 from app.reports.filters import ReportFilters, report_filters
 from app.schemas.reports import (
@@ -166,11 +167,13 @@ async def live_sessions(
     db: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> Any:
-    """Training calls in progress right now (names and trainings only). Test calls are Admin-only."""
+    """Training calls in progress right now (names and trainings only), and the trainer seats in use and
+    open across the agent servers. Test calls are listed for Admins only, but always take a seat."""
     if include_bots and not current.is_admin:
         raise ApiError(403, "forbidden", "Only Admins can include test sessions.")
     if not settings.livekit_configured:
         return {"configured": False, "rooms": []}
     rooms = await live.fetch_rooms(settings)
     described = await run_in_threadpool(live.describe, db, rooms, include_tests=include_bots)
-    return {"configured": True, "rooms": described}
+    seats = await run_in_threadpool(capacity.seats, db, settings, rooms)
+    return {"configured": True, "rooms": described, "seats": seats}

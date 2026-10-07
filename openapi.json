@@ -3424,7 +3424,7 @@
           "reports"
         ],
         "summary": "Live Sessions",
-        "description": "Training calls in progress right now (names and trainings only). Test calls are Admin-only.",
+        "description": "Training calls in progress right now (names and trainings only), and the trainer seats in use and\nopen across the agent servers. Test calls are listed for Admins only, but always take a seat.",
         "operationId": "live_sessions_api_v1_live_get",
         "security": [
           {
@@ -9949,6 +9949,16 @@
             },
             "type": "array",
             "title": "Rooms"
+          },
+          "seats": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LiveSeats"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -10027,6 +10037,39 @@
           "is_test"
         ],
         "title": "LiveRoom"
+      },
+      "LiveSeats": {
+        "properties": {
+          "seats_total": {
+            "type": "integer",
+            "title": "Seats Total"
+          },
+          "seats_in_use": {
+            "type": "integer",
+            "title": "Seats In Use"
+          },
+          "seats_open": {
+            "type": "integer",
+            "title": "Seats Open"
+          },
+          "servers_on": {
+            "type": "integer",
+            "title": "Servers On"
+          },
+          "servers_total": {
+            "type": "integer",
+            "title": "Servers Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "seats_total",
+          "seats_in_use",
+          "seats_open",
+          "servers_on",
+          "servers_total"
+        ],
+        "title": "LiveSeats"
       },
       "LoginRequest": {
         "properties": {

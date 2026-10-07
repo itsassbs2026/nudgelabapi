@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import structlog
 from sqlalchemy import func, select
@@ -44,16 +45,41 @@ def capacity(db: Session, settings: Settings) -> int | None:
     return int(total)
 
 
+def calls_in(rooms: list[Any]) -> int:
+    """Training and preview rooms with someone in them: each one takes a trainer, tests included."""
+    return sum(
+        1 for r in rooms if (r.name or "").startswith(CALL_ROOM_PREFIXES) and int(r.num_participants or 0)
+    )
+
+
+def seats(db: Session, settings: Settings, rooms: list[Any]) -> dict[str, int] | None:
+    """For the dashboard (2026-10-07): trainer seats in use and open, and how many servers are taking calls.
+    None when no server has ever checked in."""
+    total_servers = db.execute(select(func.count()).select_from(AgentServer)).scalar_one()
+    if not total_servers:
+        return None
+    fresh = _now() - timedelta(seconds=settings.agent_server_stale_seconds)
+    on = db.execute(
+        select(func.count()).where(AgentServer.last_seen >= fresh, AgentServer.accepting.is_(True))
+    ).scalar_one()
+    total = capacity(db, settings) or 0
+    in_use = calls_in(rooms)
+    return {
+        "seats_total": total,
+        "seats_in_use": in_use,
+        "seats_open": max(0, total - in_use),
+        "servers_on": int(on),
+        "servers_total": int(total_servers),
+    }
+
+
 def live_calls(settings: Settings) -> int | None:
     """Training and preview calls in LiveKit now, or None when LiveKit can't be read."""
     try:
         rooms = asyncio.run(live.fetch_rooms(settings))
     except ApiError:
         return None
-    in_use = [
-        r for r in rooms if (r.name or "").startswith(CALL_ROOM_PREFIXES) and int(r.num_participants or 0)
-    ]
-    return len(in_use)
+    return calls_in(rooms)
 
 
 def check(db: Session, settings: Settings) -> None:

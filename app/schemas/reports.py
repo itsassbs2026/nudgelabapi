@@ -646,9 +646,18 @@ class LiveRoom(BaseModel):
     is_test: bool
 
 
+class LiveSeats(BaseModel):
+    seats_total: int  # calls the servers taking calls can handle together
+    seats_in_use: int  # every call room with someone in it, test and preview calls included
+    seats_open: int
+    servers_on: int  # checked in recently and taking calls
+    servers_total: int
+
+
 class LiveOut(BaseModel):
     configured: bool  # false until the API has LiveKit settings
     rooms: list[LiveRoom]
+    seats: LiveSeats | None = None  # None until an agent server has checked in
 
 
 SessionDetail.model_rebuild()  # QualityState is defined after it

@@ -38,7 +38,11 @@ def configured(monkeypatch: pytest.MonkeyPatch, db_session: Session) -> None:
 
 
 def test_not_configured(client: TestClient, trainer_headers: dict[str, str]) -> None:
-    assert client.get("/api/v1/live", headers=trainer_headers).json() == {"configured": False, "rooms": []}
+    assert client.get("/api/v1/live", headers=trainer_headers).json() == {
+        "configured": False,
+        "rooms": [],
+        "seats": None,
+    }
 
 
 def test_rooms_with_names(client: TestClient, trainer_headers: dict[str, str], configured: None) -> None:
@@ -70,3 +74,29 @@ def test_livekit_down_is_503(
     monkeypatch.setattr(live, "_list_rooms", broken)
     response = client.get("/api/v1/live", headers=trainer_headers)
     assert response.status_code == 503 and response.json()["error"]["code"] == "live_unavailable"
+
+
+def test_seats_in_use_and_open(
+    client: TestClient, trainer_headers: dict[str, str], configured: None, db_session: Session
+) -> None:
+    """2026-10-07: the dashboard shows "3 live · 97 open seats · 5 of 5 servers on" to everyone."""
+    from sqlalchemy import text
+
+    assert client.get("/api/v1/live", headers=trainer_headers).json()["seats"] is None  # no server yet
+    sql = text(
+        "INSERT INTO agent_servers (server_name, role, capacity, accepting, release_commit, last_seen)"
+        " VALUES (:n, 'worker', 20, :on, 'abc', UTC_TIMESTAMP() - INTERVAL :ago SECOND)"
+    )
+    db_session.execute(sql, {"n": "main", "on": 1, "ago": 10})
+    db_session.execute(sql, {"n": "agent-2", "on": 1, "ago": 20})
+    db_session.execute(sql, {"n": "agent-4", "on": 1, "ago": 3600})  # switched off for the night
+    db_session.execute(sql, {"n": "agent-5", "on": 0, "ago": 5})  # draining for a deploy
+    seats = client.get("/api/v1/live", headers=trainer_headers).json()["seats"]
+    # Three call rooms with people (the test call takes a seat even though trainers don't see it listed).
+    assert seats == {
+        "seats_total": 40,
+        "seats_in_use": 3,
+        "seats_open": 37,
+        "servers_on": 2,
+        "servers_total": 4,
+    }
