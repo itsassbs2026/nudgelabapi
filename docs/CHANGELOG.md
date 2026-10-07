@@ -284,3 +284,13 @@
 - Migration `0012_sync_run_log`; `deploy/db-grants-0012-reference-sync.sql`, `deploy/reference-tables-utf8mb4.sql`,
   `deploy/nudgelabapi-reference-sync.service` + `.timer` (08:00 and 23:00 America/Chicago, persistent).
 - Settings: `PORTALLIVE_DATABASE_URL`, `REFERENCE_SYNC_DATABASE_URL`, `REFERENCE_SYNC_ALERT_EMAIL`. Tests: 624.
+
+## Portal sync on demand, with an emailed code (2026-10-06)
+
+- The twice-daily sync went live (first run 2026-10-06 23:00 Central, all four tables).
+- `GET /admin/reference-sync` (each list's last run, the latest on-demand run), `POST /admin/reference-sync/code`
+  (emails a 6-digit code; 3 per 15 minutes), `POST /admin/reference-sync` (the code; 5 tries; queues one
+  `reference_sync` worker job, 409 while one runs). Audit actions `reference_sync_code_sent`, `_code_failed`,
+  `_started`. Email template `action_code`.
+- Migration `0013_manual_reference_sync` (`dash_action_codes`; jobs type check), `deploy/db-grants-0013-sync-button.sql`.
+  Tests: 643.

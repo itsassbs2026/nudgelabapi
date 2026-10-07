@@ -6478,6 +6478,102 @@
         ]
       }
     },
+    "/api/v1/admin/reference-sync": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Sync Status",
+        "operationId": "sync_status_api_v1_admin_reference_sync_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStatus"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Start Sync",
+        "operationId": "start_sync_api_v1_admin_reference_sync_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncQueued"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/reference-sync/code": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Send Code",
+        "operationId": "send_code_api_v1_admin_reference_sync_code_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeSent"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/app/v1/trainings": {
       "get": {
         "tags": [
@@ -7372,6 +7468,39 @@
           "new_password"
         ],
         "title": "ChangePasswordRequest"
+      },
+      "CodeIn": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^\\s*\\d{6}\\s*$",
+            "title": "Code"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "CodeIn"
+      },
+      "CodeSent": {
+        "properties": {
+          "sent_to": {
+            "type": "string",
+            "title": "Sent To"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sent_to",
+          "expires_in"
+        ],
+        "title": "CodeSent"
       },
       "Comment": {
         "properties": {
@@ -9180,6 +9309,88 @@
           "user"
         ],
         "title": "LoginResponse"
+      },
+      "ManualSync": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "requested_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested By"
+          },
+          "tables": {
+            "items": {
+              "$ref": "#/components/schemas/SyncTableResult"
+            },
+            "type": "array",
+            "title": "Tables"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "requested_by",
+          "tables",
+          "error"
+        ],
+        "title": "ManualSync"
       },
       "MeUpdate": {
         "properties": {
@@ -12506,6 +12717,177 @@
           "region_name"
         ],
         "title": "StoreOut"
+      },
+      "SyncQueued": {
+        "properties": {
+          "job_id": {
+            "type": "integer",
+            "title": "Job Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "status"
+        ],
+        "title": "SyncQueued"
+      },
+      "SyncStatus": {
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "title": "Configured"
+          },
+          "schedule": {
+            "type": "string",
+            "title": "Schedule"
+          },
+          "tables": {
+            "items": {
+              "$ref": "#/components/schemas/SyncTable"
+            },
+            "type": "array",
+            "title": "Tables"
+          },
+          "manual": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ManualSync"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "configured",
+          "schedule",
+          "tables",
+          "manual"
+        ],
+        "title": "SyncStatus"
+      },
+      "SyncTable": {
+        "properties": {
+          "table": {
+            "type": "string",
+            "title": "Table"
+          },
+          "last_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run At"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "row_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Row Count"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "table",
+          "last_run_at",
+          "status",
+          "row_count",
+          "error"
+        ],
+        "title": "SyncTable"
+      },
+      "SyncTableResult": {
+        "properties": {
+          "table": {
+            "type": "string",
+            "title": "Table"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "on_file": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "On File"
+          },
+          "fetched": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fetched"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "table",
+          "status",
+          "on_file",
+          "fetched",
+          "error"
+        ],
+        "title": "SyncTableResult"
       },
       "TeamMember": {
         "properties": {

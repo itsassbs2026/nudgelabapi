@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from app.config import Settings, get_settings
 from app.db import SessionLocal
 from app.exports import service as exports
+from app.reference import manual as reference_sync
 from app.services import email_sender, token_cleanup
 from app.studio import prepare, publish, uploads
 from app.utils.logging import configure_logging
@@ -43,6 +44,8 @@ def build_scheduler() -> BlockingScheduler:
         ("uploads", uploads.run_extract_jobs, IntervalTrigger(seconds=5)),
         ("prepare", prepare.run_prepare_jobs, IntervalTrigger(seconds=10)),
         ("publish", publish.run_publish_jobs, IntervalTrigger(seconds=5)),  # Phase 16
+        # An Admin's "Sync user/store list from Portal" (the twice-daily sync has its own timer).
+        ("reference_sync", reference_sync.run_reference_sync_jobs, IntervalTrigger(seconds=5)),
     ]
     for name, fn, trigger in jobs:
         scheduler.add_job(run_job, trigger, args=[name, fn], id=name, max_instances=1, coalesce=True)

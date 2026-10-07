@@ -111,6 +111,9 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("PATCH", "/api/v1/admin/testers/{tester_id}", {"name": "P"}, False),
     ("POST", "/api/v1/admin/testers/{tester_id}/new-code", None, False),
     ("POST", "/api/v1/admin/testers/import", {"testers": []}, False),
+    ("GET", "/api/v1/admin/reference-sync", None, False),
+    ("POST", "/api/v1/admin/reference-sync/code", None, False),
+    ("POST", "/api/v1/admin/reference-sync", {"code": "123456"}, False),
 ]
 
 

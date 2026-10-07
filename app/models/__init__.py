@@ -1,5 +1,6 @@
 """Importing this package registers every API model on Base.metadata (used by Alembic)."""
 
+from app.models.action_codes import DashActionCode
 from app.models.agent_servers import AgentServer
 from app.models.app import AppSessionStart
 from app.models.base import Base
@@ -25,6 +26,7 @@ __all__ = [
     "AppSessionStart",
     "Base",
     "ContentUpload",
+    "DashActionCode",
     "DashAuditLog",
     "DashEmailOutbox",
     "DashPasswordResetToken",

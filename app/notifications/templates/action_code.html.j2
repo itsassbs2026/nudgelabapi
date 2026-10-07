@@ -1,0 +1,12 @@
+{% extends "_base.html.j2" %}
+{% block content %}
+<h1 style="margin:0 0 12px;font-size:20px;">Your confirmation code</h1>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.5;">
+  Enter this code on the NudgeLab dashboard to {{ action }}:
+</p>
+<p style="margin:0 0 20px;font-size:32px;font-weight:bold;letter-spacing:6px;font-family:Consolas,Menlo,monospace;">{{ code }}</p>
+<p style="margin:0;font-size:13px;line-height:1.5;color:#52525b;">
+  It expires in {{ expires_minutes }} minutes and works once. If you didn't ask for it, someone may be using your
+  dashboard account: change your password and tell your NudgeLab admin.
+</p>
+{% endblock %}

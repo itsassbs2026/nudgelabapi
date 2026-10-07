@@ -180,6 +180,7 @@ class JobType(StrEnum):
     CREATE_VOCABULARY = "create_vocabulary"  # Stage 2
     EXTRACT_UPLOAD = "extract_upload"  # Stage 2: check an uploaded file and extract its text
     PUBLISH_VERSION = "publish_version"  # Stage 2: make a version live (topic rows, vocabulary, switch)
+    REFERENCE_SYNC = "reference_sync"  # an Admin's "Sync user/store list from Portal" (reference/manual.py)
 
 
 class JobStatus(StrEnum):

@@ -38,6 +38,9 @@ class AuditAction(StrEnum):
     VERSION_SUBMITTED = "version_submitted"  # Phase 16
     VERSION_SENT_BACK = "version_sent_back"
     TRAINING_PUBLISHED = "training_published"
+    REFERENCE_SYNC_CODE_SENT = "reference_sync_code_sent"  # 2026-10-06: the manual Portal sync
+    REFERENCE_SYNC_CODE_FAILED = "reference_sync_code_failed"
+    REFERENCE_SYNC_STARTED = "reference_sync_started"
     # Later phases: training_published, settings_changed, …
 
 

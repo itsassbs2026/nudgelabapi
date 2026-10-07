@@ -322,6 +322,7 @@ Every report endpoint accepts the global filters (7.1) through one shared Pydant
 | `POST /versions/{version_id}/preview-call` | LiveKit token for a browser preview session with this version |
 | `POST /versions/{version_id}/submit`, `/publish`, `/retire` | workflow |
 | `GET/POST/PATCH /admin/voices`, `/admin/profiles`, `/admin/testers` | settings (Admin) |
+| `GET /admin/reference-sync`, `POST /admin/reference-sync/code`, `POST /admin/reference-sync` | Portal sync status; an on-demand run after a 6-digit code emailed to the Admin (Admin; DECISIONS #116) |
 | `GET /jobs/{id}` | job status |
 
 ---

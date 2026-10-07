@@ -295,6 +295,8 @@ The agent isn't touched. IAM: the stage 2 policy already allows `transcribe:*Voc
 
 ## PortalLive reference-table sync (2026-10-06)
 
+**Live since 2026-10-06 23:00 Central** (first scheduled run succeeded on all four tables).
+
 `scripts/sync_reference_tables.py` copies `v_users_all`, `v_users`, `v_stores` and `v_stores_all` from PortalLive
 (`primetwok`) into nudgeai at **08:00 and 23:00 Chicago** (`nudgelabapi-reference-sync.timer`). These feed
 `vw_trainees`, `vw_training_stores` and `vw_app_profile`: names, stores and managers for the agent, reports and app.
@@ -323,6 +325,15 @@ First time (you):
 Checking it: `journalctl -u nudgelabapi-reference-sync`, or as an admin
 `SELECT table_name, status, row_count, error_message, started_at FROM sync_run_log ORDER BY id DESC LIMIT 8;`
 A failed table keeps its previous rows; fix the cause and run the script again (it's safe to run any time).
+
+**On demand from the dashboard** (Admin > *Portal sync*, 2026-10-06): *Sync user/store list from Portal* emails the
+Admin a 6-digit code (10 minutes, once; 3 codes per 15 minutes, 5 tries); the right code queues a `reference_sync`
+job that the worker runs with the same sync logins from `.env` (results in `sync_run_log` and on the page; every
+step in the audit log). Setup: `git pull`, `bash deploy/deploy.sh` → stops at the migration → review
+`venv/bin/alembic upgrade 0012_sync_run_log:0013_manual_reference_sync --sql` (new `dash_action_codes`, the jobs
+type check gains `reference_sync`) → `venv/bin/alembic upgrade head` → as admin `deploy/db-grants-0013-sync-button.sql`
+→ `bash deploy/deploy.sh` again (restarts the API and the worker) → deploy the dashboard. Codes go out through the
+email outbox (Graph), so email must be working, as for password resets.
 
 ## Where things are
 

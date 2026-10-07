@@ -402,3 +402,10 @@ Recorded as they're made (SPEC §0.2). Newest last.
      (`deploy/reference-tables-utf8mb4.sql`), ending the utf8mb3 join problem of #112. The sync's INSERT is built
      from identifiers (SPEC rule 7's one exception): the table names come from a fixed list and the column names
      must equal the target's own columns before anything runs; every value is a bound parameter.
+
+116. **An on-demand Portal sync, confirmed by an emailed code** (owner's request, 2026-10-06). The lists hold
+     employees' details, so an Admin session alone isn't enough: *Sync user/store list from Portal* emails a 6-digit
+     code to the Admin's own address (HMAC-stored with the server secret, 10 minutes, single use, 5 tries, 3 per 15
+     minutes, a new code cancels the old), and only the right code queues the run. The run is a worker job, never
+     the API process: the worker uses the sync's own logins, so the API's login still has no access to the four
+     tables. One run at a time; each table's result lands in `sync_run_log` like the scheduled runs.
