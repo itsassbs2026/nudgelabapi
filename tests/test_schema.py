@@ -36,6 +36,9 @@ AGENT_TABLES = {
     "training_voices",
     "training_profiles",
     "store_location_types",
+    "roleplay_attempts",
+    "training_progress_history",
+    "training_pass_log",
 }
 EXTERNAL_TABLES = {"v_users_all", "v_stores_all", "v_users", "v_stores"}
 VIEWS = {

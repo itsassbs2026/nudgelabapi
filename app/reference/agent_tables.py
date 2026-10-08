@@ -101,6 +101,55 @@ training_progress = Table(
     Column("first_started_at", DateTime),
     Column("passed_at", DateTime),
     Column("updated_at", DateTime),
+    Column("track", String(40)),  # migration 0015: the roleplay track this trainee is on
+)
+
+# Role Play (migration 0015, docs/ROLEPLAY.md): written by the agent, read by the API.
+roleplay_attempts = Table(
+    "roleplay_attempts",
+    agent_metadata,
+    Column("attempt_id", Integer, primary_key=True),
+    Column("session_id", String(36)),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("version_id", Integer),
+    Column("track", String(40)),
+    Column("tier", String(10)),
+    Column("persona", String(100)),
+    Column("score", Integer),
+    Column("quick_pauses", Integer),
+    Column("strength", String(500)),
+    Column("gap", String(500)),
+    Column("tip", String(500)),
+    Column("for_five", String(500)),
+    Column("grader_model", String(80)),
+    Column("started_at", DateTime),
+    Column("ended_at", DateTime),
+)
+
+training_progress_history = Table(
+    "training_progress_history",
+    agent_metadata,
+    Column("id", Integer, primary_key=True),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("track", String(40)),
+    Column("passed_at", DateTime),
+    Column("archived_reason", String(100)),
+    Column("archived_at", DateTime),
+)
+
+training_pass_log = Table(
+    "training_pass_log",
+    agent_metadata,
+    Column("id", Integer, primary_key=True),
+    Column("uid", Integer),
+    Column("training_id", String(50)),
+    Column("version_id", Integer),
+    Column("track", String(40)),
+    Column("passed_at", DateTime),
+    Column("session_id", String(36)),
+    Column("kind", String(10)),
 )
 
 training_sessions = Table(

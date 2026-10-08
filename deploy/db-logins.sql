@@ -32,6 +32,10 @@ GRANT SELECT ON nudgeai.training_feedback         TO 'nudgelab_api'@'10.0.1.148'
 GRANT SELECT ON nudgeai.training_acknowledgments  TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.training_assignments      TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.completion_writes         TO 'nudgelab_api'@'10.0.1.148';
+-- Role Play (0015_roleplay; deploy/db-grants-0015-roleplay.sql at go-live)
+GRANT SELECT ON nudgeai.roleplay_attempts         TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT ON nudgeai.training_progress_history TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT ON nudgeai.training_pass_log         TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.training_voices           TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.training_profiles         TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.store_location_types      TO 'nudgelab_api'@'10.0.1.148';
