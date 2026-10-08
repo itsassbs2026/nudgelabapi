@@ -15,7 +15,7 @@ from app.auth.deps import CurrentUser, get_user
 from app.config import Settings, get_settings
 from app.db import get_db
 from app.mobile import capacity
-from app.reports import cost, drilldown, options, overview, people, search, trainings
+from app.reports import cost, drilldown, options, overview, people, roleplay, search, trainings
 from app.reports.filters import ReportFilters, report_filters
 from app.schemas.reports import (
     AcknowledgmentPage,
@@ -29,6 +29,7 @@ from app.schemas.reports import (
     OverviewOut,
     QuestionsOut,
     RatingTrendOut,
+    RoleplayReport,
     SearchOut,
     TrainingDetailOut,
     TrainingsOut,
@@ -118,6 +119,19 @@ def get_feedback(
     return people.feedback_list(
         db, f, search=search, min_rating=min_rating, max_rating=max_rating, page=page, page_size=page_size
     )
+
+
+@router.get("/roleplay", response_model=RoleplayReport)
+def get_roleplay(
+    track: str | None = Query(default=None, max_length=40),
+    tier: str | None = Query(default=None, pattern="^(beginner|stress)$"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
+    f: ReportFilters = Depends(report_filters),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Role Play practice conversations in the period: each track's scores, and every debrief."""
+    return roleplay.roleplay_report(db, f, track=track, tier=tier, page=page, page_size=page_size)
 
 
 @router.get("/acknowledgments", response_model=AcknowledgmentPage)

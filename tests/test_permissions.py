@@ -46,6 +46,7 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/employees/{uid}", None, True),
     ("GET", "/api/v1/feedback", None, True),
     ("GET", "/api/v1/acknowledgments", None, True),
+    ("GET", "/api/v1/roleplay", None, True),
     ("GET", "/api/v1/assignments", None, True),
     ("GET", "/api/v1/sessions", None, True),
     ("GET", "/api/v1/sessions/{session_id}", None, True),

@@ -352,6 +352,46 @@ class AcknowledgmentItem(BaseModel):
     session_id: str
 
 
+class RoleplayTrack(BaseModel):
+    training_id: str
+    training_title: str | None
+    track: str
+    practices: int  # Beginner practice conversations scored
+    people: int
+    average_score: float | None
+    stress_practices: int
+    stress_average: float | None
+    opened_quiz: int  # people with a Beginner score at or above the unlock score
+    unlock_score: int
+
+
+class RoleplayAttempt(BaseModel):
+    attempt_id: int
+    session_id: str | None
+    uid: int
+    name: str | None
+    store_name: str | None
+    training_id: str
+    training_title: str | None
+    track: str
+    tier: str  # beginner | stress
+    persona: str | None
+    score: int
+    quick_pauses: int
+    strength: str | None
+    gap: str | None
+    tip: str | None
+    started_at: datetime
+
+
+class RoleplayReport(BaseModel):
+    tracks: list[RoleplayTrack]
+    items: list[RoleplayAttempt]
+    total: int
+    page: int
+    page_size: int
+
+
 class AcknowledgmentPage(BaseModel):
     items: list[AcknowledgmentItem]
     total: int

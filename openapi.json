@@ -2775,6 +2775,279 @@
         }
       }
     },
+    "/api/v1/roleplay": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Get Roleplay",
+        "description": "Role Play practice conversations in the period: each track's scores, and every debrief.",
+        "operationId": "get_roleplay_api_v1_roleplay_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "track",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Track"
+            }
+          },
+          {
+            "name": "tier",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(beginner|stress)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tier"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            }
+          },
+          {
+            "name": "training_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Training Id"
+            }
+          },
+          {
+            "name": "completion_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(quiz|walkthrough|acknowledgment)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Completion Type"
+            }
+          },
+          {
+            "name": "region_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Region Id"
+            }
+          },
+          {
+            "name": "market_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Market Id"
+            }
+          },
+          {
+            "name": "district_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "District Id"
+            }
+          },
+          {
+            "name": "store_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Store Id"
+            }
+          },
+          {
+            "name": "profile_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Profile Id"
+            }
+          },
+          {
+            "name": "voice_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Voice Id"
+            }
+          },
+          {
+            "name": "include_bots",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Bots"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleplayReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/acknowledgments": {
       "get": {
         "tags": [
@@ -7467,6 +7740,11 @@
             "type": "integer",
             "title": "Reactivate"
           },
+          "reason_changed": {
+            "type": "integer",
+            "title": "Reason Changed",
+            "default": 0
+          },
           "already": {
             "type": "integer",
             "title": "Already"
@@ -7553,6 +7831,18 @@
               }
             ],
             "title": "Due Date"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
           }
         },
         "additionalProperties": false,
@@ -7594,6 +7884,17 @@
               }
             ],
             "title": "Due At"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
           },
           "counts": {
             "$ref": "#/components/schemas/AssignCounts"
@@ -7668,6 +7969,30 @@
               }
             ],
             "title": "Completion Key"
+          },
+          "completion_type": {
+            "type": "string",
+            "title": "Completion Type",
+            "default": "quiz"
+          },
+          "tracks": {
+            "items": {
+              "$ref": "#/components/schemas/TrackOut"
+            },
+            "type": "array",
+            "title": "Tracks",
+            "default": []
+          },
+          "default_track": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Track"
           }
         },
         "type": "object",
@@ -8093,6 +8418,36 @@
         ],
         "title": "AutomaticRun"
       },
+      "Branch": {
+        "properties": {
+          "if": {
+            "type": "string",
+            "title": "If"
+          },
+          "then": {
+            "type": "string",
+            "title": "Then",
+            "default": ""
+          },
+          "quick_pause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quick Pause"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "if"
+        ],
+        "title": "Branch"
+      },
       "CancelOut": {
         "properties": {
           "cancelled": {
@@ -8142,6 +8497,87 @@
           "new_password"
         ],
         "title": "ChangePasswordRequest"
+      },
+      "Coach": {
+        "properties": {
+          "manner": {
+            "type": "string",
+            "title": "Manner",
+            "default": ""
+          },
+          "purpose": {
+            "type": "string",
+            "title": "Purpose",
+            "default": ""
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CoachItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "closing_line": {
+            "type": "string",
+            "title": "Closing Line",
+            "default": ""
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Coach"
+      },
+      "CoachItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "probe": {
+            "type": "string",
+            "title": "Probe"
+          },
+          "right_answer": {
+            "type": "string",
+            "title": "Right Answer"
+          },
+          "teach": {
+            "type": "string",
+            "title": "Teach",
+            "default": ""
+          },
+          "last": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "probe",
+          "right_answer"
+        ],
+        "title": "CoachItem"
       },
       "CodeIn": {
         "properties": {
@@ -9542,6 +9978,28 @@
         ],
         "title": "ForgotPasswordRequest"
       },
+      "Framework": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "steps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Steps"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "steps"
+        ],
+        "title": "Framework"
+      },
       "FunnelOut": {
         "properties": {
           "basis": {
@@ -10626,6 +11084,68 @@
         ],
         "title": "PersonPicked"
       },
+      "Persona": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "who": {
+            "type": "string",
+            "title": "Who"
+          },
+          "opening": {
+            "type": "string",
+            "title": "Opening"
+          },
+          "setup": {
+            "type": "string",
+            "title": "Setup",
+            "default": ""
+          },
+          "branches": {
+            "items": {
+              "$ref": "#/components/schemas/Branch"
+            },
+            "type": "array",
+            "title": "Branches"
+          },
+          "close": {
+            "type": "string",
+            "title": "Close",
+            "default": ""
+          },
+          "test": {
+            "type": "string",
+            "title": "Test",
+            "default": ""
+          },
+          "debrief_must_cover": {
+            "type": "string",
+            "title": "Debrief Must Cover",
+            "default": ""
+          },
+          "voice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "who",
+          "opening"
+        ],
+        "title": "Persona"
+      },
       "PollyVoice": {
         "properties": {
           "voice_id": {
@@ -10658,6 +11178,60 @@
           "language_name"
         ],
         "title": "PollyVoice"
+      },
+      "Practice": {
+        "properties": {
+          "scene_rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scene Rules"
+          },
+          "rubric": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            },
+            "type": "object",
+            "title": "Rubric"
+          },
+          "score_lines": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            },
+            "type": "object",
+            "title": "Score Lines"
+          },
+          "meter_name": {
+            "type": "string",
+            "title": "Meter Name",
+            "default": "Win Meter"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rubric"
+        ],
+        "title": "Practice"
       },
       "PreviewCallIn": {
         "properties": {
@@ -10723,6 +11297,18 @@
               }
             ],
             "title": "Location Type"
+          },
+          "track": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track"
           }
         },
         "additionalProperties": false,
@@ -11603,7 +12189,8 @@
                   "enum": [
                     "A",
                     "B",
-                    "C"
+                    "C",
+                    "D"
                   ]
                 },
                 "type": "object"
@@ -11621,7 +12208,8 @@
                 "enum": [
                   "A",
                   "B",
-                  "C"
+                  "C",
+                  "D"
                 ]
               },
               {
@@ -11685,7 +12273,8 @@
               "enum": [
                 "A",
                 "B",
-                "C"
+                "C",
+                "D"
               ]
             },
             "type": "object",
@@ -11696,7 +12285,8 @@
             "enum": [
               "A",
               "B",
-              "C"
+              "C",
+              "D"
             ],
             "title": "Correct"
           },
@@ -12273,6 +12863,357 @@
         ],
         "title": "ReviewsOut"
       },
+      "RoleplayAttempt": {
+        "properties": {
+          "attempt_id": {
+            "type": "integer",
+            "title": "Attempt Id"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "uid": {
+            "type": "integer",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "store_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Store Name"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "training_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Training Title"
+          },
+          "track": {
+            "type": "string",
+            "title": "Track"
+          },
+          "tier": {
+            "type": "string",
+            "title": "Tier"
+          },
+          "persona": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Persona"
+          },
+          "score": {
+            "type": "integer",
+            "title": "Score"
+          },
+          "quick_pauses": {
+            "type": "integer",
+            "title": "Quick Pauses"
+          },
+          "strength": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strength"
+          },
+          "gap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gap"
+          },
+          "tip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tip"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "attempt_id",
+          "session_id",
+          "uid",
+          "name",
+          "store_name",
+          "training_id",
+          "training_title",
+          "track",
+          "tier",
+          "persona",
+          "score",
+          "quick_pauses",
+          "strength",
+          "gap",
+          "tip",
+          "started_at"
+        ],
+        "title": "RoleplayAttempt"
+      },
+      "RoleplayContent": {
+        "properties": {
+          "coach": {
+            "$ref": "#/components/schemas/Coach"
+          },
+          "practice": {
+            "$ref": "#/components/schemas/Practice"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/RoleplaySettings"
+          },
+          "default_track": {
+            "type": "string",
+            "title": "Default Track"
+          },
+          "tracks": {
+            "items": {
+              "$ref": "#/components/schemas/Track"
+            },
+            "type": "array",
+            "title": "Tracks"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "coach",
+          "practice",
+          "settings",
+          "default_track",
+          "tracks"
+        ],
+        "title": "RoleplayContent"
+      },
+      "RoleplayReport": {
+        "properties": {
+          "tracks": {
+            "items": {
+              "$ref": "#/components/schemas/RoleplayTrack"
+            },
+            "type": "array",
+            "title": "Tracks"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RoleplayAttempt"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tracks",
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "RoleplayReport"
+      },
+      "RoleplaySettings": {
+        "properties": {
+          "unlock_score": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Unlock Score",
+            "default": 4
+          },
+          "quiz_pass_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quiz Pass Count"
+          },
+          "stress_enabled": {
+            "type": "boolean",
+            "title": "Stress Enabled",
+            "default": true
+          },
+          "quick_pauses_in_beginner": {
+            "type": "boolean",
+            "title": "Quick Pauses In Beginner",
+            "default": true
+          },
+          "scene_exchanges": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Scene Exchanges"
+          },
+          "customer_voice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Voice"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RoleplaySettings"
+      },
+      "RoleplayTrack": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "training_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Training Title"
+          },
+          "track": {
+            "type": "string",
+            "title": "Track"
+          },
+          "practices": {
+            "type": "integer",
+            "title": "Practices"
+          },
+          "people": {
+            "type": "integer",
+            "title": "People"
+          },
+          "average_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Score"
+          },
+          "stress_practices": {
+            "type": "integer",
+            "title": "Stress Practices"
+          },
+          "stress_average": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stress Average"
+          },
+          "opened_quiz": {
+            "type": "integer",
+            "title": "Opened Quiz"
+          },
+          "unlock_score": {
+            "type": "integer",
+            "title": "Unlock Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "training_id",
+          "training_title",
+          "track",
+          "practices",
+          "people",
+          "average_score",
+          "stress_practices",
+          "stress_average",
+          "opened_quiz",
+          "unlock_score"
+        ],
+        "title": "RoleplayTrack"
+      },
       "RoundCount": {
         "properties": {
           "rounds": {
@@ -12571,18 +13512,38 @@
             "title": "Name"
           },
           "topics": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array",
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Topics"
+          },
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Items"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "name",
-          "topics"
+          "name"
         ],
         "title": "Section"
       },
@@ -14266,6 +15227,120 @@
         ],
         "title": "TopicTiming"
       },
+      "Track": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "why_assigned": {
+            "type": "string",
+            "title": "Why Assigned",
+            "default": ""
+          },
+          "framework": {
+            "$ref": "#/components/schemas/Framework"
+          },
+          "coach_items": {
+            "items": {
+              "$ref": "#/components/schemas/CoachItem"
+            },
+            "type": "array",
+            "title": "Coach Items"
+          },
+          "beginner": {
+            "$ref": "#/components/schemas/Persona"
+          },
+          "stress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Persona"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "quiz": {
+            "$ref": "#/components/schemas/TrackQuiz"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "framework",
+          "beginner",
+          "quiz"
+        ],
+        "title": "Track"
+      },
+      "TrackOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "TrackOut"
+      },
+      "TrackQuiz": {
+        "properties": {
+          "draft": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Draft"
+          },
+          "sections": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Section"
+            },
+            "type": "object",
+            "title": "Sections"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/Question"
+            },
+            "type": "array",
+            "title": "Questions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sections",
+          "questions"
+        ],
+        "title": "TrackQuiz"
+      },
       "TrainingCard": {
         "properties": {
           "tags": {
@@ -14520,6 +15595,16 @@
               }
             ],
             "title": "Vocabulary"
+          },
+          "roleplay": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoleplayContent"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -14586,7 +15671,8 @@
             "enum": [
               "quiz",
               "walkthrough",
-              "acknowledgment"
+              "acknowledgment",
+              "roleplay"
             ],
             "title": "Completion Type",
             "default": "quiz"
@@ -14655,7 +15741,8 @@
             "enum": [
               "quiz",
               "walkthrough",
-              "acknowledgment"
+              "acknowledgment",
+              "roleplay"
             ],
             "title": "Completion Type"
           },
@@ -15034,7 +16121,8 @@
             "enum": [
               "quiz",
               "walkthrough",
-              "acknowledgment"
+              "acknowledgment",
+              "roleplay"
             ],
             "title": "Completion Type"
           },
@@ -15217,6 +16305,30 @@
             ],
             "title": "Completion Key"
           },
+          "completion_type": {
+            "type": "string",
+            "title": "Completion Type",
+            "default": "quiz"
+          },
+          "tracks": {
+            "items": {
+              "$ref": "#/components/schemas/TrackOut"
+            },
+            "type": "array",
+            "title": "Tracks",
+            "default": []
+          },
+          "default_track": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Track"
+          },
           "assign": {
             "type": "integer",
             "title": "Assign"
@@ -15224,6 +16336,11 @@
           "reactivate": {
             "type": "integer",
             "title": "Reactivate"
+          },
+          "reason_changed": {
+            "type": "integer",
+            "title": "Reason Changed",
+            "default": 0
           },
           "already": {
             "type": "integer",
@@ -15396,7 +16513,8 @@
                 "enum": [
                   "quiz",
                   "walkthrough",
-                  "acknowledgment"
+                  "acknowledgment",
+                  "roleplay"
                 ]
               },
               {
@@ -15493,7 +16611,8 @@
                 "enum": [
                   "quiz",
                   "walkthrough",
-                  "acknowledgment"
+                  "acknowledgment",
+                  "roleplay"
                 ]
               },
               {
