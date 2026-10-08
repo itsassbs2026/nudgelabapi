@@ -80,12 +80,20 @@ class PersonOut(BaseModel):
     store_name: str | None
 
 
+class TrackOut(BaseModel):
+    id: str
+    name: str
+
+
 class AssignableTraining(BaseModel):
     training_id: str
     title: str
     app_title: str | None
     hidden: bool
     completion_key: str | None
+    completion_type: str = "quiz"
+    tracks: list[TrackOut] = []  # Role Play: the reasons a person can be assigned for
+    default_track: str | None = None
 
 
 class AssignIn(BaseModel):
@@ -98,6 +106,9 @@ class AssignIn(BaseModel):
     file_name: str | None = Field(default=None, max_length=255)
     training_ids: list[str] = Field(min_length=1, max_length=assignments.MAX_TRAININGS)
     due_date: date | None = None
+    reason: str | None = Field(
+        default=None, max_length=40
+    )  # Role Play: why they're assigned (picks the track)
 
     @model_validator(mode="after")
     def one_source(self) -> AssignIn:
@@ -109,6 +120,7 @@ class AssignIn(BaseModel):
 class TrainingOutcome(AssignableTraining):
     assign: int
     reactivate: int
+    reason_changed: int = 0
     already: int
 
 
@@ -136,6 +148,7 @@ class PersonPicked(BaseModel):
 class AssignCounts(BaseModel):
     assign: int
     reactivate: int
+    reason_changed: int = 0
     already: int
     problems: int
     warnings: int
@@ -147,6 +160,7 @@ class AssignReport(BaseModel):
     people: int
     person: PersonPicked | None
     due_at: datetime | None
+    reason: str | None = None
     counts: AssignCounts
     trainings: list[TrainingOutcome]
     problems: list[ProblemOut]
@@ -193,11 +207,11 @@ def _plan(db: Session, current: CurrentUser, body: AssignIn) -> assignments.Plan
         parsed = assignments.parse_csv(body.csv)
         return assignments.plan(
             db, via="upload", rows=parsed.rows, training_ids=body.training_ids, due_at=due_at,
-            problems=parsed.problems, duplicates=parsed.duplicates,
+            problems=parsed.problems, duplicates=parsed.duplicates, reason=body.reason,
         )  # fmt: skip
     assert body.uid is not None
     return assignments.plan(db, via="dashboard", rows={body.uid: None}, training_ids=body.training_ids,
-                            due_at=due_at)  # fmt: skip
+                            due_at=due_at, reason=body.reason)  # fmt: skip
 
 
 @router.get("/assignments/people", response_model=list[PersonOut])
@@ -213,7 +227,7 @@ def find_people(
 @router.get("/assignments/trainings", response_model=list[AssignableTraining])
 def trainings_to_assign(current: CurrentUser = Depends(get_user), db: Session = Depends(get_db)) -> Any:
     _can_assign(db, current)
-    return assignments.assignable_trainings(db)
+    return [assignments.public_training(t) for t in assignments.assignable_trainings(db)]
 
 
 @router.post("/assignments/check", response_model=AssignReport)

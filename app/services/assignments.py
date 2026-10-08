@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
@@ -26,7 +27,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser
-from app.reference.agent_tables import training_assignments, training_progress, trainings, vw_trainees
+from app.reference.agent_tables import (
+    training_assignments,
+    training_progress,
+    training_versions,
+    trainings,
+    vw_trainees,
+)
 from app.reports.search import like_pattern
 from app.services import audit
 from app.services.audit import AuditAction
@@ -79,25 +86,67 @@ def search_people(db: Session, q: str, *, limit: int = 20) -> list[dict[str, Any
     ]
 
 
+def _norm(value: str | None) -> str:
+    return " ".join((value or "").lower().split())
+
+
+def _tracks(content: Any) -> tuple[list[dict[str, Any]], str | None]:
+    """A Role Play version's tracks (id, name, the reasons that pick it) and its default track."""
+    if isinstance(content, (str, bytes)):
+        content = json.loads(content)
+    rp = (content or {}).get("roleplay") or {}
+    tracks = [{"id": t["id"], "name": t.get("name") or t["id"], "reasons": list(t.get("reasons") or [])}
+              for t in rp.get("tracks") or []]  # fmt: skip
+    return tracks, rp.get("default_track")
+
+
 def assignable_trainings(db: Session) -> list[dict[str, Any]]:
     """Trainings that can be assigned: published (a live version) and not archived. `hidden` ones can be
-    assigned but don't show in the app until an Admin shows them."""
-    t = trainings.c
+    assigned but don't show in the app until an Admin shows them. A Role Play training lists its tracks: the
+    reason a person is assigned picks theirs (docs/ROLEPLAY.md)."""
+    t, v = trainings.c, training_versions.c
     rows = db.execute(
-        select(t.training_id, t.title, t.app_title, t.app_status, t.completion_key)
+        select(
+            t.training_id, t.title, t.app_title, t.app_status, t.completion_key, t.completion_type, v.content
+        )
+        .outerjoin(training_versions, v.version_id == t.active_version_id)
         .where(t.status != "retired", t.active_version_id.is_not(None))
         .order_by(t.title)
     ).all()
-    return [
-        {
+    out = []
+    for r in rows:
+        roleplay = r.completion_type == "roleplay"
+        tracks, default = _tracks(r.content) if roleplay else ([], None)
+        out.append({
             "training_id": r.training_id,
             "title": r.title,
             "app_title": r.app_title,
             "hidden": r.app_status != "active",
             "completion_key": r.completion_key,
-        }
-        for r in rows
-    ]
+            "completion_type": r.completion_type or "quiz",
+            "tracks": [{"id": x["id"], "name": x["name"]} for x in tracks],
+            "default_track": default,
+            "_reasons": {key: x["name"] for x in tracks for key in (_norm(x["id"]), _norm(x["name"]),
+                                                                    *(_norm(r) for r in x["reasons"]))},
+        })  # fmt: skip
+    return out
+
+
+def public_training(training: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in training.items() if not k.startswith("_")}
+
+
+def reason_for(training: dict[str, Any], reason: str | None) -> str | None:
+    """The track name a reason picks in a Role Play training (stored as the assignment's ai_flag), None for no
+    reason (the default track), or an error for one no track has. Other trainings keep no reason."""
+    if training["completion_type"] != "roleplay" or not _norm(reason):
+        return None
+    name = training["_reasons"].get(_norm(reason))
+    if name is None:
+        names = ", ".join(x["name"] for x in training["tracks"])
+        message = f"\"{reason}\" isn't one of {training['title']}'s reasons: {names}."
+        raise ApiError(422, "reason_unknown", message, {"training_id": training["training_id"]})
+    return str(name)
 
 
 # -- input ---------------------------------------------------------------------------------------------------
@@ -184,6 +233,9 @@ class Plan:
     people: dict[int, dict[str, Any]]  # the valid people
     to_insert: list[tuple[int, str]] = field(default_factory=list)
     to_reactivate: list[int] = field(default_factory=list)  # assignment_ids
+    # Role Play: assignments whose reason changes (their next session starts fresh on the new track).
+    to_change_reason: list[tuple[int, str | None]] = field(default_factory=list)
+    reasons: dict[str, str | None] = field(default_factory=dict)  # training_id -> the reason (ai_flag)
     per_training: dict[str, dict[str, int]] = field(default_factory=dict)
     problems: list[Problem] = field(default_factory=list)
     warnings: list[dict[str, Any]] = field(default_factory=list)
@@ -193,6 +245,7 @@ class Plan:
         counts = {
             "assign": len(self.to_insert),
             "reactivate": len(self.to_reactivate),
+            "reason_changed": len(self.to_change_reason),
             "already": sum(v["already"] for v in self.per_training.values()),
             "problems": len(self.problems),
             "warnings": len(self.warnings),
@@ -205,7 +258,10 @@ class Plan:
             "person": person,
             "due_at": self.due_at,
             "counts": counts,
-            "trainings": [{**t, **self.per_training[t["training_id"]]} for t in self.trainings],
+            "reason": next((r for r in self.reasons.values() if r), None),
+            "trainings": [
+                {**public_training(t), **self.per_training[t["training_id"]]} for t in self.trainings
+            ],
             "problems": [p.__dict__ for p in self.problems[:MAX_LISTED]],
             "warnings": self.warnings[:MAX_LISTED],
         }
@@ -234,6 +290,7 @@ def plan(
     due_at: datetime | None,
     problems: list[Problem] | None = None,
     duplicates: int = 0,
+    reason: str | None = None,
 ) -> Plan:
     """What assigning `training_ids` to the uids in `rows` (uid -> file row) would do, and every reason a
     person is refused or worth a second look. Changes nothing."""
@@ -241,7 +298,10 @@ def plan(
     chosen = _chosen_trainings(catalog, training_ids)
     result = Plan(via=via, due_at=due_at, trainings=chosen, people={}, problems=list(problems or []),
                   duplicates=duplicates)  # fmt: skip
-    result.per_training = {t["training_id"]: {"assign": 0, "reactivate": 0, "already": 0} for t in chosen}
+    result.reasons = {t["training_id"]: reason_for(t, reason) for t in chosen}
+    result.per_training = {
+        t["training_id"]: {"assign": 0, "reactivate": 0, "reason_changed": 0, "already": 0} for t in chosen
+    }
     uids = list(rows)
     t = vw_trainees.c
     found: dict[int, Any] = {}
@@ -285,7 +345,7 @@ def plan(
     passed: set[tuple[int, str]] = set()
     for part in _chunks(valid):
         for e in db.execute(
-            select(a.assignment_id, a.uid, a.training_id, a.status).where(
+            select(a.assignment_id, a.uid, a.training_id, a.status, a.ai_flag).where(
                 a.uid.in_(part), a.training_id.in_(look_at)
             )
         ):
@@ -297,13 +357,22 @@ def plan(
         ):
             passed.add((g.uid, g.training_id))
 
+    kinds = {c["training_id"]: c["completion_type"] for c in chosen}
     for uid in valid:
         person = result.people[uid]
         for training_id in chosen_ids:
             row = existing.get((uid, training_id))
             counts = result.per_training[training_id]
+            roleplay = kinds[training_id] == "roleplay"
             if row is not None and row.status != "cancelled":
-                counts["already"] += 1
+                if roleplay and _norm(row.ai_flag) != _norm(result.reasons[training_id]):
+                    result.to_change_reason.append((row.assignment_id, result.reasons[training_id]))
+                    counts["reason_changed"] += 1
+                    fresh = "New reason: their next session starts fresh (earlier progress is kept)."
+                    result.warnings.append({"uid": uid, "name": person["name"], "training_id": training_id,
+                                            "message": fresh})  # fmt: skip
+                else:
+                    counts["already"] += 1
                 continue
             if row is not None:
                 result.to_reactivate.append(row.assignment_id)
@@ -343,6 +412,7 @@ def apply(
                         "assigned_at": now,
                         "due_at": the_plan.due_at,
                         "status": "assigned",
+                        "ai_flag": the_plan.reasons.get(tid),
                         **tag,
                     }  # fmt: skip
                     for uid, tid in part
@@ -357,6 +427,19 @@ def apply(
             done = outcome.rowcount
             if done != len(ids):
                 raise _changed_meanwhile()
+            # A re-activated Role Play assignment takes the reason chosen now (other trainings keep theirs).
+            for tid in (t["training_id"] for t in the_plan.trainings if t["completion_type"] == "roleplay"):
+                db.execute(
+                    update(training_assignments)
+                    .where(a.assignment_id.in_(ids), a.training_id == tid)
+                    .values(ai_flag=the_plan.reasons.get(tid))
+                )
+        for assignment_id, reason in the_plan.to_change_reason:
+            db.execute(
+                update(training_assignments)
+                .where(a.assignment_id == assignment_id)
+                .values(ai_flag=reason, **tag)
+            )
     except IntegrityError as exc:
         db.rollback()
         raise _changed_meanwhile() from exc
@@ -365,8 +448,10 @@ def apply(
         "via": the_plan.via,
         "trainings": [t["training_id"] for t in the_plan.trainings],
         "due_at": the_plan.due_at.isoformat() if the_plan.due_at else None,
-        **{k: report["counts"][k] for k in ("assign", "reactivate", "already", "problems")},
+        **{k: report["counts"][k] for k in ("assign", "reactivate", "reason_changed", "already", "problems")},
     }
+    if report["reason"]:
+        details["reason"] = report["reason"]
     if file_name:
         details["file_name"] = file_name[:200]
     if len(the_plan.people) <= 20:

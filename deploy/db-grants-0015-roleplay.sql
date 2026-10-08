@@ -4,7 +4,8 @@
 -- The agent reads the reason a person was assigned (the track), keeps practice scores, archives progress when a new
 -- reason starts them fresh, and logs every pass. The API reads the new tables for the reports.
 
--- The API: read-only.
+-- The API: reads the new tables, and sets the reason (ai_flag) when a Role Play training is assigned.
+GRANT UPDATE (ai_flag) ON nudgeai.training_assignments TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.roleplay_attempts TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.training_progress_history TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT ON nudgeai.training_pass_log TO 'nudgelab_api'@'10.0.1.148';

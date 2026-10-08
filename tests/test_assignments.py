@@ -135,7 +135,8 @@ def test_assign_one_person(
     check = post(client, trainer_headers, "/assignments/check", body)
     assert check["applied"] is False and check["person"]["name"] == "Trainee 1004"
     assert check["counts"] == {
-        "assign": 2, "reactivate": 0, "already": 0, "problems": 0, "warnings": 1, "duplicates": 0
+        "assign": 2, "reactivate": 0, "reason_changed": 0, "already": 0, "problems": 0, "warnings": 1,
+        "duplicates": 0,
     }  # fmt: skip
     assert check["warnings"] == [
         {"uid": 1004, "name": "Trainee 1004", "training_id": "walk",
@@ -228,7 +229,8 @@ def test_upload_a_csv(client: TestClient, admin_headers: Headers, db_session: Se
     body = {"csv": csv, "file_name": "october.csv", "training_ids": ["walk"]}
     check = post(client, admin_headers, "/assignments/check", body)
     assert check["counts"] == {
-        "assign": 3, "reactivate": 0, "already": 0, "problems": 2, "warnings": 2, "duplicates": 1
+        "assign": 3, "reactivate": 0, "reason_changed": 0, "already": 0, "problems": 2, "warnings": 2,
+        "duplicates": 1,
     }  # fmt: skip
     assert check["problems"] == [
         {"row": 5, "value": "abc", "message": "Not a uid (a uid is a whole number)."},
@@ -301,3 +303,81 @@ def test_change_due_dates(
 
     switch(client, admin_headers, "assign_due_date", False)
     post(client, trainer_headers, "/assignments/due-date", body, 403)
+
+
+# -- Role Play: the reason picks the track (docs/ROLEPLAY.md) ------------------------------------------------
+
+
+def roleplay_training(db: Session) -> None:
+    from pathlib import Path
+
+    content = (Path(__file__).parent / "fixtures" / "content" / "win_every_customer.json").read_text(
+        encoding="utf-8"
+    )
+    insert(
+        db,
+        "trainings",
+        training_id="wec",
+        title="Win Every Customer",
+        status="active",
+        completion_type="roleplay",
+    )
+    version = {"version_id": 50, "training_id": "wec", "version_label": "v1", "content_hash": "c" * 64}
+    insert(db, "training_versions", **version, content=content)
+    db.execute(text("UPDATE trainings SET active_version_id = 50 WHERE training_id = 'wec'"))
+
+
+def test_a_roleplay_is_assigned_with_a_reason(
+    client: TestClient, admin_headers: Headers, db_session: Session, data: None
+) -> None:
+    roleplay_training(db_session)
+    listed = {
+        t["training_id"]: t for t in client.get("/api/v1/assignments/trainings", headers=admin_headers).json()
+    }
+    assert listed["wec"]["completion_type"] == "roleplay" and listed["wec"]["default_track"] == "general"
+    assert {"id": "billing", "name": "Billing"} in listed["wec"]["tracks"] and listed["big4"]["tracks"] == []
+
+    bad = post(
+        client,
+        admin_headers,
+        "/assignments",
+        {"uid": 1004, "training_ids": ["wec"], "reason": "Rudeness"},
+        422,
+    )
+    assert bad["error"]["code"] == "reason_unknown" and "Billing" in bad["error"]["message"]
+
+    done = post(
+        client,
+        admin_headers,
+        "/assignments",
+        {"uid": 1004, "training_ids": ["wec", "walk"], "reason": " billing "},
+    )
+    assert done["reason"] == "Billing" and done["counts"]["assign"] == 2
+    flags = dict(
+        db_session.execute(
+            text("SELECT training_id, ai_flag FROM training_assignments WHERE uid = 1004")
+        ).all()
+    )
+    assert flags == {"wec": "Billing", "walk": None}  # only the roleplay keeps a reason
+
+    # Assigned again for another reason: their next session starts fresh on the new track.
+    again = post(
+        client,
+        admin_headers,
+        "/assignments/check",
+        {"uid": 1004, "training_ids": ["wec"], "reason": "conduct"},
+    )
+    assert again["counts"]["reason_changed"] == 1 and again["counts"]["already"] == 0
+    assert "starts fresh" in again["warnings"][0]["message"]
+    post(client, admin_headers, "/assignments", {"uid": 1004, "training_ids": ["wec"], "reason": "conduct"})
+    flag = db_session.execute(
+        text("SELECT ai_flag FROM training_assignments WHERE uid = 1004 AND training_id = 'wec'")
+    )
+    assert flag.scalar_one() == "Conduct"
+    same = post(
+        client,
+        admin_headers,
+        "/assignments/check",
+        {"uid": 1004, "training_ids": ["wec"], "reason": "Conduct"},
+    )
+    assert (same["counts"]["already"], same["counts"]["reason_changed"]) == (1, 0)

@@ -175,3 +175,58 @@ def test_saves_drop_nulls_the_agent_would_misread(
     assert "completion_type" not in saved["training"] and "stt_vocabulary" not in saved["training"]
     assert "locations" not in saved["knowledge_base"]["topics"][0]["lines"][0]
     assert "vocabulary" in saved and saved["vocabulary"] is None
+
+
+# -- Role Play (docs/ROLEPLAY.md) ----------------------------------------------------------------------------
+
+
+def test_win_every_customer_has_no_errors() -> None:
+    result = validate(load("win_every_customer"), completion_key="agent_x")
+    assert result["errors"] == []
+    assert (
+        "Track General, quiz",
+        "Marked as a draft: Rewritten from open-answer questions to A–D on 2026-10-07; "
+        "needs review by the content owner.",
+    ) in messages(result, "warnings")
+
+
+def test_a_blank_roleplay_lists_everything_to_fill_in() -> None:
+    content = blank_content(title="T", completion_type="roleplay", uses_location=False, trainer_name="Jordan")
+    found = messages(validate(content, completion_key="agent_x"))
+    assert ("Scoring", "Describe what a 4 means.") in found
+    assert ("Track General", "Add at least one coaching item.") in found
+    assert ("Track General, Beginner customer", "Write the customer's opening line.") in found
+    assert ("Track General, quiz", "Add at least one question.") in found
+    assert ("Line closing_not_passed", "Write this line.") in found
+    assert not any(where == "Topics" for where, _ in found)  # no walkthrough topics in a roleplay
+
+
+def test_roleplay_mistakes_are_caught() -> None:
+    content = load("win_every_customer")
+    rp = content["roleplay"]
+    billing = next(t for t in rp["tracks"] if t["id"] == "billing")
+    billing["quiz"]["questions"][0]["options"] = {"A": "x", "C": "y"}
+    billing["quiz"]["questions"][1]["section"] = "nowhere"
+    billing["reasons"] = ["wait"]  # also picks the Wait track
+    billing["coach_items"][0]["probe"] = "Why?"
+    rp["default_track"] = "missing"
+    rp["settings"]["unlock_score"] = 9
+    found = messages(validate(content, completion_key="agent_x"))
+    assert (
+        "Track Billing, quiz question 1",
+        "Write the options in order: A and B, then C and D if there are more.",
+    ) in found
+    assert ("Track Billing, quiz question 2", "Put the question in a section.") in found
+    assert ("Track Billing", 'The reason "wait" also picks track Wait.') in found or (
+        "Track Wait",
+        'The reason "wait" also picks track Billing.',
+    ) in found
+    assert (
+        'Track Billing, coaching "Billing discrepancies"',
+        "The question needs at least 4 words.",
+    ) in found
+    assert (
+        "Tracks",
+        "Choose the default track (used when a person's reason is missing or unknown).",
+    ) in found
+    assert ("Settings", "The score that opens the quiz must be 1 to 5.") in found

@@ -371,7 +371,7 @@ def save_content(
     row = _version(db, version_id)
     if row.status != DRAFT:
         raise ApiError(409, "not_a_draft", "Only a draft can be edited. Make a new draft from this version.")
-    document = without_nulls(content.model_dump(mode="json", exclude_unset=True))
+    document = without_nulls(content.model_dump(mode="json", exclude_unset=True, by_alias=True))
     if len(json.dumps(document, ensure_ascii=False).encode()) > MAX_CONTENT_BYTES:
         raise ApiError(413, "content_too_large", "The training is too large to save.")
     v = training_versions.c

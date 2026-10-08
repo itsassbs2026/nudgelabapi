@@ -1,0 +1,1371 @@
+{
+  "format": 1,
+  "training": {
+    "title": "Win Every Customer",
+    "trainer_name": "Jordan",
+    "company": "Prime Communications",
+    "uses_location": false,
+    "completion_type": "roleplay",
+    "lines": {
+      "first_message": "Hi, I'm {trainer_name}, your coach for Win Every Customer. We'll start with a few quick coaching questions, then a practice conversation where I play the customer, and once you score a 4 or better there, we'll finish with a short quiz. Ready?",
+      "welcome_back": "Welcome back!",
+      "quiz_intro": "Now let's do a quick seven-question recap to see how well the training landed, so give it a real shot.",
+      "perfect_score": "That's all seven, you've passed!",
+      "passed_after_retry": "That's every question answered right, so you've passed!",
+      "feedback_question": "Before we wrap up, on a scale of 1 to 10, how would you rate this training? And in a sentence or two, what worked for you and what didn't?",
+      "closing": "Great work, you've completed Win Every Customer! Take what you practiced today onto the floor with you: every customer, every interaction, every day. Thanks for putting in the time today.",
+      "closing_not_passed": "Good work today. Your progress is saved, so next time we'll pick up right where you left off. Thanks for putting in the time today.",
+      "already_passed": "Welcome back! You've already completed Win Every Customer for this focus area, nice work. Want a quick practice round, or are you all set?"
+    }
+  },
+  "knowledge_base": {
+    "preamble": [
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "REFERENCE: what the coach knows. Use it to answer questions and to fill gaps; it is not a script to read out."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "THE AT&T EXPERIENCE (the six steps)"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "The AT&T Experience is built on expertise (listen to find resolutions the first time; be a Connectivity Expert on Voice, Internet, Data and Protection), simplicity (no unnecessary steps, no jargon) and inspiration (go the extra mile, help customers see how AT&T products improve their lives)."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "GREET: an authentic \"Hi, welcome to AT&T\" within 10 feet and 10 seconds; exchange names and use theirs; assure them you can resolve the reason for their visit."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "UNDERSTAND: own the interaction in simple terms; be empathetic; ask Live, Work, Play questions and listen to understand their actual needs."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "RECOMMEND: use the tools to add value to Voice, Internet, Data and Protection; connect to the AT&T Advantages; recommend a personalized solution with the available promotions (\"paint the picture\", not a generic pitch)."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "CONFIRM: review the solutions and gain agreement; validate that the reason for the visit is actually resolved; reinforce the value where relevant. Did they understand, or just nod along?"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "EDUCATE (the biggest opportunity): review the Customer Service Summary line by line (monthly charges, promotions, installments, features, one-time charges); help with content transfer, wireless or fiber education and app setup; explain added features, order next steps, and return and trade-in policies. Did they leave confident, or just finished?"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "THANK: make it personal (their tenure, their products and services); share your contact information; walk them to the door and thank them for choosing AT&T."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "The transaction may be what brought the customer in, but the experience is what they remember, and what they score."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "THE FIRST 7 SECONDS"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "Customers form an impression within seven seconds: do I feel welcome, does this person want to help me, do they know what they're doing? Energy (eye contact, a natural smile, stepping forward, speaking clearly; low energy creates distance), Acknowledgement (\"Welcome in!\", \"I'll be right with you\", even while helping someone else), Confidence (calm tone, clear questions, owning the help). A strong start means customers share what they need, listen, feel confident and leave positive feedback; a poor one means short answers, quick declines and frustration over small things."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "THE RESET (emotional intelligence under pressure)"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "You can't control the customer's emotion; you can control your response. Before you respond: Notice it (am I getting defensive, is my tone rising?), Breathe (one slow breath in and out), Refocus (am I trying to win this, or resolve it?), Choose your response (with intention, not emotion)."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "What right looks like in the moment: slow it down (lower your voice and pace); listen first (let them finish, don't interrupt or correct); acknowledge and empathize (\"I understand\", \"I can see why\", \"That's frustrating\") before fixing anything; provide direction (what you can do, what you can't, what happens next; vague reassurance isn't direction); close strong (\"I appreciate you giving us the chance to make this right\")."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "When you react emotionally, it escalates; when you regulate yourself, you build trust. Taking the time to educate, especially on the bill, prevents confusion and escalations, builds loyalty and protects your paycheck."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "THE EXPERIENCE SHIFT"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "What customers say about bad visits: they seemed annoyed I was there; I felt rushed; they weren't very helpful; it felt like I was bothering them; the attitude was unprofessional. Wrong feels like short answers, no eye contact, interrupting, a defensive tone, \"just doing the transaction\". Right feels like being acknowledged right away, listened to fully, spoken to with respect, guided rather than rushed, and helped with confidence."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "Tone check before you respond: am I helping or reacting, calm or annoyed, solving or shutting the conversation down? In the moment: pause, lower your tone, slow down, let them finish, acknowledge first and solve second (\"I understand why that would be frustrating. Let's take a look at it together.\")."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "A great solution delivered with a bad attitude still gets a bad survey."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "CONDUCT: recovering from a rude or unprofessional interaction"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "Greet and acknowledge promptly, as though their reason for visiting matters. Stay professional during difficult conversations: a frustrated customer doesn't lower the bar; don't argue, match their tone, dismiss the concern, or make them feel like an inconvenience. Focus on what you can do: if you can't do what they ask, explain why and give the best next step. Don't rush the customer out: closing time or staffing pressure never justifies pushing someone out mid-visit; set expectations respectfully and involve leadership if needed. Recover the experience: slow down, acknowledge, clarify what they need and reset the conversation; a strong recovery can change how they remember the whole visit. Customers may not always get the answer they hoped for, but they should always get respect, ownership and professionalism."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "COMPLIANCE: building value and gaining agreement"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "When a customer later says protection, Next Up, HomeTech Protection, a plan change or another service was added without their agreement. Discover before you recommend (the recommendation should connect to something they said). Build value (what it does, why it may help, what problem it solves; never present optional services as automatic, included or required). Clearly explain the cost (the monthly cost and how it changes the total; never hidden in a bundled quote). Gain clear agreement before adding anything. Recap before completion (plan, features, installments, optional services, promotions, expected monthly cost) and give them the chance to ask or decline. A strong sale is one the customer understands and chooses."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "KNOWLEDGE: owning the answer"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "When a customer loses confidence because an employee seems unsure. Don't guess (guessing creates wrong expectations, billing issues, missed promotions and escalations). Use the approved tools, resources and leadership to confirm before presenting something as fact. Explain what you're doing: checking reads as thoroughness when you say so confidently. Ask for help early, before the customer loses confidence. Learn from the interaction: a repeated gap is a coaching opportunity. You don't have to know everything; you do have to own the question and make sure the customer leaves with accurate information."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "BILLING: discrepancies and pricing"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "When the bill is higher than expected, a promotion is missing, or the price doesn't match what they believed. Understand the concern first (what monthly total they expected, what promotions or credits they were told about, whether it's their first bill after an activation or upgrade, whether fees, proration, installments and optional features were reviewed). Review the account, transaction, promotions, features and documentation to separate normal billing items from true discrepancies. Set expectations before the customer leaves (monthly cost, device installments, optional features and their cost, activation and upgrade fees, proration and the first bill, promotion requirements and when credits begin). Never promise what you can't confirm. Resolve or escalate: if the bill is right, explain it clearly and respectfully; if there's a store error or missing commitment, own it and follow the resolution or escalation process instead of just sending them to Customer Service. No surprises."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "WAIT"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "When a customer waits longer than expected in a busy store, how the wait is managed decides whether they feel ignored or valued. Acknowledge them as quickly as possible and confirm someone will help. Set a realistic expectation (don't promise an exact time you can't control). Leadership table touches: leaders engage waiting customers and start the experience before a seller is free. Look for quick wins (confirm the reason for the visit while they wait). Never let speed replace quality once you're helping them."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "A normal wait: Appreciation and Ownership (\"Thank you for your patience. Let me help you.\"), a strong, complete response on its own. An apology only after a real service failure: not greeted or acknowledged for a long time, staff available but not helping, an inaccurate wait estimate, told someone would help and then forgotten, or the store causing an unreasonable delay. Then Apology, Appreciation and Ownership (\"I'm sorry we didn't acknowledge you sooner. Thank you for your patience. Let me take care of you now.\"). Customers are more patient when they feel seen."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "THE SURVEY"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "Earn the survey before you mention it: confirm they understand their transaction and have no open questions (\"Before you go, is there anything about your account, bill, device, or what we completed today that I can clarify?\"). Let them know a survey may come (\"You may receive a short survey within 48 hours from AT&T about your experience with me today. The scoring is 1 to 5, with 5 meaning an exceptional experience.\"). Explain why it matters (\"It helps us understand what we're doing well and where we can improve.\"). Never coach the score: don't tell them what to give, don't ask for a 5 or a perfect score, and don't imply anything less will hurt you. Use it as a final check (\"Is there anything else I can answer before you go?\") and resolve concerns now. Thank them genuinely. Don't ask for a score; earn it."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "Example of a good survey conversation: \"Thank you so much for coming in today. Within the next 24 to 48 hours you may receive a text message survey from AT&T asking about your experience here today, on a scale of 1 to 5. We simply ask that you share your honest feedback. At the end you can also leave a Google review; as a locally operated store, reviews mean a lot to our team. Is there anything else I can help with before you go?\""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "WHY IT MATTERS"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "CSAT drives loyalty: repeat business, trust, referrals, reputation and compensation. The customer already chose us: they drove here, parked, walked in and waited; the job is to prove they made the right decision. Stores tend to lose customers at Educate. Manager table touches: a sales inspection between Understand and Recommend, and an experience inspection between Educate and Thank. Accountability creates consistency."
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": ""
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "CUSTOMER STYLES (for reading a customer)"
+      },
+      {
+        "kind": "text",
+        "prefix": "",
+        "text": "Quick-decision customers know what they want and want to decide fast: no long pitch. Detail-driven customers love specs and data and may test your knowledge: talk facts. Calm, practical customers value simplicity over buzzwords: keep it simple. Unsure customers are interested but overwhelmed and afraid of the wrong choice: help them feel confident, never rushed."
+      }
+    ],
+    "topics": [],
+    "ends_with_newline": true
+  },
+  "quiz": null,
+  "vocabulary": null,
+  "roleplay": {
+    "coach": {
+      "manner": "Calm, respectful, direct, and never condescending. Most people are here because of a piece of customer feedback or a store CX score below target, but this training is about winning every customer, every interaction, every day, not about being in trouble. Sound like it.",
+      "purpose": "Real customer survey feedback (paraphrased) reads like this: being told \"then go there\" when they raised a concern, feeling rushed and not given time to ask questions, an employee acting like helping them was an inconvenience, an employee with a horrible attitude. None of that is about product knowledge or stock; it's about how the visit felt. The transaction is what brought the customer in, but the experience is what they remember and what they score.",
+      "items": [
+        {
+          "id": "first_7_seconds",
+          "title": "The first 7 seconds",
+          "probe": "Before you've said a word, what's a customer already deciding about you?",
+          "right_answer": "Within about seven seconds they decide whether they feel welcome, whether you want to help, and whether you know what you're doing. Three things shape it: Energy (eye contact, a natural smile, stepping forward, speaking clearly), Acknowledgement (\"Welcome in!\", \"I'll be right with you\", even when you can't help yet), and Confidence (calm tone, clear questions, owning the help).",
+          "teach": "Customers form their impression in the first seven seconds, before a single recommendation. Energy, Acknowledgement and Confidence shape it: a strong start makes them share what they need and listen; a poor one gets short answers and frustration over small things."
+        },
+        {
+          "id": "survey",
+          "title": "The survey",
+          "probe": "How would you bring up the survey without it sounding like you're asking for a score?",
+          "right_answer": "Earn it first: confirm everything is clear and resolved, let them know a short survey may come and that their honest feedback matters, and never coach the score: never ask for a 5 or imply a lower score hurts you.",
+          "teach": "The survey isn't something you talk a customer into scoring well; it's the final check on whether the experience earned a good score. Confirm they're clear on everything, mention a survey may come and that honest feedback helps, and never ask for a 5 or imply a lower score hurts you.",
+          "last": true
+        }
+      ],
+      "closing_line": "At Prime, great service is how we compete and win. Every customer. Every interaction. Every day.",
+      "notes": [
+        "Keep the AT&T Experience six steps (Greet, Understand, Recommend, Confirm, Educate, Thank) as the foundation throughout coaching.",
+        "Echo Prime's standard where it fits naturally, not as a checklist: \"transparent about cost\" for billing, \"clear about value, accountable for the outcome\" for compliance, \"accountable for the outcome\" for knowledge, \"doing the basics better than anyone else\" for wait and the first 7 seconds."
+      ]
+    },
+    "practice": {
+      "scene_rules": [
+        "The trainee plays the rep and can state what the account shows. Treat anything they present as coming from the account as verified; never pause them for \"not verifying\" it. \"Never promise what you cannot confirm\" applies only when they guess or hedge (\"probably\", \"I think\") or promise something the account can't show (a future credit, a price or promo the store can't guarantee). Saying they'll check with a leader, escalate, or request a credit or exception is ownership, not a promise.",
+        "Recommending an optional product, building its value and sharing a real deadline are legitimate selling, never a compliance issue. A compliance issue is only: presenting something optional as required, adding it without clear agreement, or hiding or burying the cost. If the customer declines more than once or says they feel sold to, that's a customer-experience point (read the signal, wrap up the offer), not a violation.",
+        "Keep the scene on the persona's issue. Don't let it turn into a full sale, product pitch or upgrade walkthrough: once the framework skill has been tested and the customer's need is met, move the customer toward their closing line."
+      ],
+      "rubric": {
+        "5": "No Quick pause needed (or one purely about style); the framework was followed end to end; closed strong.",
+        "4": "One real but minor gap; the customer would still leave satisfied.",
+        "3": "A couple of genuine Quick pauses were needed; resolved but unremarkable: neutral, not memorable either way.",
+        "2": "Frequent breaks to correct the trainee; the customer would leave dissatisfied.",
+        "1": "The trainee never recovered the interaction even after coaching; the customer would leave actively upset."
+      },
+      "score_lines": {
+        "5": "Ding, ding, ding! Five out of five, that's about as clean as it gets.",
+        "4": "Four out of five, that's strong work.",
+        "3": "Three out of five, solid, and here's where the next point's waiting.",
+        "2": "Two out of five this time, and that's exactly the kind of rep we practice for. Let's break down what happened.",
+        "1": "One out of five this time, and that's exactly the kind of rep we practice for. Let's break down what happened."
+      },
+      "meter_name": "Win Meter"
+    },
+    "settings": {
+      "unlock_score": 4,
+      "quiz_pass_count": null,
+      "stress_enabled": true,
+      "quick_pauses_in_beginner": true,
+      "scene_exchanges": [
+        6,
+        12
+      ],
+      "customer_voice": null
+    },
+    "default_track": "general",
+    "tracks": [
+      {
+        "id": "compliance",
+        "name": "Compliance",
+        "reasons": [
+          "compliance"
+        ],
+        "why_assigned": "This one's focused on adding services the right way, based on recent customer feedback.",
+        "framework": {
+          "name": "the Compliance steps",
+          "steps": [
+            "Discover before you recommend",
+            "Build value",
+            "Clearly explain the cost",
+            "Gain clear agreement",
+            "Recap before completion"
+          ]
+        },
+        "coach_items": [
+          {
+            "id": "compliance_framework",
+            "title": "Building value and gaining agreement",
+            "probe": "Say you think protection makes sense for a customer who's upgrading. Walk me through how you'd bring it up.",
+            "right_answer": "Discover the need first; build real value (what it does, why it may help) and never present it as automatic, included or required; explain the monthly cost clearly, never buried in a bundle; get clear, informed agreement before adding it; recap everything before they leave.",
+            "teach": "Optional services should only land on an account because the customer chose them. Discover the need, build value, say the cost plainly, get a clear yes before adding anything, and recap before they leave. A strong sale is one the customer understands and chooses."
+          }
+        ],
+        "beginner": {
+          "name": "Charge I Don't Remember Agreeing To",
+          "setup": "This one's practice: a customer who noticed a charge they don't remember agreeing to. Let's see how you handle it.",
+          "who": "Looking at their account, sees a Protection or HomeTech add-on they don't recall approving. Calm but firm, skeptical and slightly guarded: feels like something was slipped in, not aggressive.",
+          "opening": "Wait, what is this twelve-dollar charge for device protection? I don't remember asking for that.",
+          "branches": [
+            {
+              "if": "The trainee acknowledges the concern, explains plainly what the service does and why it may have been added, and offers to remove it if it isn't wanted",
+              "then": "Become more trusting."
+            },
+            {
+              "if": "The trainee is defensive or implies the customer must have agreed to it without checking",
+              "then": "Stay guarded.",
+              "quick_pause": "Gain clear agreement: verify and take the concern seriously, don't assume they agreed."
+            },
+            {
+              "if": "The trainee downplays or hides the cost instead of explaining it plainly",
+              "then": "Push back on the cost.",
+              "quick_pause": "Clearly explain the cost and build value."
+            }
+          ],
+          "close": "The customer either keeps the service because they now understand its value, or has it removed with a clear, respectful explanation. Either is a successful close if it's the customer's informed choice."
+        },
+        "stress": {
+          "name": "You Signed Me Up Without Asking",
+          "who": "Found protection and a HomeTech add-on on their bill they say they never agreed to; believes the rep told them it was required for the promo. Threatening a corporate complaint.",
+          "opening": "You people ADDED stuff to my account I never agreed to. I want it off, and I want a manager.",
+          "test": "After the Reset: verify and take the concern seriously instead of assuming they agreed; explain plainly what each charge is; offer removal; never defend or minimize the add-on."
+        },
+        "quiz": {
+          "sections": {
+            "agreement": {
+              "name": "gaining clear agreement",
+              "items": [
+                "compliance_framework"
+              ]
+            },
+            "value": {
+              "name": "optional features and value",
+              "items": [
+                "compliance_framework"
+              ]
+            }
+          },
+          "questions": [
+            {
+              "number": 1,
+              "section": "value",
+              "question": "A customer is interested in upgrading but says they don't want any additional features. What should you do?",
+              "options": {
+                "A": "Add the features if the total payment still fits their budget",
+                "B": "Explain the available optional features and let the customer decide",
+                "C": "Add them and tell the customer they can remove them later",
+                "D": "Present them as part of the required upgrade package"
+              },
+              "correct": "B",
+              "explanation": "Optional features are the customer's choice: explain them and let them decide."
+            },
+            {
+              "number": 2,
+              "section": "value",
+              "question": "A customer asks if Protect Advantage is required to buy their new phone. What's the best response?",
+              "options": {
+                "A": "Yes, on promotional devices",
+                "B": "Yes, but only for the first month",
+                "C": "It depends on the price of the device",
+                "D": "No, it's optional, and I can explain the benefits if you're interested"
+              },
+              "correct": "D",
+              "explanation": "Protection is optional; presenting it as required is the core compliance problem."
+            },
+            {
+              "number": 3,
+              "section": "agreement",
+              "question": "A promotion requires a specific plan. What should happen before the customer agrees to the transaction?",
+              "options": {
+                "A": "Clearly explain the plan requirement and any impact to their account",
+                "B": "Move them to the plan without discussing it",
+                "C": "Complete the transaction and explain it afterward",
+                "D": "Tell them the promotion automatically includes the plan"
+              },
+              "correct": "A",
+              "explanation": "Agreement has to be informed: they need to know the plan requirement before they say yes."
+            },
+            {
+              "number": 4,
+              "section": "agreement",
+              "question": "A seller believes adding an extra line will lower the customer's overall cost. What matters most?",
+              "options": {
+                "A": "Add the line if the math works",
+                "B": "Add it and remove it later if necessary",
+                "C": "Clearly explain the additional line and get the customer's agreement before adding it",
+                "D": "Focus only on the customer's final monthly total"
+              },
+              "correct": "C",
+              "explanation": "Even a good deal needs a clear explanation and the customer's yes before anything is added."
+            },
+            {
+              "number": 5,
+              "section": "value",
+              "question": "Which behavior creates the greatest compliance concern?",
+              "options": {
+                "A": "Offering an optional feature",
+                "B": "Explaining the benefits of a promotion",
+                "C": "Asking discovery questions",
+                "D": "Presenting an optional feature as required"
+              },
+              "correct": "D",
+              "explanation": "Offering and explaining are good selling; calling something optional required is the violation."
+            },
+            {
+              "number": 6,
+              "section": "agreement",
+              "question": "A customer declines an optional feature after you explain its value. What should you do?",
+              "options": {
+                "A": "Respect their decision and continue the transaction",
+                "B": "Add it anyway so they can try it",
+                "C": "Keep pressuring them until they agree",
+                "D": "Tell them declining could affect their promotion"
+              },
+              "correct": "A",
+              "explanation": "Agreement has to be the customer's informed choice, so a no is respected."
+            },
+            {
+              "number": 7,
+              "section": "agreement",
+              "question": "What should a customer understand before leaving the store?",
+              "options": {
+                "A": "Only their estimated monthly payment",
+                "B": "Only their device promotion",
+                "C": "What was added, why it was added, and what to expect from their purchase and account",
+                "D": "Anything that appears on their receipt"
+              },
+              "correct": "C",
+              "explanation": "Recap before completion: what was added, why, and what to expect."
+            }
+          ]
+        }
+      },
+      {
+        "id": "conduct",
+        "name": "Conduct",
+        "reasons": [
+          "conduct"
+        ],
+        "why_assigned": "This one's focused on keeping difficult conversations professional, based on recent customer feedback.",
+        "framework": {
+          "name": "the five-step recovery",
+          "steps": [
+            "Greet and acknowledge",
+            "Stay professional during difficult conversations",
+            "Focus on what you can do",
+            "Don't rush the customer out",
+            "Recover the experience"
+          ]
+        },
+        "coach_items": [
+          {
+            "id": "reset_and_recovery",
+            "title": "The Reset and the five-step recovery",
+            "probe": "A customer snaps at you the second they walk up. What's the first thing you do?",
+            "right_answer": "Reset before responding: notice it (am I getting defensive?), breathe, refocus (win it or resolve it?), choose the response. Then the recovery: greet and acknowledge, stay professional (don't argue, match tone or dismiss), focus on what you can do, don't rush them out, recover the experience.",
+            "teach": "Before you respond to frustration, reset: notice it, breathe, refocus on resolving rather than winning, then choose your response. You can't control their emotion, only yours. Customers won't always get the answer they hoped for, but they should always get respect, ownership and professionalism."
+          }
+        ],
+        "beginner": {
+          "name": "Slightly Frustrated Customer",
+          "setup": "This one's practice: a customer who's a little irritated but reasonable. Let's see how you open it.",
+          "who": "Has been waiting a bit longer than expected for help, or came in over a minor billing question that turned out to be nothing serious. Short and a little curt, but not hostile: sighing, checking their phone, not yelling. Responds quickly and visibly to being acknowledged.",
+          "opening": "Finally. I've been standing here for like ten minutes.",
+          "branches": [
+            {
+              "if": "The trainee acknowledges the wait, apologizes or stays warm before moving into the task",
+              "then": "Soften noticeably within one or two lines and become cooperative for the rest of the scene."
+            },
+            {
+              "if": "The trainee ignores the frustration and goes straight into the task or a pitch",
+              "then": "Stay curt with clipped one-line answers; after two exchanges like that, say something like \"Are you even listening to me?\"",
+              "quick_pause": "Acknowledge and empathize."
+            },
+            {
+              "if": "The trainee gets defensive or explains why the wait happened instead of acknowledging first",
+              "then": "Bristle at the excuse.",
+              "quick_pause": "Slow it down and listen first: they're explaining before empathizing."
+            }
+          ],
+          "close": "Once it's resolved, the customer thanks them; let the trainee deliver their close."
+        },
+        "stress": {
+          "name": "Then Go There",
+          "who": "On their last visit a rep was dismissive and told them \"then go there\" when they raised a concern. Came back expecting the same treatment.",
+          "opening": "Last time I was here, somebody basically told me to get lost. So is that how this is gonna go again?",
+          "test": "The five-step recovery: stay professional, don't defend the other rep, focus on what you can do, recover the experience."
+        },
+        "quiz": {
+          "sections": {
+            "professional": {
+              "name": "staying professional",
+              "items": [
+                "reset_and_recovery"
+              ]
+            },
+            "recovery": {
+              "name": "recovering the experience",
+              "items": [
+                "reset_and_recovery"
+              ]
+            }
+          },
+          "questions": [
+            {
+              "number": 1,
+              "section": "professional",
+              "question": "A frustrated customer raises their voice about their bill. What's the best first response?",
+              "options": {
+                "A": "Match their tone so they know you're serious",
+                "B": "Tell them the bill isn't your fault",
+                "C": "Stay professional, acknowledge the concern, and work to understand the issue",
+                "D": "Ask them to leave"
+              },
+              "correct": "C",
+              "explanation": "Reset, acknowledge, then understand: matching their tone escalates it."
+            },
+            {
+              "number": 2,
+              "section": "professional",
+              "question": "A customer says, \"You people always mess up my account.\" What should you do?",
+              "options": {
+                "A": "Stay calm and focus on understanding and resolving the concern",
+                "B": "Argue that the store didn't cause the issue",
+                "C": "Ignore the comment",
+                "D": "Tell them to call Customer Care"
+              },
+              "correct": "A",
+              "explanation": "Don't argue or deflect: stay calm and work on what they actually need."
+            },
+            {
+              "number": 3,
+              "section": "recovery",
+              "question": "A customer misunderstands something you've already explained twice. What's the best approach?",
+              "options": {
+                "A": "Tell them you've already explained it",
+                "B": "Ask another customer to explain it",
+                "C": "Get more direct so the interaction ends faster",
+                "D": "Slow down and try explaining it differently"
+              },
+              "correct": "D",
+              "explanation": "Slow it down and try another way: a fourth try in the same words just frustrates both of you."
+            },
+            {
+              "number": 4,
+              "section": "professional",
+              "question": "Which behavior can turn a difficult interaction into a conduct complaint?",
+              "options": {
+                "A": "Asking clarifying questions",
+                "B": "Becoming dismissive or argumentative",
+                "C": "Staying calm",
+                "D": "Explaining expectations"
+              },
+              "correct": "B",
+              "explanation": "Being dismissive or arguing is exactly what customers report as rude."
+            },
+            {
+              "number": 5,
+              "section": "professional",
+              "question": "You disagree with a customer's version of what happened. What should you do?",
+              "options": {
+                "A": "Listen, clarify the facts, and stay professional",
+                "B": "Tell them they're wrong",
+                "C": "Interrupt them before they finish",
+                "D": "Refuse to continue the conversation"
+              },
+              "correct": "A",
+              "explanation": "Listen first and clarify calmly; correcting them mid-sentence escalates it."
+            },
+            {
+              "number": 6,
+              "section": "recovery",
+              "question": "A customer becomes more and more frustrated. What should your communication show?",
+              "options": {
+                "A": "That you're trying to end the interaction quickly",
+                "B": "That the customer caused the problem",
+                "C": "Professionalism, patience, and a willingness to help",
+                "D": "That another department is responsible"
+              },
+              "correct": "C",
+              "explanation": "A frustrated customer doesn't lower the bar: professionalism and patience are how you recover it."
+            },
+            {
+              "number": 7,
+              "section": "recovery",
+              "question": "Even when you can't give the customer the outcome they want, you can still give them a positive experience by:",
+              "options": {
+                "A": "Avoiding the conversation",
+                "B": "Promising something you can't guarantee",
+                "C": "Blaming the policy",
+                "D": "Clearly explaining the situation and treating them respectfully"
+              },
+              "correct": "D",
+              "explanation": "They may not get the answer they hoped for, but they should always get respect and a clear next step."
+            }
+          ]
+        }
+      },
+      {
+        "id": "knowledge",
+        "name": "Knowledge",
+        "reasons": [
+          "knowledge"
+        ],
+        "why_assigned": "This one's focused on giving customers accurate answers, based on recent customer feedback.",
+        "framework": {
+          "name": "the Knowledge steps",
+          "steps": [
+            "Do not guess",
+            "Use available resources",
+            "Explain what you're doing",
+            "Ask for help early",
+            "Learn from the interaction"
+          ]
+        },
+        "coach_items": [
+          {
+            "id": "knowledge_framework",
+            "title": "Owning the answer",
+            "probe": "A customer asks if a promo works with their plan and you're not a hundred percent sure. What do you do?",
+            "right_answer": "Don't guess; verify with approved tools and resources before presenting anything as fact; tell the customer you're confirming so it reads as thoroughness; bring in a teammate or leader early before they lose confidence; treat the gap as something to learn from.",
+            "teach": "You don't have to know everything, but you do have to own the question. Verify before you state anything as fact, tell the customer you're confirming it, and bring in a teammate or leader early, before they lose confidence."
+          }
+        ],
+        "beginner": {
+          "name": "Are You Sure About That?",
+          "setup": "This one's practice: a customer asking about something you might not know off the top of your head. Let's see how you handle it.",
+          "who": "Asking whether a promotion they saw online applies to their account and upgrade. Polite but sharp: has been given wrong information before and is quietly testing whether this rep actually knows. Responds well to honesty and visible checking; loses trust fast at guessing.",
+          "opening": "I saw a deal online for a free phone with a trade-in. Does that actually work with my plan, or is there a catch?",
+          "branches": [
+            {
+              "if": "The trainee says they'll confirm, checks, and says what they're doing",
+              "then": "Relax and cooperate for the rest of the scene."
+            },
+            {
+              "if": "The trainee states eligibility, price or promo terms from memory without checking",
+              "then": "Get skeptical.",
+              "quick_pause": "Do not guess."
+            },
+            {
+              "if": "The trainee goes quiet or hesitant while looking something up, without saying what they're doing",
+              "then": "Say \"...do you know or not?\"",
+              "quick_pause": "Explain what you're doing."
+            },
+            {
+              "if": "The trainee stays stuck on something they clearly can't confirm and doesn't bring anyone in",
+              "then": "Lose patience.",
+              "quick_pause": "Ask for help early."
+            }
+          ],
+          "close": "The customer leaves with an accurate, checked answer, even if it isn't the one they hoped for."
+        },
+        "stress": {
+          "name": "Your Guy Got It Wrong",
+          "who": "A rep promised a trade-in promo that turned out not to apply; now paying full price and feels lied to.",
+          "opening": "Oh great, let me guess: you're gonna tell me something totally different from the last guy?",
+          "test": "Don't guess again under pressure; verify before stating anything; say what you're checking; bring in a leader early if you can't confirm."
+        },
+        "quiz": {
+          "sections": {
+            "verify": {
+              "name": "verifying before you answer",
+              "items": [
+                "knowledge_framework"
+              ]
+            },
+            "resources": {
+              "name": "using resources and help",
+              "items": [
+                "knowledge_framework"
+              ]
+            }
+          },
+          "questions": [
+            {
+              "number": 1,
+              "section": "verify",
+              "question": "A customer asks about a promotion and you aren't sure of the answer. What should you do?",
+              "options": {
+                "A": "Give your best guess",
+                "B": "Tell them what usually happens",
+                "C": "Promise the promotion and research it later",
+                "D": "Verify the information before setting an expectation"
+              },
+              "correct": "D",
+              "explanation": "Don't guess: verify first, so the expectation you set is accurate."
+            },
+            {
+              "number": 2,
+              "section": "verify",
+              "question": "Why is accurate product and promotion knowledge important to the customer experience?",
+              "options": {
+                "A": "It makes interactions shorter",
+                "B": "It helps prevent incorrect expectations and future customer issues",
+                "C": "It removes the need for discovery",
+                "D": "It guarantees a sale"
+              },
+              "correct": "B",
+              "explanation": "Wrong information today becomes a billing problem or escalation later."
+            },
+            {
+              "number": 3,
+              "section": "verify",
+              "question": "A customer asks whether their current plan qualifies for a promotion. What should happen next?",
+              "options": {
+                "A": "Verify the promotion requirements before answering",
+                "B": "Assume it qualifies",
+                "C": "Tell them all plans qualify",
+                "D": "Complete the upgrade first"
+              },
+              "correct": "A",
+              "explanation": "Check the requirements before you answer, never after."
+            },
+            {
+              "number": 4,
+              "section": "verify",
+              "question": "You realize you gave a customer incorrect information earlier in the interaction. What should you do?",
+              "options": {
+                "A": "Hope they don't notice",
+                "B": "Continue with the original information",
+                "C": "Correct the information and clearly explain the accurate expectation",
+                "D": "Ask another seller to finish the transaction"
+              },
+              "correct": "C",
+              "explanation": "Own it: correct it and set the accurate expectation."
+            },
+            {
+              "number": 5,
+              "section": "resources",
+              "question": "A customer has a complicated account issue you don't know how to resolve. What's the best approach?",
+              "options": {
+                "A": "Guess at the solution",
+                "B": "Use available resources or leadership support to find the correct next step",
+                "C": "Tell the customer nothing can be done",
+                "D": "Send them away immediately"
+              },
+              "correct": "B",
+              "explanation": "Use your resources and ask for help early instead of guessing."
+            },
+            {
+              "number": 6,
+              "section": "resources",
+              "question": "Which creates the greatest customer-experience risk?",
+              "options": {
+                "A": "Taking time to verify information",
+                "B": "Asking for help",
+                "C": "Reviewing promotion requirements",
+                "D": "Giving an answer you aren't confident is accurate"
+              },
+              "correct": "D",
+              "explanation": "Checking and asking for help are good; an unsure answer stated as fact is the risk."
+            },
+            {
+              "number": 7,
+              "section": "resources",
+              "question": "Strong product knowledge should help a seller:",
+              "options": {
+                "A": "Give accurate information and connect solutions to customer needs",
+                "B": "Recommend the same products to everyone",
+                "C": "Avoid asking questions",
+                "D": "Focus mainly on price"
+              },
+              "correct": "A",
+              "explanation": "Knowledge is for accurate answers and solutions that fit the customer."
+            }
+          ]
+        }
+      },
+      {
+        "id": "billing",
+        "name": "Billing",
+        "reasons": [
+          "billing"
+        ],
+        "why_assigned": "This one's focused on billing conversations, based on recent customer feedback.",
+        "framework": {
+          "name": "the Billing Discrepancy steps",
+          "steps": [
+            "Understand the customer's concern first",
+            "Review the account and transaction",
+            "Set expectations before the customer leaves",
+            "Never promise what you cannot confirm",
+            "Resolve or escalate"
+          ]
+        },
+        "coach_items": [
+          {
+            "id": "billing_framework",
+            "title": "Billing discrepancies",
+            "probe": "A customer says their bill is thirty dollars higher than they were told. What's your first move?",
+            "right_answer": "Understand the concern first (what they expected, what they were told, whether it's their first bill) before explaining anything; review the account and transaction; set expectations (monthly cost, installments, proration, promo timing); never promise a price or promo you haven't verified; resolve or escalate rather than just redirecting them.",
+            "teach": "Understand what they expected before you explain anything, then review the account to separate normal billing items from real discrepancies. Never promise what you can't confirm, and resolve or escalate instead of just sending them to Customer Care. No surprises: transparent about cost."
+          }
+        ],
+        "beginner": {
+          "name": "Confused About the Bill",
+          "setup": "This one's practice: a customer who thinks something's wrong with their bill. Let's see how you open it.",
+          "who": "Got their first bill after an upgrade, about thirty dollars higher than expected. Not hostile: confused and mildly annoyed, bill pulled up on their phone. Responds well to being taken seriously and walked through specifics.",
+          "opening": "Can somebody explain why my bill is thirty dollars more than what I was told?",
+          "branches": [
+            {
+              "if": "The trainee understands the concern first (what they expected, what they were told, whether it's the first bill) before explaining",
+              "then": "Relax, give details, cooperate."
+            },
+            {
+              "if": "The trainee jumps straight into explaining proration or fees before understanding what the customer expected",
+              "then": "Get more confused.",
+              "quick_pause": "Understand the customer's concern first."
+            },
+            {
+              "if": "The trainee guesses at a price or promo without checking the account",
+              "then": "Get skeptical.",
+              "quick_pause": "Never promise what you cannot confirm."
+            },
+            {
+              "if": "The trainee explains clearly once they've understood the concern",
+              "then": "Visibly relax and thank them."
+            }
+          ],
+          "close": "The customer is satisfied with the explanation and clear on next month's bill."
+        },
+        "stress": {
+          "name": "Second Time I'm Here About This Bill",
+          "who": "Bill is about sixty dollars higher than they were quoted; already came in once and was told it would \"fix itself next month\". It didn't.",
+          "opening": "This is the SECOND time I'm coming in about this bill. Nobody here can tell me why I'm paying sixty dollars more.",
+          "test": "Understand what they were told first; review the account; never promise a fix or price you can't confirm; resolve or escalate with a concrete next step, not \"it'll fix itself\"."
+        },
+        "quiz": {
+          "sections": {
+            "expectations": {
+              "name": "setting billing expectations",
+              "items": [
+                "billing_framework"
+              ]
+            },
+            "explaining": {
+              "name": "explaining the bill",
+              "items": [
+                "billing_framework"
+              ]
+            }
+          },
+          "questions": [
+            {
+              "number": 1,
+              "section": "explaining",
+              "question": "A customer asks, \"What will my bill be after today's changes?\" What should you do?",
+              "options": {
+                "A": "Review the expected changes and explain what could affect the bill",
+                "B": "Give them the lowest possible estimate",
+                "C": "Tell them billing can explain it later",
+                "D": "Only discuss the device payment"
+              },
+              "correct": "A",
+              "explanation": "Walk them through what's changing and what affects the bill, today."
+            },
+            {
+              "number": 2,
+              "section": "expectations",
+              "question": "A promotion will take time to appear on the account. What should the customer know?",
+              "options": {
+                "A": "Nothing; the credit will eventually appear",
+                "B": "That their first bill will definitely be correct",
+                "C": "When to expect it and what their bill may look like in the meantime",
+                "D": "Only the promotional amount"
+              },
+              "correct": "C",
+              "explanation": "Promo timing is exactly what surprises people: say when it starts and what the bill looks like until then."
+            },
+            {
+              "number": 3,
+              "section": "expectations",
+              "question": "Why is setting billing expectations important?",
+              "options": {
+                "A": "It reduces the need to discuss products",
+                "B": "It guarantees the bill never changes",
+                "C": "It makes the transaction faster",
+                "D": "It helps prevent surprise charges and confusion after the sale"
+              },
+              "correct": "D",
+              "explanation": "No surprises: education during the sale prevents the confused return visit."
+            },
+            {
+              "number": 4,
+              "section": "explaining",
+              "question": "A customer says their priority is keeping their bill close to what it is now. What should you do?",
+              "options": {
+                "A": "Focus only on getting the transaction approved",
+                "B": "Clearly explain how each recommended change could affect their expected bill",
+                "C": "Avoid discussing optional features",
+                "D": "Give them one total without explaining it"
+              },
+              "correct": "B",
+              "explanation": "Show how each change moves the bill so they can decide."
+            },
+            {
+              "number": 5,
+              "section": "explaining",
+              "question": "Which is the better customer experience?",
+              "options": {
+                "A": "\"Your bill should be about two hundred dollars.\"",
+                "B": "Telling the customer to check their next bill",
+                "C": "Walking through the expected charges, promotions, changes and timing with the customer",
+                "D": "Discussing only today's taxes"
+              },
+              "correct": "C",
+              "explanation": "A walkthrough of charges, promos and timing beats a ballpark number."
+            },
+            {
+              "number": 6,
+              "section": "expectations",
+              "question": "A customer sees a prorated charge they weren't expecting. What would have prevented the frustration?",
+              "options": {
+                "A": "Setting expectations about possible prorated charges before completing the transaction",
+                "B": "Avoiding the subject during the sale",
+                "C": "Telling them all bills go up and down",
+                "D": "Giving them Customer Care's number"
+              },
+              "correct": "A",
+              "explanation": "Proration should be explained before they leave, not discovered on the bill."
+            },
+            {
+              "number": 7,
+              "section": "expectations",
+              "question": "Before a customer leaves, they should understand:",
+              "options": {
+                "A": "Only what they paid today",
+                "B": "Only their promotional savings",
+                "C": "Only their device installment",
+                "D": "Their expected ongoing costs and any changes they should anticipate"
+              },
+              "correct": "D",
+              "explanation": "The full picture: ongoing cost and what will change."
+            }
+          ]
+        }
+      },
+      {
+        "id": "wait",
+        "name": "Wait",
+        "reasons": [
+          "wait"
+        ],
+        "why_assigned": "This one's focused on how waits are handled, based on recent customer feedback.",
+        "framework": {
+          "name": "Appreciation and Ownership",
+          "steps": [
+            "Acknowledge the customer",
+            "Set a realistic expectation",
+            "Appreciation and Ownership for a normal wait",
+            "Apology, Appreciation and Ownership only after a real service failure",
+            "Never let speed replace quality"
+          ]
+        },
+        "coach_items": [
+          {
+            "id": "wait_vs_failure",
+            "title": "A normal wait or a service failure",
+            "probe": "A customer waited a normal few minutes. Do you apologize, or say something else?",
+            "right_answer": "For a normal wait, Appreciation and Ownership: \"Thank you for your patience, let me help you.\" That's complete on its own. Apologize only after a real service failure: not greeted for a long time, staff available but not helping, a wrong wait estimate, told someone would help and then forgotten, or the store causing the delay. Then Apology, Appreciation and Ownership.",
+            "teach": "For an ordinary wait, \"Thank you for your patience, let me help you\" is the strong, complete move. Save \"I'm sorry\" for a real service failure, like being forgotten or given a wrong wait time. And greet people the moment they walk in: that changes how the whole wait feels."
+          }
+        ],
+        "beginner": {
+          "name": "Reasonable Wait",
+          "setup": "This one's practice: a customer who's had a completely normal, reasonable wait. Let's see how you open it.",
+          "who": "Walked in during a moderately busy stretch and waited a few minutes: nothing unusual, not a service failure. A little restless, checking their phone, not upset. This scene tests appreciation versus apology in both directions.",
+          "opening": "Oh, finally, someone's free.",
+          "branches": [
+            {
+              "if": "The trainee leads with appreciation and ownership (\"Thank you for your patience\") and moves straight into helping",
+              "then": "Brighten immediately and cooperate. This is the model answer: never pause for a missing apology here."
+            },
+            {
+              "if": "The trainee opens with an unprompted apology for a clearly normal wait",
+              "then": "Let the scene continue.",
+              "quick_pause": "Not wrong, but for a wait like this, appreciation and moving into helping is the stronger opener; save \"I'm sorry\" for when something actually went wrong. Pause for this only once."
+            },
+            {
+              "if": "The trainee ignores the wait and launches straight into the task",
+              "then": "Say something like \"Wow, no thanks for waiting or anything?\"",
+              "quick_pause": "Acknowledgement, from the first 7 seconds."
+            },
+            {
+              "if": "Later in the scene, mention the wait again casually (\"I did have to wait a few minutes\")",
+              "then": "A good reply reinforces ownership without apologizing again.",
+              "quick_pause": "Only if they apologize reflexively again."
+            }
+          ],
+          "close": "The customer is helped and leaves happy.",
+          "debrief_must_cover": "Whether Appreciation and Ownership was used, and whether an apology was used appropriately or unnecessarily."
+        },
+        "stress": {
+          "name": "Told Five Minutes, Forgotten for Thirty",
+          "who": "A real service failure: told someone would be with them in five minutes, then waited over thirty while employees walked past.",
+          "opening": "Someone told me FIVE minutes. That was half an hour ago. I watched three of you walk right past me.",
+          "test": "This is when an apology IS required: Apology, Appreciation and Ownership (\"I'm sorry we didn't take care of you sooner. Thank you for your patience. Let me take care of you now.\"). Pause if they skip the apology, make excuses about staffing, or rush the customer now to make up time."
+        },
+        "quiz": {
+          "sections": {
+            "acknowledge": {
+              "name": "acknowledging waiting customers",
+              "items": [
+                "wait_vs_failure",
+                "first_7_seconds"
+              ]
+            },
+            "expectations": {
+              "name": "setting wait expectations",
+              "items": [
+                "wait_vs_failure"
+              ]
+            }
+          },
+          "questions": [
+            {
+              "number": 1,
+              "section": "acknowledge",
+              "question": "A customer walks in while every seller is helping someone. What should happen?",
+              "options": {
+                "A": "Wait until someone is free to acknowledge them",
+                "B": "Let them work out who's next",
+                "C": "Acknowledge them as soon as possible and set an expectation",
+                "D": "Ignore them until it's their turn"
+              },
+              "correct": "C",
+              "explanation": "Acknowledge them right away and say what happens next."
+            },
+            {
+              "number": 2,
+              "section": "acknowledge",
+              "question": "Why does acknowledging a waiting customer matter?",
+              "options": {
+                "A": "It makes the actual wait shorter",
+                "B": "It guarantees they won't leave",
+                "C": "It removes the need for a queue",
+                "D": "It lets the customer know they've been seen and sets expectations"
+              },
+              "correct": "D",
+              "explanation": "Customers are more patient when they feel seen."
+            },
+            {
+              "number": 3,
+              "section": "expectations",
+              "question": "A transaction is taking longer than expected and another customer is waiting. What can improve their experience?",
+              "options": {
+                "A": "Avoid eye contact",
+                "B": "Give them an update and acknowledge the delay",
+                "C": "Tell them to come back later",
+                "D": "Rush the current customer"
+              },
+              "correct": "B",
+              "explanation": "A quick update keeps them from feeling forgotten."
+            },
+            {
+              "number": 4,
+              "section": "acknowledge",
+              "question": "Which customer is more likely to feel forgotten?",
+              "options": {
+                "A": "One who waited 10 minutes without anyone acknowledging them",
+                "B": "One who waited 10 minutes but was greeted and updated",
+                "C": "One who was told there would be a wait",
+                "D": "One who knows where they are in the process"
+              },
+              "correct": "A",
+              "explanation": "Same wait, very different feeling: being ignored is what makes it a bad experience."
+            },
+            {
+              "number": 5,
+              "section": "expectations",
+              "question": "A customer asks how much longer the wait will be. What should you do?",
+              "options": {
+                "A": "Give an unrealistically short estimate",
+                "B": "Say you don't know and walk away",
+                "C": "Promise they're next",
+                "D": "Give the best realistic expectation you can and keep them updated"
+              },
+              "correct": "D",
+              "explanation": "A realistic estimate plus updates beats a promise you can't keep."
+            },
+            {
+              "number": 6,
+              "section": "acknowledge",
+              "question": "When the store is busy, the customer experience still starts with:",
+              "options": {
+                "A": "Finishing transactions faster",
+                "B": "Acknowledging the customer",
+                "C": "Selling accessories",
+                "D": "Explaining promotions"
+              },
+              "correct": "B",
+              "explanation": "The experience starts the moment they walk in, with acknowledgement."
+            },
+            {
+              "number": 7,
+              "section": "expectations",
+              "question": "Managing wait time well is mainly about:",
+              "options": {
+                "A": "Guaranteeing no customer ever waits",
+                "B": "Rushing interactions",
+                "C": "Acknowledgment, communication, and setting realistic expectations",
+                "D": "Asking customers to come back later"
+              },
+              "correct": "C",
+              "explanation": "You can't always avoid the wait, but you can acknowledge, communicate and set expectations."
+            }
+          ]
+        }
+      },
+      {
+        "id": "general",
+        "name": "General",
+        "reasons": [
+          "general"
+        ],
+        "why_assigned": "This one's focused on the overall customer experience, based on recent customer feedback.",
+        "framework": {
+          "name": "the AT&T Experience",
+          "steps": [
+            "Greet",
+            "Understand",
+            "Recommend",
+            "Confirm",
+            "Educate",
+            "Thank"
+          ]
+        },
+        "coach_items": [
+          {
+            "id": "experience_cycle",
+            "title": "Confirm, Educate and Thank",
+            "probe": "Think about the end of a sale. What does the customer need from you before they walk out?",
+            "right_answer": "Confirm the reason for the visit is resolved and they understand what they agreed to; Educate: walk through the Customer Service Summary line by line (monthly charges, promotions, installments, features, one-time charges), next steps, content transfer and trade-in timing, so they leave confident, not just finished; Thank: a personal close, contact information, a real thank-you. The six steps are Greet, Understand, Recommend, Confirm, Educate, Thank.",
+            "teach": "Most general feedback comes from the end of the visit: people leave unsure what was done or what happens next. Confirm it's actually resolved, educate by walking the Customer Service Summary line by line, and thank them personally, so they leave confident, not just finished."
+          }
+        ],
+        "beginner": {
+          "name": "Left Without the Full Picture",
+          "setup": "This one's practice: a customer who's back because their last visit left them with more questions than answers. Let's see how you handle it.",
+          "who": "Upgraded their phone a few days ago. Nothing went badly wrong (nobody was rude, the bill is fine), but the visit felt rushed and transactional: contacts and photos didn't fully transfer, nobody explained how the trade-in credit shows up, and they left unsure what happens next. Polite, a little deflated, not angry.",
+          "opening": "Hi, I was in here a few days ago for an upgrade, and honestly I left kind of confused about a couple of things.",
+          "branches": [
+            {
+              "if": "The trainee greets warmly, exchanges names, and asks what's unclear before doing anything",
+              "then": "Open up, explain both issues, cooperate."
+            },
+            {
+              "if": "The trainee jumps into fixing one thing without understanding the full picture",
+              "then": "Say \"Well, there's also...\"",
+              "quick_pause": "Understand: ask open questions and get the whole picture first."
+            },
+            {
+              "if": "The trainee fixes the problem but doesn't explain what they did or what happens next (for example when the trade-in credit posts)",
+              "then": "Stay a little unsure.",
+              "quick_pause": "Educate: they need to leave confident, not just finished."
+            },
+            {
+              "if": "The trainee wraps up without confirming everything is resolved",
+              "then": "Hesitate.",
+              "quick_pause": "Confirm: make sure the reason for the visit is actually resolved before closing."
+            },
+            {
+              "if": "The trainee ends flatly (\"Okay, you're all set\")",
+              "then": "Say a flat thanks.",
+              "quick_pause": "Thank: make the close personal and memorable."
+            }
+          ],
+          "close": "The customer leaves clear on what was done, when the trade-in credit appears, and who to reach out to next time."
+        },
+        "stress": {
+          "name": "Third Visit, Still Nothing",
+          "who": "Third visit about the same upgrade: content never fully transferred, trade-in credit still unexplained, and every visit felt like a rushed transaction.",
+          "opening": "Third time's the charm, right? Because nobody here has actually explained anything to me yet.",
+          "test": "The AT&T Experience under pressure: understand the full picture before fixing anything, confirm it's actually resolved, educate on what was done and what happens next, and thank with a strong, personal close."
+        },
+        "quiz": {
+          "draft": "Rewritten from open-answer questions to A–D on 2026-10-07; needs review by the content owner.",
+          "sections": {
+            "first_impression": {
+              "name": "first impressions",
+              "items": [
+                "first_7_seconds"
+              ]
+            },
+            "difficult": {
+              "name": "difficult moments",
+              "items": [
+                "experience_cycle"
+              ]
+            },
+            "cycle": {
+              "name": "the AT&T Experience",
+              "items": [
+                "experience_cycle"
+              ]
+            },
+            "survey": {
+              "name": "the survey",
+              "items": [
+                "survey"
+              ]
+            }
+          },
+          "questions": [
+            {
+              "number": 1,
+              "section": "first_impression",
+              "question": "Which three things shape a customer's first impression in the first seven seconds?",
+              "options": {
+                "A": "Speed, price and selection",
+                "B": "Energy, acknowledgement and confidence",
+                "C": "Product knowledge, promotions and accessories",
+                "D": "Store layout, wait time and signage"
+              },
+              "correct": "B",
+              "explanation": "Energy, Acknowledgement and Confidence shape the first seven seconds."
+            },
+            {
+              "number": 2,
+              "section": "difficult",
+              "question": "True or false: when a customer is upset, matching their energy shows them you take it seriously.",
+              "options": {
+                "A": "True",
+                "B": "False"
+              },
+              "correct": "B",
+              "explanation": "False: you can't control their emotion, only yours, and matching their energy escalates it."
+            },
+            {
+              "number": 3,
+              "section": "difficult",
+              "question": "A customer asks for something you genuinely can't do. What's the right move?",
+              "options": {
+                "A": "Say \"we can't do that\" and move on",
+                "B": "Promise to try anyway",
+                "C": "Explain why you can't and give them the best available next step",
+                "D": "Send them to Customer Care"
+              },
+              "correct": "C",
+              "explanation": "Replace a flat no with ownership: why, and the best next step."
+            },
+            {
+              "number": 4,
+              "section": "difficult",
+              "question": "It's near closing time and a customer is still mid-interaction. What should you NOT do?",
+              "options": {
+                "A": "Rush them out or make them feel forced to leave",
+                "B": "Set expectations respectfully",
+                "C": "Involve leadership if needed",
+                "D": "Finish helping them professionally"
+              },
+              "correct": "A",
+              "explanation": "Time pressure never replaces professionalism: don't rush them out."
+            },
+            {
+              "number": 5,
+              "section": "cycle",
+              "question": "What are the six steps of the AT&T Experience, in order?",
+              "options": {
+                "A": "Greet, Recommend, Understand, Confirm, Thank, Educate",
+                "B": "Greet, Understand, Recommend, Confirm, Educate, Thank",
+                "C": "Understand, Greet, Recommend, Educate, Confirm, Thank",
+                "D": "Greet, Understand, Confirm, Recommend, Educate, Thank"
+              },
+              "correct": "B",
+              "explanation": "Greet, Understand, Recommend, Confirm, Educate, Thank."
+            },
+            {
+              "number": 6,
+              "section": "survey",
+              "question": "When you bring up the survey with a customer, what should you never do?",
+              "options": {
+                "A": "Let them know a survey may come",
+                "B": "Ask for their honest feedback",
+                "C": "Ask for a 5, or suggest a lower score would hurt you",
+                "D": "Check there's nothing else you can help with"
+              },
+              "correct": "C",
+              "explanation": "Never coach the score: survey awareness, not manipulation."
+            },
+            {
+              "number": 7,
+              "section": "first_impression",
+              "question": "A customer says \"this is ridiculous, I've been waiting forever\" the second they reach you, after a normal wait. What should your very next line do?",
+              "options": {
+                "A": "Explain why the store is busy",
+                "B": "Apologize for the wait",
+                "C": "Acknowledge the wait with appreciation and ownership, like \"Thank you for your patience, let me help you\"",
+                "D": "Go straight into what they need"
+              },
+              "correct": "C",
+              "explanation": "Acknowledge it first with appreciation and ownership; an apology is for a real service failure."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

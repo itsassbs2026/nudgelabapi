@@ -16,7 +16,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 Location = Literal["fiber", "aia_only", "alaska_only"]
-Letter = Literal["A", "B", "C"]
+Letter = Literal["A", "B", "C", "D"]  # D: Role Play quizzes have four options
 
 # What a knowledge-base line is for (the agent's content.LINE_KINDS, plus "text" for anything else).
 LineKind = Literal[
@@ -34,7 +34,7 @@ LineKind = Literal[
     "first_say",
     "text",
 ]
-CompletionType = Literal["quiz", "walkthrough", "acknowledgment"]
+CompletionType = Literal["quiz", "walkthrough", "acknowledgment", "roleplay"]
 
 
 class Strict(BaseModel):
@@ -80,7 +80,8 @@ class Question(Strict):
 
 class Section(Strict):
     name: str
-    topics: list[int]
+    topics: list[int] | None = None  # quiz trainings: the knowledge base topics it covers
+    items: list[str] | None = None  # roleplay tracks: the coaching items it covers
 
 
 class Quiz(Strict):
@@ -112,9 +113,100 @@ class TrainingSettings(BaseModel):
     lines: dict[str, str]
 
 
+# -- Role Play (docs/ROLEPLAY.md; the agent's roleplay.py reads this) ----------------------------------------
+
+
+class CoachItem(Strict):
+    id: str
+    title: str
+    probe: str  # the question the coach asks, exactly as written
+    right_answer: str  # what a good answer contains (never read aloud)
+    teach: str = ""  # what to teach when they miss it
+    last: bool | None = None  # shared items only: coached after the track's own items
+
+
+class Coach(Strict):
+    manner: str = ""
+    purpose: str = ""
+    items: list[CoachItem] = Field(default_factory=list)  # shared by every track
+    closing_line: str = ""
+    notes: list[str] = Field(default_factory=list)
+
+
+class Branch(Strict):
+    # "if" is a Python keyword: read and written as "if", the agent's key.
+    model_config = ConfigDict(
+        extra="forbid", validate_by_name=True, validate_by_alias=True, serialize_by_alias=True
+    )
+
+    if_: str = Field(alias="if")  # what the trainee does
+    then: str = ""  # how the customer reacts
+    quick_pause: str | None = None  # the step the coach names when stepping in (Beginner only)
+
+
+class Persona(Strict):
+    name: str
+    who: str
+    opening: str
+    setup: str = ""
+    branches: list[Branch] = Field(default_factory=list)
+    close: str = ""
+    test: str = ""
+    debrief_must_cover: str = ""
+    voice: str | None = None
+
+
+class Framework(Strict):
+    name: str
+    steps: list[str]
+
+
+class TrackQuiz(Strict):
+    draft: str | None = None
+    sections: dict[str, Section]
+    questions: list[Question]
+
+
+class Track(Strict):
+    id: str
+    name: str
+    reasons: list[str] = Field(default_factory=list)
+    why_assigned: str = ""
+    framework: Framework
+    coach_items: list[CoachItem] = Field(default_factory=list)
+    beginner: Persona
+    stress: Persona | None = None
+    quiz: TrackQuiz
+
+
+class Practice(Strict):
+    scene_rules: list[str] = Field(default_factory=list)
+    rubric: dict[Literal["1", "2", "3", "4", "5"], str]
+    score_lines: dict[Literal["1", "2", "3", "4", "5"], str] = Field(default_factory=dict)
+    meter_name: str = "Win Meter"
+
+
+class RoleplaySettings(Strict):
+    unlock_score: int = Field(default=4, ge=1, le=5)
+    quiz_pass_count: int | None = Field(default=None, ge=1)  # None: every question right
+    stress_enabled: bool = True
+    quick_pauses_in_beginner: bool = True
+    scene_exchanges: list[int] = Field(default_factory=lambda: [6, 12])
+    customer_voice: str | None = None
+
+
+class RoleplayContent(Strict):
+    coach: Coach
+    practice: Practice
+    settings: RoleplaySettings
+    default_track: str
+    tracks: list[Track]
+
+
 class TrainingContent(Strict):
     format: Literal[1]
     training: TrainingSettings
     knowledge_base: KnowledgeBase
     quiz: Quiz | None
     vocabulary: list[str] | None
+    roleplay: RoleplayContent | None = None  # only for Role Play trainings

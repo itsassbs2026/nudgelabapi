@@ -25,6 +25,18 @@ REQUIRED_LINES: dict[str, tuple[str, ...]] = {
     ),
     "walkthrough": (*_COMMON, "completed"),
     "acknowledgment": (*_COMMON, "completed", "acknowledgment_intro", "welcome_back_acknowledgment"),
+    # Role Play (docs/ROLEPLAY.md): coaching, practice and the quiz; no walkthrough topics.
+    "roleplay": (
+        "first_message",
+        "already_passed",
+        "feedback_question",
+        "closing",
+        "closing_not_passed",
+        "welcome_back",
+        "quiz_intro",
+        "perfect_score",
+        "passed_after_retry",
+    ),
 }
 LOCATION_LINES = ("location_unknown",)
 
@@ -46,10 +58,48 @@ def blank_content(
     }
     if completion_type == "acknowledgment":
         training["acknowledgment"] = ""
-    return {
+    document: dict[str, Any] = {
         "format": 1,
         "training": training,
         "knowledge_base": {"preamble": [], "topics": [], "ends_with_newline": True},
         "quiz": {"sections": {}, "questions": []} if completion_type == "quiz" else None,
         "vocabulary": None,
+    }
+    if completion_type == "roleplay":
+        document["roleplay"] = blank_roleplay()
+    return document
+
+
+def blank_roleplay() -> dict[str, Any]:
+    """The Role Play template: one track, nothing written (the studio fills it in; nothing is invented)."""
+    persona = {"name": "", "who": "", "opening": "", "setup": "", "branches": [], "close": ""}
+    return {
+        "coach": {"manner": "", "purpose": "", "items": [], "closing_line": "", "notes": []},
+        "practice": {
+            "scene_rules": [],
+            "rubric": dict.fromkeys("12345", ""),
+            "score_lines": dict.fromkeys("12345", ""),
+        },
+        "settings": {
+            "unlock_score": 4,
+            "quiz_pass_count": None,
+            "stress_enabled": True,
+            "quick_pauses_in_beginner": True,
+            "scene_exchanges": [6, 12],
+            "customer_voice": None,
+        },
+        "default_track": "general",
+        "tracks": [
+            {
+                "id": "general",
+                "name": "General",
+                "reasons": [],
+                "why_assigned": "",
+                "framework": {"name": "", "steps": []},
+                "coach_items": [],
+                "beginner": dict(persona),
+                "stress": None,
+                "quiz": {"sections": {}, "questions": []},
+            }
+        ],
     }

@@ -341,7 +341,7 @@ def test_only_drafts_can_be_edited(
         lambda c: c.pop("knowledge_base"),
         lambda c: c.update(format=2),
         lambda c: c["knowledge_base"]["topics"][0]["lines"][0].update(kind="shout"),
-        lambda c: c["quiz"]["questions"][0].update(correct="D"),
+        lambda c: c["quiz"]["questions"][0].update(correct="E"),
         lambda c: c.update(extra_field=True),
     ],
 )

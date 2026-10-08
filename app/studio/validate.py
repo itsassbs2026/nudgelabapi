@@ -27,6 +27,7 @@ from typing import Any, cast
 from app.schemas.training_content import CompletionType
 from app.studio.blank import REQUIRED_LINES, required_lines
 from app.studio.prepare import MAX_TOPIC_SECONDS, speaking_seconds
+from app.studio.roleplay_checks import check_roleplay
 
 MIN_ASK_WORDS = 4
 VOCAB_TERM = re.compile(r"^[A-Za-z][A-Za-z.'\-]{0,255}$")
@@ -50,7 +51,13 @@ def validate(content: dict[str, Any], *, completion_key: str | None) -> dict[str
     completion_type: CompletionType = cast(CompletionType, found) if found in REQUIRED_LINES else "quiz"
     topics = content.get("knowledge_base", {}).get("topics", [])
 
-    if not topics:
+    if completion_type == "roleplay":
+        # Coaching, practice and quiz live in the Role Play template; the knowledge base is reference text.
+        rp_errors, rp_warnings = check_roleplay(content.get("roleplay"))
+        errors += rp_errors
+        warnings += rp_warnings
+        topics = []
+    elif not topics:
         errors.append(_issue("Topics", "Add at least one topic."))
     asks: dict[str, int] = {}
     for topic in topics:
