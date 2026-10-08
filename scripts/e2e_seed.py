@@ -99,6 +99,26 @@ def main(url: str) -> None:
             text("UPDATE training_versions SET content = :c, status = 'published' WHERE version_id = 1"),
             {"c": big4},
         )
+        # A Role Play training (docs/ROLEPLAY.md) with a few scored practices, for the reason picker and the
+        # Role Play report.
+        from tests.agent_data import T, insert
+
+        wec_path = ROOT / "tests" / "fixtures" / "content" / "win_every_customer.json"
+        wec = wec_path.read_text(encoding="utf-8")
+        insert(db, "trainings", training_id="wec", title="Win Every Customer", status="active",
+               completion_type="roleplay")  # fmt: skip
+        insert(db, "training_versions", version_id=50, training_id="wec", version_label="v1",
+               content_hash="c" * 64, content=wec, status="published")  # fmt: skip
+        db.execute(text("UPDATE trainings SET active_version_id = 50 WHERE training_id = 'wec'"))
+        for uid, track, tier, score, day in (
+            (1001, "billing", "beginner", 3, 5),
+            (1001, "billing", "beginner", 4, 6),
+            (1002, "billing", "beginner", 2, 7),
+            (1003, "conduct", "beginner", 5, 9),
+        ):
+            insert(db, "roleplay_attempts", uid=uid, training_id="wec", track=track, tier=tier, score=score,
+                   quick_pauses=int(score < 4), persona="Confused About the Bill", started_at=T(day),
+                   strength="Understood first", gap="Skipped the recap", tip="Recap the bill")  # fmt: skip
         # The session viewer test needs a recorded session with a transcript: give rec-new s1's lines.
         db.execute(
             text(
