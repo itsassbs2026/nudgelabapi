@@ -206,6 +206,25 @@ def test_employee(client: TestClient, trainer_headers: dict[str, str], data: Non
     assert bots.status_code == 403
 
 
+def test_employee_passes(
+    client: TestClient, trainer_headers: dict[str, str], data: None, db_session: Session
+) -> None:
+    """Every logged pass (docs/ROLEPLAY.md), newest first, beside the training; the current track too."""
+    db_session.execute(
+        text("UPDATE training_progress SET track = 'billing' WHERE uid = 1001 AND training_id = 'big4'")
+    )
+    insert(db_session, "training_pass_log", uid=1001, training_id="big4", kind="first", track="conduct",
+           passed_at=T(3), version_id=1)  # fmt: skip
+    insert(db_session, "training_pass_log", uid=1001, training_id="big4", kind="repeat", track="billing",
+           passed_at=T(9), version_id=1, session_id="s2")  # fmt: skip
+    e = client.get("/api/v1/employees/1001", headers=trainer_headers).json()
+    big4 = next(t for t in e["trainings"] if t["training_id"] == "big4")
+    assert big4["track"] == "billing"
+    assert [(x["kind"], x["track"]) for x in big4["passes"]] == [("repeat", "billing"), ("first", "conduct")]
+    walk = next(t for t in e["trainings"] if t["training_id"] == "walk")
+    assert walk["passes"] == [] and walk["track"] is None
+
+
 def test_cost(client: TestClient, trainer_headers: dict[str, str], data: None) -> None:
     c = get(client, trainer_headers, "/reports/cost")
     assert c["total"] == 1.5 and c["sessions"] == 5 and c["per_session"] == 0.3

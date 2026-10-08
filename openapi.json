@@ -9456,6 +9456,25 @@
             },
             "type": "array",
             "title": "Answers"
+          },
+          "track": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track"
+          },
+          "passes": {
+            "items": {
+              "$ref": "#/components/schemas/PassOut"
+            },
+            "type": "array",
+            "title": "Passes",
+            "default": []
           }
         },
         "type": "object",
@@ -10832,6 +10851,62 @@
           "by_training"
         ],
         "title": "OverviewOut"
+      },
+      "PassOut": {
+        "properties": {
+          "passed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Passed At"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "track": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track"
+          },
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "passed_at",
+          "kind",
+          "track",
+          "version_id",
+          "session_id"
+        ],
+        "title": "PassOut",
+        "description": "One pass from training_pass_log (docs/ROLEPLAY.md): the first, or a repeat after a fresh start."
       },
       "PendingCount": {
         "properties": {

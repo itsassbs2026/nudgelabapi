@@ -223,6 +223,16 @@ class AnswerOut(BaseModel):
     answered_at: datetime | None
 
 
+class PassOut(BaseModel):
+    """One pass from training_pass_log (docs/ROLEPLAY.md): the first, or a repeat after a fresh start."""
+
+    passed_at: datetime
+    kind: str
+    track: str | None
+    version_id: int | None
+    session_id: str | None
+
+
 class EmployeeTraining(BaseModel):
     training_id: str
     title: str | None
@@ -236,6 +246,8 @@ class EmployeeTraining(BaseModel):
     first_started_at: datetime | None
     completed_at: datetime | None
     answers: list[AnswerOut]
+    track: str | None = None  # Role Play: the track they're on now
+    passes: list[PassOut] = []  # every pass logged, newest first
 
 
 class EmployeeSession(BaseModel):

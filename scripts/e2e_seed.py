@@ -119,6 +119,13 @@ def main(url: str) -> None:
             insert(db, "roleplay_attempts", uid=uid, training_id="wec", track=track, tier=tier, score=score,
                    quick_pauses=int(score < 4), persona="Confused About the Bill", started_at=T(day),
                    strength="Understood first", gap="Skipped the recap", tip="Recap the bill")  # fmt: skip
+        # 1001 passed on Conduct, then again on Billing after a new reason (the employee page's passes).
+        insert(db, "training_progress", uid=1001, training_id="wec", version_id=50, track="billing",
+               status="passed", passed_at=T(9), topics_covered="[]", correct_questions="[]")  # fmt: skip
+        insert(db, "training_pass_log", uid=1001, training_id="wec", version_id=50, track="conduct",
+               kind="first", passed_at=T(4))  # fmt: skip
+        insert(db, "training_pass_log", uid=1001, training_id="wec", version_id=50, track="billing",
+               kind="repeat", passed_at=T(9))  # fmt: skip
         # The session viewer test needs a recorded session with a transcript: give rec-new s1's lines.
         db.execute(
             text(

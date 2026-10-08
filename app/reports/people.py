@@ -18,6 +18,7 @@ from app.reference.agent_tables import (
     training_acknowledgments,
     training_assignments,
     training_feedback,
+    training_pass_log,
     training_progress,
     training_sessions,
     trainings,
@@ -129,6 +130,18 @@ def employee(db: Session, uid: int, *, include_bots: bool = False) -> dict[str, 
             select(training_acknowledgments).where(k.uid == uid).order_by(k.acknowledged_at.desc())
         )
     ]
+    g = training_pass_log.c
+    passes: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for r in db.execute(select(training_pass_log).where(g.uid == uid).order_by(g.passed_at.desc())):
+        passes[r.training_id].append(
+            {
+                "passed_at": r.passed_at,
+                "kind": r.kind,
+                "track": r.track,
+                "version_id": r.version_id,
+                "session_id": r.session_id,
+            }
+        )
     return {
         "uid": uid,
         "name": header.name if header else None,
@@ -160,6 +173,8 @@ def employee(db: Session, uid: int, *, include_bots: bool = False) -> dict[str, 
                 "first_started_at": r.first_started_at,
                 "completed_at": r.passed_at,
                 "answers": answers.get(r.training_id, []),
+                "track": r.track,
+                "passes": passes.get(r.training_id, []),
             }
             for r in progress_rows
         ],
