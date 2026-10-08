@@ -294,6 +294,8 @@ class PreviewCallIn(BaseModel):
     profile: str | None = Field(default=None, max_length=30, pattern=r"^[a-z0-9_-]+$")
     trainer_name: str | None = Field(default=None, max_length=40)
     location_type: Literal["fiber", "aia_only", "alaska_only"] | None = None
+    # Role Play: which track to run (its id, name or a reason); left out, the training's default track.
+    track: str | None = Field(default=None, max_length=40)
 
 
 class PreviewCallOut(BaseModel):

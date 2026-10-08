@@ -8,6 +8,7 @@ The LiveKit token dispatches the agent with this metadata:
     preview        the signed pass: {version_id, training_id, uid, start, exp, sig}
     first_name     the trainer's first name, so Anne greets them
     voice, profile, trainer_name, location_type   only when the trainer picked them
+    track          Role Play: the track to run (the agent picks it like an assignment's reason)
 
 `sig` is HMAC-SHA256 with PREVIEW_SECRET over `v1|<version_id>|<training_id>|<uid>|<start>|<exp>`, exactly as
 the agent's preview.py checks it. Without a valid pass the agent refuses the room, so a token minted elsewhere
@@ -118,6 +119,17 @@ def start(
         if trainer_name is None:
             raise ApiError(422, "bad_trainer_name", "A trainer name is one plain first name.")
 
+    track = None
+    if choices.get("track"):
+        rp = (service._json(row.content) or {}).get("roleplay") or {}
+        wanted = " ".join(str(choices["track"]).lower().split())
+        for t in rp.get("tracks") or []:
+            names = [t.get("id"), t.get("name"), *(t.get("reasons") or [])]
+            if wanted in {" ".join(str(n or "").lower().split()) for n in names}:
+                track = t["id"]
+        if track is None:
+            raise ApiError(422, "unknown_track", "Choose one of this training's tracks.")
+
     uid = preview_uid(current.user.id)
     running = _live_preview(settings, uid)
     if running:
@@ -144,7 +156,7 @@ def start(
         "first_name": spoken_name(current.user.full_name) or "",
     }
     for key, value in (("voice", voice), ("profile", profile), ("trainer_name", trainer_name),
-                       ("location_type", choices.get("location_type"))):  # fmt: skip
+                       ("location_type", choices.get("location_type")), ("track", track)):  # fmt: skip
         if value:
             metadata[key] = value
 

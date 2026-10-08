@@ -233,3 +233,30 @@ def test_rate_limit(
 
 def test_preview_uid_never_collides(make_user: Callable[..., Any]) -> None:
     assert preview.preview_uid(1) == 900001
+
+
+def test_a_roleplay_preview_runs_the_chosen_track(
+    client: TestClient,
+    admin_headers: dict[str, str],
+    studio_data: None,
+    rooms: list[Any],
+    db_session: Session,
+) -> None:
+    """Role Play: the trainer picks a track; the agent runs it like an assignment's reason."""
+    from pathlib import Path
+
+    content = (Path(__file__).parent / "fixtures" / "content" / "win_every_customer.json").read_text(
+        encoding="utf-8"
+    )
+    db_session.connection().execute(
+        text("UPDATE trainings SET completion_type = 'roleplay' WHERE training_id = 'big4'")
+    )
+    db_session.connection().execute(
+        text("UPDATE training_versions SET content = :c WHERE version_id = 1"), {"c": content}
+    )
+    r = call(client, admin_headers, track="Billing", start="after_topics")
+    assert r.status_code == 200, r.text
+    meta = json.loads(claims_of(r.json())["roomConfig"]["agents"][0]["metadata"])
+    assert meta["track"] == "billing" and meta["preview"]["start"] == "after_topics"
+    wrong = call(client, admin_headers, track="Rudeness")
+    assert (wrong.status_code, wrong.json()["error"]["code"]) == (422, "unknown_track")
