@@ -815,3 +815,28 @@ def test_old_app_still_works(
     r = client.post(SESSION.format("walk"), headers=bearer(make_pass(OTHER)), json={"start_over": False})
     assert r.status_code == 200
     assert metadata(r.json(), livekit)["trainer_name"] == "Anne"
+
+
+def test_a_roleplay_session_goes_to_the_roleplay_agent(
+    client: TestClient,
+    app_data: None,
+    make_pass: Callable[..., str],
+    livekit: str,
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Role Play trainings run on their own agent while it's set (docs/ROLEPLAY.md); other trainings don't."""
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "livekit_roleplay_agent_name", "nudgelab-roleplay")
+
+    def agent_name() -> str:
+        r = client.post("/app/v1/trainings/big4/session", headers=bearer(make_pass()), json={})
+        assert r.status_code == 200, r.text
+        claims = pyjwt.decode(r.json()["participant_token"], livekit, algorithms=["HS256"],
+                              options={"verify_aud": False})  # fmt: skip
+        return str(claims["roomConfig"]["agents"][0]["agentName"])
+
+    assert agent_name() == "nudgelab-trainer"
+    db_session.execute(text("UPDATE trainings SET completion_type = 'roleplay' WHERE training_id = 'big4'"))
+    assert agent_name() == "nudgelab-roleplay"

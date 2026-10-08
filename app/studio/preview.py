@@ -161,7 +161,9 @@ def start(
             metadata[key] = value
 
     room_name = f"pv-{training_id}-{uid}-{secrets.token_hex(3)}"
-    dispatch = api.RoomAgentDispatch(agent_name=settings.livekit_agent_name, metadata=json.dumps(metadata))
+    completion_type = ((service._json(row.content) or {}).get("training") or {}).get("completion_type")
+    agent_name = settings.agent_name_for(completion_type)
+    dispatch = api.RoomAgentDispatch(agent_name=agent_name, metadata=json.dumps(metadata))
     token = (
         api.AccessToken(settings.livekit_api_key, settings.livekit_api_secret)
         .with_identity(f"preview-{current.user.id}-{secrets.token_hex(2)}")

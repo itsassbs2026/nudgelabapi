@@ -14,12 +14,14 @@ from datetime import timedelta
 from typing import Any
 
 from livekit import api
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import Settings
 from app.mobile.passes import Employee
 from app.mobile.persona import Chosen
 from app.models.app import AppSessionStart
+from app.reference.agent_tables import trainings
 from app.utils.errors import ApiError
 
 CLIENT_LABEL = "flutter"
@@ -51,7 +53,11 @@ def start(
     if chosen.voice:
         metadata["voice"] = chosen.voice
     ttl = timedelta(minutes=settings.app_session_token_minutes)
-    dispatch = api.RoomAgentDispatch(agent_name=settings.livekit_agent_name, metadata=json.dumps(metadata))
+    completion_type = db.execute(
+        select(trainings.c.completion_type).where(trainings.c.training_id == training_id)
+    ).scalar_one_or_none()
+    agent_name = settings.agent_name_for(completion_type)
+    dispatch = api.RoomAgentDispatch(agent_name=agent_name, metadata=json.dumps(metadata))
     token = (
         api.AccessToken(settings.livekit_api_key, settings.livekit_api_secret)
         .with_identity(f"app-{uid}-{secrets.token_hex(2)}")

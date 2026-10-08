@@ -258,5 +258,32 @@ def test_a_roleplay_preview_runs_the_chosen_track(
     assert r.status_code == 200, r.text
     meta = json.loads(claims_of(r.json())["roomConfig"]["agents"][0]["metadata"])
     assert meta["track"] == "billing" and meta["preview"]["start"] == "after_topics"
+    assert claims_of(r.json())["roomConfig"]["agents"][0]["agentName"] == "nudgelab-trainer"  # none set
     wrong = call(client, admin_headers, track="Rudeness")
     assert (wrong.status_code, wrong.json()["error"]["code"]) == (422, "unknown_track")
+
+
+def test_a_roleplay_preview_goes_to_the_roleplay_agent(
+    client: TestClient,
+    admin_headers: dict[str, str],
+    studio_data: None,
+    rooms: list[Any],
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Until every trainer server runs the Role Play code, Role Play calls go to their own agent."""
+    from pathlib import Path
+
+    monkeypatch.setattr(get_settings(), "livekit_roleplay_agent_name", "nudgelab-roleplay")
+    r = call(client, admin_headers)
+    assert claims_of(r.json())["roomConfig"]["agents"][0]["agentName"] == "nudgelab-trainer"
+
+    content = (Path(__file__).parent / "fixtures" / "content" / "win_every_customer.json").read_text(
+        encoding="utf-8"
+    )
+    db_session.connection().execute(
+        text("UPDATE training_versions SET content = :c WHERE version_id = 1"), {"c": content}
+    )
+    r = call(client, admin_headers, track="Billing")
+    assert r.status_code == 200, r.text
+    assert claims_of(r.json())["roomConfig"]["agents"][0]["agentName"] == "nudgelab-roleplay"

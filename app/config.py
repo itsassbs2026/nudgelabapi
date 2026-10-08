@@ -78,6 +78,9 @@ class Settings(BaseSettings):
     # The voice agent's LiveKit name (the agent repo's web.py AGENT_NAME) and how long a session token can be
     # used to join or rejoin after a dropped connection (as the tester page).
     livekit_agent_name: str = "nudgelab-trainer"
+    # Role Play trainings (docs/ROLEPLAY.md) go to their own agent until every trainer server runs the Role
+    # Play code; unset, they go to livekit_agent_name like everything else.
+    livekit_roleplay_agent_name: str | None = None
     app_session_token_minutes: int = 30
     # The busy check (app/mobile/capacity.py): no session when live calls reach the capacity of the agent
     # servers that checked in within agent_server_stale_seconds (they check in every 30 seconds).
@@ -136,6 +139,12 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    def agent_name_for(self, completion_type: str | None) -> str:
+        """The LiveKit agent a training's calls are dispatched to."""
+        if completion_type == "roleplay" and self.livekit_roleplay_agent_name:
+            return self.livekit_roleplay_agent_name
+        return self.livekit_agent_name
 
     @property
     def livekit_configured(self) -> bool:
