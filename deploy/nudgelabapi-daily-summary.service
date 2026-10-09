@@ -1,0 +1,16 @@
+[Unit]
+Description=nudgelabapi: send the daily summary email for yesterday (scripts/daily_summary.py)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/nudgelabapi
+# Same .env as nudgelabapi.service. A day is sent once (dash_summary_runs), so a rerun is harmless.
+ExecStart=/srv/nudgelabapi/venv/bin/python scripts/daily_summary.py
+TimeoutStartSec=600
+
+NoNewPrivileges=true
+PrivateTmp=true

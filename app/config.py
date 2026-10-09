@@ -111,6 +111,9 @@ class Settings(BaseSettings):
     # "Prepare for voice" (SPEC 10.2): Claude on Bedrock via the instance role (iam-policy-stage2.json).
     bedrock_region: str = "us-east-1"
     bedrock_prep_model: str = "us.anthropic.claude-sonnet-5-5"
+    # The daily summary email (app/summary): the model that writes its highlights, and the day it reports on.
+    summary_model: str = "us.anthropic.claude-sonnet-5-5"
+    summary_timezone: str = "America/Chicago"
     prep_max_tokens: int = 32_000
     prep_timeout_seconds: int = 900
 

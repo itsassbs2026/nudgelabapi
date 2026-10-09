@@ -130,6 +130,12 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("POST", "/api/v1/assignments", {"uid": 1001, "training_ids": ["big4"]}, True),
     ("POST", "/api/v1/assignments/cancel", {"assignment_ids": [999999]}, True),
     ("POST", "/api/v1/assignments/due-date", {"assignment_ids": [999999], "due_date": None}, True),
+    # The daily summary email (2026-10-09): Admins only.
+    ("GET", "/api/v1/admin/summary/recipients", None, False),
+    ("POST", "/api/v1/admin/summary/recipients", {"email": "x@example.com"}, False),
+    ("PATCH", "/api/v1/admin/summary/recipients/{recipient_id}", {"is_active": False}, False),
+    ("DELETE", "/api/v1/admin/summary/recipients/{recipient_id}", None, False),
+    ("POST", "/api/v1/admin/summary/test", None, False),
 ]
 
 
@@ -162,6 +168,7 @@ def _call(
     path = path.replace("{upload_id}", "999999").replace("{voice_id}", "Nobody")
     path = path.replace("{from_id}", "999998").replace("{to_id}", "999999")
     path = path.replace("{profile_id}", "nobody").replace("{tester_id}", "999999")
+    path = path.replace("{recipient_id}", "999999")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 
 

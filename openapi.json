@@ -6892,6 +6892,204 @@
         ]
       }
     },
+    "/api/v1/admin/summary/recipients": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Recipients",
+        "operationId": "recipients_api_v1_admin_summary_recipients_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RecipientOut"
+                  },
+                  "type": "array",
+                  "title": "Response Recipients Api V1 Admin Summary Recipients Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Add Recipient",
+        "operationId": "add_recipient_api_v1_admin_summary_recipients_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipientIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipientOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/summary/recipients/{recipient_id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Update Recipient",
+        "operationId": "update_recipient_api_v1_admin_summary_recipients__recipient_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "recipient_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Recipient Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecipientUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecipientOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Remove Recipient",
+        "operationId": "remove_recipient_api_v1_admin_summary_recipients__recipient_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "recipient_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Recipient Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/summary/test": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Send Test",
+        "description": "Yesterday's summary, to you only, now. Takes up to a minute (the highlights are written by AI).",
+        "operationId": "send_test_api_v1_admin_summary_test_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestSentOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/me/permissions": {
       "get": {
         "tags": [
@@ -12753,6 +12951,63 @@
         "title": "Readiness",
         "description": "What stands between a version and publishing (SPEC 10.1)."
       },
+      "RecipientIn": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 3,
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "RecipientIn"
+      },
+      "RecipientOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "is_active",
+          "created_at"
+        ],
+        "title": "RecipientOut"
+      },
+      "RecipientUpdate": {
+        "properties": {
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_active"
+        ],
+        "title": "RecipientUpdate"
+      },
       "RecordingUrl": {
         "properties": {
           "url": {
@@ -14994,6 +15249,30 @@
           "role"
         ],
         "title": "TeamMember"
+      },
+      "TestSentOut": {
+        "properties": {
+          "to": {
+            "type": "string",
+            "title": "To"
+          },
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "by_claude": {
+            "type": "boolean",
+            "title": "By Claude"
+          }
+        },
+        "type": "object",
+        "required": [
+          "to",
+          "day",
+          "by_claude"
+        ],
+        "title": "TestSentOut"
       },
       "TesterCreate": {
         "properties": {

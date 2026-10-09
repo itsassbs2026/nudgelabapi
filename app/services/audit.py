@@ -45,6 +45,8 @@ class AuditAction(StrEnum):
     ASSIGNMENTS_CANCELLED = "assignments_cancelled"
     ASSIGNMENTS_DUE_DATE = "assignments_due_date"
     PERMISSIONS_CHANGED = "permissions_changed"
+    SUMMARY_RECIPIENTS_CHANGED = "summary_recipients_changed"  # 2026-10-09: the daily summary email
+    SUMMARY_TEST_SENT = "summary_test_sent"
     # Later phases: training_published, settings_changed, …
 
 

@@ -1,0 +1,64 @@
+{% extends "_base.html.j2" %}
+{% set th = "padding:6px 8px;text-align:left;font-size:12px;font-weight:600;color:#71717a;border-bottom:1px solid #e4e4e7;" %}
+{% set thr = th ~ "text-align:right;" %}
+{% set td = "padding:6px 8px;font-size:14px;border-bottom:1px solid #f4f4f5;" %}
+{% set tdr = td ~ "text-align:right;font-variant-numeric:tabular-nums;" %}
+{% block content %}
+<p style="margin:0 0 4px;font-size:13px;color:#71717a;">Daily summary · {{ day_label }}</p>
+<h1 style="margin:0 0 20px;font-size:20px;line-height:1.35;">{{ words.headline }}</h1>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 24px;">
+  <tr><th style="{{ th }}"></th><th style="{{ thr }}">Yesterday</th><th style="{{ thr }}">Day before</th><th style="{{ thr }}">7-day average</th></tr>
+  {% for row in kpis %}
+  <tr>
+    <td style="{{ td }}">{{ row.label }}</td>
+    <td style="{{ tdr }}font-weight:600;">{{ row.value }}</td>
+    <td style="{{ tdr }}color:#52525b;">{{ row.before }}</td>
+    <td style="{{ tdr }}color:#52525b;">{{ row.week }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% if trainings %}
+<h2 style="margin:0 0 8px;font-size:15px;">By training</h2>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 6px;">
+  <tr>
+    <th style="{{ th }}">Training</th><th style="{{ thr }}">People</th><th style="{{ thr }}">Passed</th>
+    <th style="{{ thr }}">Pass rate</th><th style="{{ thr }}">Avg call</th><th style="{{ thr }}">Passed of assigned, to date</th>
+  </tr>
+  {% for t in trainings %}
+  <tr>
+    <td style="{{ td }}">{{ t.title }}</td><td style="{{ tdr }}">{{ t.people }}</td><td style="{{ tdr }}">{{ t.passed }}</td>
+    <td style="{{ tdr }}">{{ t.pass_rate }}</td><td style="{{ tdr }}">{{ t.avg_minutes }}</td><td style="{{ tdr }}">{{ t.overall }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p style="margin:0 0 24px;font-size:12px;color:#71717a;">Pass rate: people who passed yesterday out of people who called. Passed of assigned: everyone currently assigned the training who has passed it so far.</p>
+{% endif %}
+
+{% if words.went_well %}
+<h2 style="margin:0 0 8px;font-size:15px;color:#15803d;">What went well</h2>
+<ul style="margin:0 0 20px;padding-left:20px;font-size:14px;line-height:1.5;">
+  {% for line in words.went_well %}<li style="margin:0 0 4px;">{{ line }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+{% if words.needs_attention %}
+<h2 style="margin:0 0 8px;font-size:15px;color:#b45309;">Needs attention</h2>
+<ul style="margin:0 0 12px;padding-left:20px;font-size:14px;line-height:1.5;">
+  {% for line in words.needs_attention %}<li style="margin:0 0 4px;">{{ line }}</li>{% endfor %}
+</ul>
+<p style="margin:0 0 24px;font-size:13px;color:#52525b;line-height:1.6;">
+  {% for item in attention %}{{ item }}{% if not loop.last %} · {% endif %}{% endfor %}
+</p>
+{% endif %}
+
+{% if roleplay %}
+<p style="margin:0 0 24px;font-size:14px;"><b>Role Play:</b> {{ roleplay }}</p>
+{% endif %}
+
+<p style="margin:0 0 8px;">
+  <a href="{{ link }}" style="display:inline-block;padding:10px 18px;background:#4f46e5;color:#ffffff;text-decoration:none;border-radius:6px;font-size:15px;">Open the dashboard</a>
+</p>
+<p style="margin:16px 0 0;font-size:12px;color:#a1a1aa;">Calls from {{ day_label }}, midnight to midnight {{ tz_label }}. Test and preview calls are left out.{% if not by_claude %} The highlights were written by rules today, not AI.{% endif %} Admins can add or remove recipients on the dashboard: Admin, Daily summary.</p>
+{% endblock %}

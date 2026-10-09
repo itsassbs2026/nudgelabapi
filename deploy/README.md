@@ -345,6 +345,25 @@ assignments and UPDATE five columns; never DELETE) → `bash deploy/deploy.sh` a
 own assignment query keeps working; rows the dashboard made have `assigned_via` set, so leave those alone (for
 example `WHERE assigned_via IS NULL` when the query cancels rows it no longer wants).
 
+**Role Play** (2026-10-08): migration 0015 + `deploy/db-grants-0015-roleplay.sql`; Role Play calls go to their
+own agent while `LIVEKIT_ROLEPLAY_AGENT_NAME` is set in `.env` (docs/ROLEPLAY.md).
+
+**Daily summary email** (2026-10-09): every morning at 7:00 Chicago time, yesterday's figures to everyone on Admin
+> *Daily summary* (seeded with bgupta@primecomms.com). Setup: `bash deploy/deploy.sh` → stops at the migration →
+`venv/bin/alembic upgrade 0015_roleplay:0016_daily_summary --sql` (two new tables, one seeded row) →
+`venv/bin/alembic upgrade head` → as admin `deploy/db-grants-0016-daily-summary.sql` → `bash deploy/deploy.sh`
+again → deploy the dashboard → install the timer:
+
+```
+sudo cp deploy/nudgelabapi-daily-summary.service deploy/nudgelabapi-daily-summary.timer /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now nudgelabapi-daily-summary.timer
+systemctl list-timers | grep daily-summary
+```
+
+Check it without sending: `venv/bin/python scripts/daily_summary.py --preview /tmp/summary.html` (writes the email
+for yesterday; the highlights come from Claude on Bedrock, with the same role as *prepare for voice*). The
+dashboard's *Send me a test now* sends it to the signed-in Admin. A day is sent once (`dash_summary_runs`).
+
 **Running a `deploy/db-grants-*.sql` file:** it's SQL, not a shell script, so it goes through the MySQL client as
 the RDS admin login: `mysql -h <RDS endpoint> -u <admin user> -p < deploy/db-grants-0014-assignments.sql` (the
 client asks for the password), or open `mysql` as admin and paste the file's `GRANT` lines at the `mysql>` prompt.
@@ -358,4 +377,5 @@ client asks for the password), or open `mysql` as admin and paste the file's `GR
 | Exports | `/var/lib/nudgelabapi/exports` (deleted after 24 hours by the worker) |
 | Restart | `sudo systemctl restart nudgelabapi nudgelabapi-worker` |
 | Reference sync | `journalctl -u nudgelabapi-reference-sync`, `sync_run_log`; next run: `systemctl list-timers \| grep reference` |
+| Daily summary | `journalctl -u nudgelabapi-daily-summary`, `dash_summary_runs`; next run: `systemctl list-timers \| grep daily-summary` |
 | Health | `curl https://nudgelabapi.myprimeportal.com/api/v1/health` |

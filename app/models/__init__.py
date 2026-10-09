@@ -16,6 +16,7 @@ from app.models.dashboard import (
     SavedView,
 )
 from app.models.permissions import DashPermission
+from app.models.summary import DashSummaryRecipient, DashSummaryRun
 from app.models.sync_run_log import SyncRunLog
 from app.models.testers import Tester
 
@@ -33,6 +34,8 @@ __all__ = [
     "DashPasswordResetToken",
     "DashPermission",
     "DashRefreshToken",
+    "DashSummaryRecipient",
+    "DashSummaryRun",
     "DashUser",
     "Job",
     "ReviewQueueItem",

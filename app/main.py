@@ -12,6 +12,7 @@ from app.auth.rate_limit import limiter, rate_limit_exceeded_handler
 from app.config import get_settings
 from app.routers import (
     admin_stage2,
+    admin_summary,
     admin_sync,
     admin_users,
     app_trainings,
@@ -85,6 +86,7 @@ def create_app() -> FastAPI:
         voices.router,
         admin_stage2.router,
         admin_sync.router,
+        admin_summary.router,
         assignments.router,
     ):
         app.include_router(router, prefix="/api/v1")
