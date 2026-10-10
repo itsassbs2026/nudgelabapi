@@ -230,3 +230,21 @@ def test_roleplay_mistakes_are_caught() -> None:
         "Choose the default track (used when a person's reason is missing or unknown).",
     ) in found
     assert ("Settings", "The score that opens the quiz must be 1 to 5.") in found
+
+
+def test_a_coach_voice_must_be_switched_on(
+    client: TestClient, trainer_headers: dict[str, str], big4_live: None, db_session: Session
+) -> None:
+    """The studio's Coach voice (training.voice) must be an active voice, or it can't be published."""
+    content = load("big4")
+
+    def check(voice: str | None) -> list[dict[str, Any]]:
+        content["training"]["voice"] = voice
+        db_session.connection().execute(
+            text("UPDATE training_versions SET content = :c WHERE version_id = 1"), {"c": json.dumps(content)}
+        )
+        return client.post("/api/v1/versions/1/validate", headers=trainer_headers).json()["errors"]
+
+    assert check("Matthew") == [] and check(None) == []  # an active voice, or the setup's
+    (error,) = check("Joanna")  # not in training_voices
+    assert error["where"] == "Settings" and "Joanna" in error["message"]

@@ -23,6 +23,7 @@ from sqlalchemy import case, func, insert, select, update
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser
+from app.mobile.persona import Voices
 from app.models.content import ContentUpload, UploadStatus
 from app.models.dashboard import DashUser
 from app.reference.agent_tables import training_profiles, training_versions, trainings
@@ -427,7 +428,15 @@ def validate_version(db: Session, version_id: int) -> dict[str, Any]:
     if row.content is None:
         raise ApiError(422, "no_content", "This version has no content to check.")
     training = _training(db, row.training_id)
-    return validate(_json(row.content), completion_key=training.completion_key)
+    content = _json(row.content)
+    result = validate(content, completion_key=training.completion_key)
+    voice = ((content or {}).get("training") or {}).get("voice")
+    if voice and Voices(db).canonical(voice) is None:
+        result["errors"].append(
+            {"where": "Settings", "message": f"The coach voice {voice} isn't switched on. Choose another, or "
+             "leave it on the setup's voice."}
+        )  # fmt: skip
+    return result
 
 
 def version_diff(db: Session, from_id: int, to_id: int) -> dict[str, Any]:

@@ -105,6 +105,9 @@ class TrainingSettings(BaseModel):
     title: str
     trainer_name: str
     company: str
+    # The coach's voice (2026-10-10), chosen per training in the studio; None: the training's setup voice,
+    # then the default voice (app/mobile/persona.py and the agent pick the same way).
+    voice: str | None = None
     completion_type: CompletionType | None = None  # missing means "quiz"
     acknowledgment: str | None = None
     uses_location: bool | None = None

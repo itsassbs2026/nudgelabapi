@@ -20,7 +20,7 @@ from sqlalchemy import Select, and_, func, select
 from sqlalchemy.orm import Session
 
 from app.config import Settings
-from app.mobile.persona import Voices, default_names, session_version, trainer_persona
+from app.mobile.persona import Voices, content_voices, default_names, session_version, trainer_persona
 from app.reference.agent_tables import training_assignments, training_progress, training_topics, trainings
 
 LISTED_ASSIGNMENT_STATUSES = ("assigned", "completed")
@@ -107,10 +107,11 @@ def training_cards(db: Session, uid: int, profile: dict[str, Any]) -> list[dict[
     versions = {int(r.progress_version_id or r.active_version_id) for r in rows}
     topic_counts = _topic_counts(db, versions)
     names = default_names(db, {session_version(r) for r in rows})
+    coach_voices = content_voices(db, {session_version(r) for r in rows})
     voices = Voices(db)
     cards = []
     for r in rows:
-        persona = trainer_persona(profile, r.profile_id, voices)
+        persona = trainer_persona(profile, r.profile_id, voices, coach_voices.get(session_version(r)))
         version = int(r.progress_version_id or r.active_version_id)
         completed = r.passed_at is not None
         cards.append(

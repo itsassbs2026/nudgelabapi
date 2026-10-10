@@ -840,3 +840,29 @@ def test_a_roleplay_session_goes_to_the_roleplay_agent(
     assert agent_name() == "nudgelab-trainer"
     db_session.execute(text("UPDATE trainings SET completion_type = 'roleplay' WHERE training_id = 'big4'"))
     assert agent_name() == "nudgelab-roleplay"
+
+
+def test_the_training_coach_voice_wins(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], db_session: Session, livekit: str
+) -> None:
+    """A coach voice chosen in the studio (training.voice) beats the setup's voice, if it's active."""
+    conn = db_session.connection()
+    conn.execute(text("UPDATE training_profiles SET voice_id = 'Ruth', is_default = 1"))
+    conn.execute(
+        text(
+            "UPDATE training_versions SET content = JSON_SET(COALESCE(content, '{\"training\": {}}'),"
+            " '$.training.voice', 'Salli') WHERE training_id = 'big4'"
+        )
+    )
+    conn.execute(
+        text(
+            "INSERT INTO training_voices (voice_id, display_name, language_code, gender, is_default,"
+            " is_active, sort_order) VALUES ('Salli', 'Salli', 'en-US', 'Female', 0, 1, 90)"
+        )
+    )
+    headers = bearer(make_pass())
+    assert card(client, headers, "big4")["trainer_voice"] == "Salli"
+    meta = metadata(client.post(SESSION.format("big4"), headers=headers).json(), livekit)
+    assert meta["voice"] == "Salli"
+    conn.execute(text("UPDATE training_voices SET is_active = 0 WHERE voice_id = 'Salli'"))
+    assert card(client, headers, "big4")["trainer_voice"] == "Ruth"  # switched off: the setup's voice

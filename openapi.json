@@ -16860,6 +16860,17 @@
             "type": "string",
             "title": "Company"
           },
+          "voice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice"
+          },
           "completion_type": {
             "anyOf": [
               {

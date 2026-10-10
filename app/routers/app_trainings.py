@@ -62,7 +62,9 @@ def start_session(
     version = int(row.active_version_id) if body.start_over else persona.session_version(row)
     voices = persona.Voices(db)
     chosen = persona.choose(
-        persona=persona.trainer_persona(employee.profile, row.profile_id, voices),
+        persona=persona.trainer_persona(
+            employee.profile, row.profile_id, voices, persona.content_voices(db, {version}).get(version)
+        ),
         default_name=persona.default_names(db, {version})[version],
         voices=voices,
         requested_name=body.trainer_name,

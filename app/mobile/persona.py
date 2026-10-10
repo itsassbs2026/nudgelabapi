@@ -7,8 +7,9 @@ back whatever the list gave it.
 
 Today:
   name   the employee's district manager's full name (vw_app_profile), or none
-  voice  the voice the agent would pick anyway: the training's setup voice if one is set and active, else the
-         default voice (training_voices.default_marker); so nothing changes until someone changes those
+  voice  the voice the agent would pick anyway: the training's own coach voice (`training.voice` in the
+         version's content, chosen in the studio) if it's active, else the setup's voice, else the default
+         voice (training_voices.default_marker)
 
 The trainer says only the first name ("Akbar Mohamed" → "Akbar"). Spoken names are letters with single spaces,
 hyphens or apostrophes between them, at most 40 characters: nothing else reaches the trainer's instructions.
@@ -67,28 +68,44 @@ class Voices:
     def canonical(self, voice: str | None) -> str | None:
         return self.active.get(voice.lower()) if voice else None
 
-    def for_training(self, profile_id: str | None) -> str | None:
-        """As the agent picks: the setup's voice if it's active, else the default voice."""
+    def for_training(self, profile_id: str | None, content_voice: str | None = None) -> str | None:
+        """As the agent picks: the coach voice, else the setup's, else the default (active voices only)."""
         setup = profile_id if profile_id in self._profile_voice else self._default_profile
-        return self.canonical(self._profile_voice.get(setup)) or self.default
+        chosen = self.canonical(content_voice) or self.canonical(self._profile_voice.get(setup))
+        return chosen or self.default
 
 
-def trainer_persona(profile: dict[str, Any], profile_id: str | None, voices: Voices) -> Persona:
-    return Persona(name=profile.get("district_manager_name") or None, voice=voices.for_training(profile_id))
+def trainer_persona(
+    profile: dict[str, Any], profile_id: str | None, voices: Voices, content_voice: str | None = None
+) -> Persona:
+    return Persona(
+        name=profile.get("district_manager_name") or None,
+        voice=voices.for_training(profile_id, content_voice),
+    )
+
+
+def _training_setting(db: Session, version_ids: set[int], key: str) -> dict[int, str]:
+    """`training.<key>` from each version's content, where it's set."""
+    if not version_ids:
+        return {}
+    value = func.json_unquote(func.json_extract(training_versions.c.content, f"$.training.{key}"))
+    rows = db.execute(
+        select(training_versions.c.version_id, value.label("value")).where(
+            training_versions.c.version_id.in_(version_ids)
+        )
+    ).all()
+    return {int(r.version_id): r.value for r in rows if r.value and r.value != "null"}
 
 
 def default_names(db: Session, version_ids: set[int]) -> dict[int, str]:
     """Each version's own trainer name (`training.trainer_name` in its content), or "Anne"."""
-    if not version_ids:
-        return {}
-    name = func.json_unquote(func.json_extract(training_versions.c.content, "$.training.trainer_name"))
-    rows = db.execute(
-        select(training_versions.c.version_id, name.label("name")).where(
-            training_versions.c.version_id.in_(version_ids)
-        )
-    ).all()
-    found = {int(r.version_id): r.name for r in rows if r.name and r.name != "null"}
+    found = _training_setting(db, version_ids, "trainer_name")
     return {v: found.get(v, DEFAULT_TRAINER_NAME) for v in version_ids}
+
+
+def content_voices(db: Session, version_ids: set[int]) -> dict[int, str]:
+    """Each version's own coach voice (`training.voice` in its content), where one is chosen."""
+    return _training_setting(db, version_ids, "voice")
 
 
 def session_version(row: Any) -> int:
