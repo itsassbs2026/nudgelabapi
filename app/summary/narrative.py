@@ -33,7 +33,10 @@ pass a short quiz.
 
 Write for a busy executive: plain words, specific, no jargon, no hype. Use ONLY the figures in the data; never
 invent or estimate a number, and never do arithmetic beyond simple comparisons the data supports. Name
-trainings by their title. Percentages in the data are fractions (0.79 means 79%).
+trainings by their title. Percentages in the data are fractions (0.79 means 79%). people_passed counts people;
+trainings_passed counts passes (one person can pass two trainings in a day); pass_rate is the share of people
+who called that passed at least one training. In each training's row, passed_to_date of assigned is that
+training's overall progress since it was assigned.
 
 - headline: one sentence, the day's main point, with its key number.
 - went_well: 2 or 3 bullets, each one sentence under 25 words.
@@ -89,7 +92,7 @@ def fallback(data: dict[str, Any]) -> dict[str, Any]:
     k, a, rows = data["kpis"], data["attention"], data["trainings"]
     if not k["calls"]:
         return {"headline": "No training calls yesterday.", "went_well": [], "needs_attention": []}
-    passed, calls = count(k["passed"], "person", "people"), count(k["calls"], "call")
+    passed, calls = count(k["people_passed"], "person", "people"), count(k["calls"], "call")
     headline = f"{passed} passed a training yesterday, from {calls} ({pct(k['pass_rate'])} of callers)."
     well = []
     if rows:

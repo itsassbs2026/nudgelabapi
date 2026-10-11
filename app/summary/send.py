@@ -53,8 +53,10 @@ def _view(data: dict[str, Any], words: dict[str, Any], by_claude: bool, settings
     kpis = [
         {"label": "Calls", "value": _num(k["calls"]), "before": _num(b["calls"]), "week": _num(w["calls"])},
         {"label": "People who called", "value": _num(k["people"]), "before": _num(b["people"]), "week": "–"},
-        {"label": "People who passed", "value": _num(k["passed"]), "before": _num(b["passed"]),
-         "week": _num(w["passed"])},
+        {"label": "People who passed", "value": _num(k["people_passed"]), "before": _num(b["people_passed"]),
+         "week": "–"},
+        {"label": "Trainings passed", "value": _num(k["trainings_passed"]),
+         "before": _num(b["trainings_passed"]), "week": _num(w["trainings_passed"])},
         {"label": "Pass rate", "value": pct(k["pass_rate"]), "before": pct(b["pass_rate"]), "week": "–"},
         {"label": "Average rating", "value": rating(k["avg_rating"]), "before": rating(b["avg_rating"]),
          "week": "–"},

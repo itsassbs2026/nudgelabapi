@@ -36,13 +36,25 @@ def _day(day: date, timezone: str) -> ReportFilters:
     return build_filters(timezone=timezone, date_from=day, date_to=day, today=day)
 
 
+def _people_passed(db: Session, f: ReportFilters) -> int:
+    """People who passed at least one training in the period (someone can pass two in a day)."""
+    p = training_progress.c
+    return int(
+        db.execute(
+            select(func.count(distinct(p.uid))).where(p.passed_at >= f.start_utc, p.passed_at < f.end_utc)
+        ).scalar_one()
+    )
+
+
 def _kpis(db: Session, f: ReportFilters) -> dict[str, Any]:
     a = metrics.activity(db, f)
+    people_passed = _people_passed(db, f)
     return {
         "calls": a.sessions,
         "people": a.trainees,
-        "passed": a.completions,
-        "pass_rate": metrics.ratio(a.completions, a.trainees),
+        "people_passed": people_passed,
+        "trainings_passed": a.completions,  # the dashboard's "completions"
+        "pass_rate": metrics.ratio(people_passed, a.trainees),  # share of callers who passed at least one
         "avg_rating": a.avg_rating,
         "ratings": a.ratings,
         "cost": a.cost,
@@ -65,7 +77,7 @@ def _week_average(db: Session, day: date, timezone: str) -> dict[str, Any]:
     ).one()
     return {
         "calls": round(int(calls) / 7, 1),
-        "passed": round(metrics.completions_in_period(db, f) / 7, 1),
+        "trainings_passed": round(metrics.completions_in_period(db, f) / 7, 1),
         "people_total": int(people),
     }
 

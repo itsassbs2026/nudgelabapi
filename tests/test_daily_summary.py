@@ -12,7 +12,7 @@ from app.models.summary import DashSummaryRecipient, DashSummaryRun
 from app.summary import narrative, send
 from app.summary.data import daily_summary
 from fastapi.testclient import TestClient
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, text
 from sqlalchemy.orm import Session
 
 from tests.agent_data import seed
@@ -49,8 +49,14 @@ def only(db: Session, *emails: str) -> None:
 def test_the_figures_match_the_reports(db_session: Session, data: None) -> None:
     s = daily_summary(db_session, date(2026, 9, 6), TZ)
     k = s["kpis"]
-    assert (k["calls"], k["people"], k["passed"], k["pass_rate"]) == (1, 1, 1, 1.0)
-    assert s["day_before"]["calls"] == 1 and s["day_before"]["passed"] == 0
+    assert (k["calls"], k["people"], k["people_passed"], k["trainings_passed"], k["pass_rate"]) == (
+        1,
+        1,
+        1,
+        1,
+        1.0,
+    )
+    assert s["day_before"]["calls"] == 1 and s["day_before"]["people_passed"] == 0
     assert s["week_average"]["calls"] == round(2 / 7, 1)  # s8 (Aug 31 Central) and s1 (Sep 5)
     (big4,) = s["trainings"]
     assert big4["title"] and big4["passed"] == 1 and big4["avg_minutes"] == 5.0
@@ -100,7 +106,7 @@ def test_a_day_is_sent_once_to_active_recipients(
     html = mails[0].body_html
     assert "One person passed." in html and "Big 4 did well." in html and "Open the dashboard" in html
     assert "from=2026-09-06&amp;to=2026-09-06" in html and "written by rules" not in html
-    assert claude[0]["kpis"]["passed"] == 1  # Claude saw only the figures
+    assert claude[0]["kpis"]["people_passed"] == 1  # Claude saw only the figures
     assert send.send_daily(db_session, get_settings(), day) is None  # already sent
     run = db_session.get(DashSummaryRun, day)
     assert run is not None and run.recipients == 2 and run.by_claude
@@ -153,3 +159,13 @@ def test_a_test_send_goes_to_the_admin_only(
     )
     assert [m.to_email for m in mails] == ["admin@example.com"] and mails[0].subject.startswith("[Test] ")
     assert db_session.execute(select(DashSummaryRun)).first() is None  # a test isn't the day's send
+
+
+def test_two_passes_by_one_person_count_once_in_the_pass_rate(db_session: Session, data: None) -> None:
+    """Someone who passes two trainings in a day is one person who passed (the rate never tops 100%)."""
+    db_session.execute(
+        text("UPDATE training_progress SET passed_at = :t WHERE uid = 1001 AND training_id = 'walk'"),
+        {"t": datetime(2026, 9, 6, 16, 0)},
+    )
+    k = daily_summary(db_session, date(2026, 9, 6), TZ)["kpis"]
+    assert (k["people"], k["people_passed"], k["trainings_passed"], k["pass_rate"]) == (1, 1, 2, 1.0)
