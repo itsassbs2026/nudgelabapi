@@ -118,7 +118,7 @@ Each card has these new keys:
 | Key | Values | Use |
 |---|---|---|
 | `training_id` | e.g. `"big4"` | what to send to start a session (also in `trainer_key`) |
-| `completion_type` | `quiz` \| `walkthrough` \| `acknowledgment` | optional label |
+| `completion_type` | `quiz` | `walkthrough` | `acknowledgment` | optional label (a Role Play training is sent as `quiz`: it ends in one) |\| `walkthrough` \| `acknowledgment` | optional label |
 | `status` | `not_started` \| `in_progress` \| `completed` | button text: Start / Resume / Completed |
 | `progress` | `{"topics_done": 1, "topics_total": 16, "quiz_retry": false}` | progress bar; "Retake quiz" when `quiz_retry` |
 | `due_at` | `"2026-10-31 23:59:59.000000"` or `null` | optional due date |

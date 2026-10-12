@@ -866,3 +866,17 @@ def test_the_training_coach_voice_wins(
     assert meta["voice"] == "Salli"
     conn.execute(text("UPDATE training_voices SET is_active = 0 WHERE voice_id = 'Salli'"))
     assert card(client, headers, "big4")["trainer_voice"] == "Ruth"  # switched off: the setup's voice
+
+
+def test_a_roleplay_training_is_listed_as_a_quiz(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], db_session: Session
+) -> None:
+    """2026-10-12: a Role Play training in a list failed the whole list (the app knows three types)."""
+    conn = db_session.connection()
+    conn.execute(text("UPDATE trainings SET completion_type = 'roleplay' WHERE training_id = 'big4'"))
+    conn.execute(text("DELETE FROM training_topics WHERE version_id = 1"))  # Role Play has no topics
+    response = client.get("/app/v1/trainings", headers=bearer(make_pass()))
+    assert response.status_code == 200, response.text
+    big4 = next(c for c in response.json()["assigned_trainers"] if c["training_id"] == "big4")
+    assert big4["completion_type"] == "quiz"
+    assert big4["progress"]["topics_total"] >= 1  # never 0 of 0

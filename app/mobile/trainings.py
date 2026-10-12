@@ -112,6 +112,7 @@ def training_cards(db: Session, uid: int, profile: dict[str, Any]) -> list[dict[
     cards = []
     for r in rows:
         persona = trainer_persona(profile, r.profile_id, voices, coach_voices.get(session_version(r)))
+        roleplay = r.completion_type == "roleplay"
         version = int(r.progress_version_id or r.active_version_id)
         completed = r.passed_at is not None
         cards.append(
@@ -134,12 +135,19 @@ def training_cards(db: Session, uid: int, profile: dict[str, Any]) -> list[dict[
                 "is_completed": completed,
                 # New keys
                 "training_id": r.training_id,
-                "completion_type": r.completion_type,
+                # The app knows quiz / walkthrough / acknowledgment (docs/FLUTTER_APP_GUIDE.md); a Role Play
+                # training ends in a quiz, so it's shown as one (2026-10-12: "roleplay" broke the whole list).
+                "completion_type": "quiz" if roleplay else r.completion_type,
                 "status": _status(r),
                 "progress": {
                     "topics_done": _topics_done(r.topics_covered),
-                    "topics_total": topic_counts.get(version, 0),
-                    "quiz_retry": bool(r.quiz_attempted) and not completed and r.completion_type == "quiz",
+                    # Role Play has no topics: never 0 of 0 (a progress bar divides by it).
+                    "topics_total": max(topic_counts.get(version, 0), _topics_done(r.topics_covered), 1)
+                    if roleplay
+                    else topic_counts.get(version, 0),
+                    "quiz_retry": bool(r.quiz_attempted)
+                    and not completed
+                    and (r.completion_type == "quiz" or roleplay),
                 },
                 "due_at": _wanaka_time(r.due_at),
                 # The trainer's name and voice for this employee (app/mobile/persona.py): the app uses
