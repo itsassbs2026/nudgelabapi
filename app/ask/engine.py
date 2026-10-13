@@ -5,7 +5,7 @@ calls, tokens, cost and time.
 
 Events (one JSON object per `data:` line): {"type": "status", "text"} while a tool runs,
 {"type": "delta", "text"} as the answer is written, then {"type": "done", "conversation_id", "message_id"}
-or {"type": "error", "message"}.
+or {"type": "error", "message", "conversation_id", "message_id"}.
 """
 
 from __future__ import annotations
@@ -308,6 +308,7 @@ def stream_answer(
                     "type": "error",
                     "message": "Something went wrong while answering. Please try again.",
                     "message_id": message.id,
+                    "conversation_id": convo_id,
                 }
             )
         else:

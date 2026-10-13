@@ -182,7 +182,7 @@ def test_a_failed_answer_is_recorded_and_reported(
 
     monkeypatch.setattr(engine, "client_factory", broken)
     ev = events(ask(client, trainer_headers, "Hello?"))
-    assert ev[-1]["type"] == "error"
+    assert ev[-1]["type"] == "error" and ev[-1]["conversation_id"]
     reply = db_session.get(AskMessage, ev[-1]["message_id"])
     assert reply is not None and "Bedrock is down" in (reply.error or "")
 
