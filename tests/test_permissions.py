@@ -136,6 +136,18 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("PATCH", "/api/v1/admin/summary/recipients/{recipient_id}", {"is_active": False}, False),
     ("DELETE", "/api/v1/admin/summary/recipients/{recipient_id}", None, False),
     ("POST", "/api/v1/admin/summary/test", None, False),
+    # Ask NudgeLab (2026-10-13): everyone signed in; its settings and log are Admin only. The chat is sent an
+    # empty body here (422), so this matrix never reaches the model.
+    ("POST", "/api/v1/ask/chat", {}, True),
+    ("GET", "/api/v1/ask/usage", None, True),
+    ("GET", "/api/v1/ask/conversations", None, True),
+    ("GET", "/api/v1/ask/conversations/{conversation_id}/messages", None, True),
+    ("PATCH", "/api/v1/ask/conversations/{conversation_id}", {"title": "x"}, True),
+    ("DELETE", "/api/v1/ask/conversations/{conversation_id}", None, True),
+    ("PUT", "/api/v1/ask/messages/{message_id}/feedback", {"rating": 1}, True),
+    ("GET", "/api/v1/admin/settings", None, False),
+    ("PUT", "/api/v1/admin/settings/{key}", {"value": "1"}, False),
+    ("GET", "/api/v1/admin/ask/log", None, False),
 ]
 
 
@@ -169,6 +181,8 @@ def _call(
     path = path.replace("{from_id}", "999998").replace("{to_id}", "999999")
     path = path.replace("{profile_id}", "nobody").replace("{tester_id}", "999999")
     path = path.replace("{recipient_id}", "999999")
+    path = path.replace("{conversation_id}", "999999").replace("{message_id}", "999999")
+    path = path.replace("{key}", "ask.daily_limit")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 
 

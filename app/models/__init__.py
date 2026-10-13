@@ -3,6 +3,7 @@
 from app.models.action_codes import DashActionCode
 from app.models.agent_servers import AgentServer
 from app.models.app import AppSessionStart
+from app.models.ask import AskConversation, AskFeedback, AskMessage, DashSetting
 from app.models.base import Base
 from app.models.content import ContentUpload
 from app.models.dashboard import (
@@ -26,6 +27,9 @@ __all__ = [
     "API_TABLES",
     "AgentServer",
     "AppSessionStart",
+    "AskConversation",
+    "AskFeedback",
+    "AskMessage",
     "Base",
     "ContentUpload",
     "DashActionCode",
@@ -34,6 +38,7 @@ __all__ = [
     "DashPasswordResetToken",
     "DashPermission",
     "DashRefreshToken",
+    "DashSetting",
     "DashSummaryRecipient",
     "DashSummaryRun",
     "DashUser",

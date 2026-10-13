@@ -114,6 +114,8 @@ class Settings(BaseSettings):
     # The daily summary email (app/summary): the model that writes its highlights, and the day it reports on.
     summary_model: str = "us.anthropic.claude-sonnet-5-5"
     summary_timezone: str = "America/Chicago"
+    # Ask NudgeLab answers with a scripted fake model instead of Bedrock (e2e tests only).
+    ask_fake: bool = False
     prep_max_tokens: int = 32_000
     prep_timeout_seconds: int = 900
 

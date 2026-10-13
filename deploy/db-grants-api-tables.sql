@@ -20,6 +20,10 @@ GRANT SELECT, INSERT, UPDATE         ON nudgeai.dash_action_codes          TO 'n
 GRANT SELECT, INSERT, UPDATE         ON nudgeai.dash_permissions           TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT, UPDATE, DELETE ON nudgeai.dash_summary_recipients    TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT                 ON nudgeai.dash_summary_runs          TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, UPDATE                 ON nudgeai.dash_settings              TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, INSERT, UPDATE         ON nudgeai.ask_conversations          TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, INSERT                 ON nudgeai.ask_messages               TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, INSERT, UPDATE         ON nudgeai.ask_feedback               TO 'nudgelab_api'@'10.0.1.148';
 
 -- Check:
 -- SHOW GRANTS FOR 'nudgelab_api'@'10.0.1.148';

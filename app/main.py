@@ -16,6 +16,7 @@ from app.routers import (
     admin_sync,
     admin_users,
     app_trainings,
+    ask,
     assignments,
     auth,
     exports,
@@ -87,6 +88,7 @@ def create_app() -> FastAPI:
         admin_stage2.router,
         admin_sync.router,
         admin_summary.router,
+        ask.router,
         assignments.router,
     ):
         app.include_router(router, prefix="/api/v1")
