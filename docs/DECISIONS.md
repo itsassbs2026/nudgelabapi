@@ -443,3 +443,22 @@ Recorded as they're made (SPEC §0.2). Newest last.
      `training_pass_log` row per pass (first or repeat), so the first pass is never lost; `completion_writes`
      still logs each copy to Portal. Applies to a roleplay fresh start now and to retakes later. The roleplay
      customer's voice is a training setting picked on the studio (with a sample) by Trainers and Admins.
+
+
+## Ask NudgeLab (2026-10-13, design only; docs/ASK_NUDGELAB.md)
+
+121. **A chat assistant answers questions about trainings, sessions and feedback** (owner's request, modelled on
+     pingit's "Ask pingit"): Claude on Bedrock with read-only tools that wrap the dashboard's own report
+     functions, never text-to-SQL, so its numbers match the pages and the database login doesn't change. Answers
+     stream, render as Markdown and link to the evidence. Open to everyone with a dashboard login; it may quote
+     trainees by name, as the Sessions and Feedback pages do. Trainee comments and transcripts reach the model as
+     marked data, never as instructions.
+122. **Every question and answer is logged, with like / dislike** (owner): messages keep the tools used, tokens,
+     cost and answer time; Admins review them (and the disliked ones) on Admin > Ask NudgeLab log; deleting a
+     chat only hides it from its owner.
+123. **Tunables live in a `dash_settings` table** edited on Admin > Settings (owner: "easy to manage"), starting
+     with the daily question limit per person (default 50, counted in the database so it holds across workers),
+     the on/off switch, the tool-call cap and the model. Later settings go there instead of into code.
+124. **Content advice comes from nightly training insights** (phase 2): where calls end, opening steps that end
+     calls, re-asked answers, long trainer turns and comment themes per training, computed nightly and read by
+     the chat, so "what should I change?" is answered with evidence rather than a guess.
