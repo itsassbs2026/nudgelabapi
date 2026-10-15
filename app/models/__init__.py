@@ -2,6 +2,7 @@
 
 from app.models.action_codes import DashActionCode
 from app.models.agent_servers import AgentServer
+from app.models.announcements import DashAnnouncementSeen
 from app.models.app import AppSessionStart
 from app.models.ask import AskConversation, AskFeedback, AskMessage, DashSetting
 from app.models.base import Base
@@ -26,6 +27,7 @@ API_TABLES = frozenset(Base.metadata.tables)
 __all__ = [
     "API_TABLES",
     "AgentServer",
+    "DashAnnouncementSeen",
     "AppSessionStart",
     "AskConversation",
     "AskFeedback",

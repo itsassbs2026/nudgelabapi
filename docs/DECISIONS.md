@@ -462,3 +462,12 @@ Recorded as they're made (SPEC §0.2). Newest last.
 124. **Content advice comes from nightly training insights** (phase 2): where calls end, opening steps that end
      calls, re-asked answers, long trainer turns and comment themes per training, computed nightly and read by
      the chat, so "what should I change?" is answered with evidence rather than a guess.
+
+## What's new announcements (2026-10-15)
+
+125. **New features are introduced with a short tour, once per person** (owner: Ask NudgeLab had one user, the owner's
+     test account). The dashboard shows the newest announcement the person hasn't seen after sign-in; closing or
+     finishing it records it in `dash_announcements_seen` (user, key, time), so it doesn't come back on any device.
+     The tours themselves (title, 2-4 steps, a "Try it" link, audience) ship in the dashboard's code with the
+     release they announce; the API only stores keys. Everyone can replay any tour on Help > What's new. A new
+     person sees only the newest tour, not the backlog.

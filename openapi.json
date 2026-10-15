@@ -348,6 +348,81 @@
         ]
       }
     },
+    "/api/v1/me/announcements": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Announcements Seen",
+        "description": "The What's new announcements you've already seen (their keys); the dashboard shows the newest\nother one.",
+        "operationId": "announcements_seen_api_v1_me_announcements_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Announcements Seen Api V1 Me Announcements Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/announcements/{key}": {
+      "put": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Mark Announcement Seen",
+        "description": "Records that you've seen an announcement (again is fine: the first time is kept).",
+        "operationId": "mark_announcement_seen_api_v1_me_announcements__key__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9-]*$",
+              "title": "Key"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/users": {
       "get": {
         "tags": [

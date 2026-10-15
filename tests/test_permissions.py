@@ -30,6 +30,8 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("POST", "/api/v1/auth/change-password", {"current_password": "x", "new_password": "y"}, True),
     ("GET", "/api/v1/me", None, True),
     ("PATCH", "/api/v1/me", {"timezone": "UTC"}, True),
+    ("GET", "/api/v1/me/announcements", None, True),
+    ("PUT", "/api/v1/me/announcements/{key}", None, True),
     ("GET", "/api/v1/admin/users", None, False),
     ("POST", "/api/v1/admin/users", {"email": "p@example.com", "full_name": "P"}, False),
     ("GET", "/api/v1/admin/users/{user_id}", None, False),

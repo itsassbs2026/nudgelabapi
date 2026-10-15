@@ -1,12 +1,15 @@
-"""GET /api/v1/me, PATCH /api/v1/me (SPEC §8.1)."""
+"""GET /api/v1/me, PATCH /api/v1/me (SPEC §8.1), and the What's new announcements you've seen (2026-10-15)."""
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path, Response
+from sqlalchemy import select
+from sqlalchemy.dialects.mysql import insert
 from sqlalchemy.orm import Session
 
 from app.auth.deps import CurrentUser, get_current_user, get_user
 from app.db import get_db
+from app.models.announcements import DashAnnouncementSeen
 from app.schemas.auth import MeUpdate, UserOut
 from app.services.users import _check_timezone
 
@@ -31,3 +34,27 @@ def update_me(
         user.preferences = body.preferences
     db.commit()
     return UserOut.model_validate(user)
+
+
+@router.get("/me/announcements", response_model=list[str])
+def announcements_seen(current: CurrentUser = Depends(get_user), db: Session = Depends(get_db)) -> list[str]:
+    """The What's new announcements you've already seen (their keys); the dashboard shows the newest
+    other one."""
+    return list(
+        db.execute(
+            select(DashAnnouncementSeen.announcement).where(DashAnnouncementSeen.user_id == current.user.id)
+        ).scalars()
+    )
+
+
+@router.put("/me/announcements/{key}", status_code=204)
+def mark_announcement_seen(
+    key: str = Path(min_length=1, max_length=64, pattern=r"^[a-z0-9][a-z0-9-]*$"),
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+) -> Response:
+    """Records that you've seen an announcement (again is fine: the first time is kept)."""
+    row = insert(DashAnnouncementSeen).values(user_id=current.user.id, announcement=key)
+    db.execute(row.prefix_with("IGNORE"))
+    db.commit()
+    return Response(status_code=204)
