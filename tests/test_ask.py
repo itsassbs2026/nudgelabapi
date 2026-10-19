@@ -238,3 +238,22 @@ def test_the_engine_counts_the_day_in_local_time() -> None:
 
     start = engine.day_start_utc("America/Chicago", datetime(2026, 10, 13, 3, 0, tzinfo=UTC))
     assert start == datetime(2026, 10, 12, 5, 0)  # 10 PM on the 12th Central belongs to the 12th
+
+
+def test_a_chart_comes_as_a_chart_block_the_dashboard_draws(
+    client: TestClient, trainer_headers: dict[str, str], db_session: Session
+) -> None:
+    """2026-10-19: answers can carry a ```chart block (JSON) that the dashboard draws; the prompt says how."""
+    seed(db_session)
+    prompt = " ".join(
+        engine.SYSTEM.format(today="2026-10-19", weekday="Monday", timezone="UTC", name="X").split()
+    )
+    assert '```chart {"type": "bar"' in prompt and "Never say you can't draw charts" in prompt
+    answer = "".join(
+        e["text"]
+        for e in events(ask(client, trainer_headers, "Chart the calls by training"))
+        if e["type"] == "delta"
+    )
+    block = answer.split("```chart\n", 1)[1].split("\n```", 1)[0]
+    chart = json.loads(block)
+    assert chart["type"] == "bar" and len(chart["labels"]) == len(chart["series"][0]["values"]) >= 2
