@@ -327,3 +327,42 @@
   reported 0 participants for most calls under way (40 live rooms seen, most at 0), so the old count ignored
   them and "all trainers busy" could never trigger at a real peak. A room closes a few minutes after its call,
   so this can only overcount briefly, on the safe side. API only; no agent change.
+
+## Role Play training type (2026-10-08 to 10-12)
+
+- Migration `0015_roleplay`: `trainings.completion_type` adds `roleplay`; `training_progress.track`;
+  `roleplay_attempts`, `training_progress_history`, `training_pass_log`.
+- Studio: Role Play content (tracks, personas, A-D quizzes), publish checks, blank template, preview calls on a
+  track. Assignments take a reason that picks the track; a changed reason starts the person fresh.
+- Role Play report (practice scores per track, every debrief); the Employee page shows the track and every pass.
+- App list: a Role Play training is sent as `completion_type: "quiz"` (a new value broke the app's whole list).
+
+## Daily summary email and coach voice (2026-10-09 to 10-12)
+
+- Migration `0016_daily_summary`: recipients table and a per-day send record. Yesterday's calls emailed every
+  morning at 7 AM Central (key numbers, each training, AI-written highlights); Admin > Daily summary.
+  Pass rate is people who passed out of people who called.
+- A coach voice per training (`training.voice`, chosen in the studio), checked against the active voices.
+
+## Ask NudgeLab (2026-10-13 to 10-19)
+
+- Migration `0017_ask_nudgelab`: `dash_settings` (Admin > Settings), conversations, messages (tools, tokens,
+  cost, time) and like / dislike. `POST /ask/chat` streams answers (Claude on Bedrock with read-only tools over
+  the reports); history, feedback, daily limit; Admin > Ask NudgeLab log.
+- 2026-10-19: answers can carry a `chart` block that the dashboard draws.
+
+## What's new tours (2026-10-15)
+
+- Migration `0018_announcements_seen`; `GET/PUT /me/announcements`, so a feature tour shows once per person.
+
+## One codebase, several companies (2026-10-20)
+
+- Migration `0019_company_settings`: the company's name and wording as Admin settings (`company.*`, Prime's
+  values by default); the AI prompts, new trainings and `GET /company` use them. For Suncom Mobile's own
+  installation; no change for Prime.
+
+## App list: overdue (2026-10-21)
+
+- `GET /app/v1/trainings`: each card adds `is_overdue` (due date passed and not completed, the Assignments page's
+  rule) and `due_date` (the due day in Central time; `due_at` stays the UTC deadline). Overdue trainings sort
+  first. `GET /app/v1/trainings/pending-count` adds `overdue_count`. Additive: older app versions are unaffected.

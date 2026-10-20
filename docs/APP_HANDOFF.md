@@ -89,20 +89,23 @@ dashboard's endpoints. Rate limit **per uid** (not per IP: a store's Wi-Fi puts 
       "completion_type": "quiz",             // quiz | walkthrough | acknowledgment
       "status": "in_progress",               // not_started | in_progress | completed
       "progress": {"topics_done": 3, "topics_total": 7, "quiz_retry": false},
-      "due_at": null
+      "due_at": null,                        // the deadline in UTC (end of the due day in Central time)
+      "due_date": null,                      // 2026-10-21: the due day to show, e.g. "2026-10-31" (Central)
+      "is_overdue": false                    // 2026-10-21: due date passed and not completed
     }
   ]
 }
 ```
 
 - `is_completed` and `status` come from `training_progress` (NudgeLab) instead of `prime_nudge_ai_completions`.
-- Sorted: required and not completed first, then by `assigned_at`.
+- Sorted: overdue first (2026-10-21), then required and not completed, then the rest, each by `assigned_at`.
 - `elevenlabs_agent_id` carries the training's completion key (`trainings.completion_key`), so the key keeps its
   meaning for the app; it's renamed in a later `/app/v2`.
 
 ### 3.2 `GET /app/v1/trainings/pending-count`
 
-`{"uid": 53, "name": "Akbar Mohamed", "incompleted_count": 2}`, as today. Computed from **the same query as the
+`{"uid": 53, "name": "Akbar Mohamed", "incompleted_count": 2, "overdue_count": 0}` (`overdue_count` added
+2026-10-21: listed trainings past their due date and not completed). Computed from **the same query as the
 list** (required and not completed), so the badge and the list can never disagree. Today they do (Appendix A, 2).
 
 ### 3.3 `POST /app/v1/trainings/{training_id}/session`
