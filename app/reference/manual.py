@@ -114,7 +114,7 @@ def request_code(db: Session, settings: Settings, current: CurrentUser, ip: str 
                 "action_code",
                 code=code,
                 expires_minutes=CODE_MINUTES,
-                action="sync the user and store list from Prime Portal",
+                action="sync the user and store list from the Portal",
             ),  # fmt: skip
             template="action_code",
             status=OutboxStatus.PENDING.value,

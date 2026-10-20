@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 from tests.agent_data import seed
 
 ASK = "/api/v1/ask"
+WHO = {"company": "Prime Communications", "company_description": "x", "app_name": "the Prime app"}
 
 
 @pytest.fixture(autouse=True)
@@ -246,7 +247,7 @@ def test_a_chart_comes_as_a_chart_block_the_dashboard_draws(
     """2026-10-19: answers can carry a ```chart block (JSON) that the dashboard draws; the prompt says how."""
     seed(db_session)
     prompt = " ".join(
-        engine.SYSTEM.format(today="2026-10-19", weekday="Monday", timezone="UTC", name="X").split()
+        engine.SYSTEM.format(today="2026-10-19", weekday="Monday", timezone="UTC", name="X", **WHO).split()
     )
     assert '```chart {"type": "bar"' in prompt and "Never say you can't draw charts" in prompt
     answer = "".join(

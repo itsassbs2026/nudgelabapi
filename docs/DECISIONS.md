@@ -471,3 +471,13 @@ Recorded as they're made (SPEC §0.2). Newest last.
      The tours themselves (title, 2-4 steps, a "Try it" link, audience) ship in the dashboard's code with the
      release they announce; the API only stores keys. Everyone can replay any tour on Help > What's new. A new
      person sees only the newest tour, not the backlog.
+
+## One codebase, several companies (2026-10-20)
+
+126. **Prime and Suncom Mobile run the same code, each installation on its own servers, database, LiveKit and AWS
+     account** (owner). No fork: fixes and features reach both; deploy Prime first, then Suncom. What differs is
+     configuration: infrastructure and secrets in each server's settings files (.env, server.env), and the
+     company's name and wording (company.name, .description, .app_name, .portal_name, .email_domain) as Admin
+     settings in each installation's `dash_settings`, seeded with Prime's values (migration 0019), so Prime is
+     unchanged. The AI prompts (Ask NudgeLab, the daily summary), new trainings' company and the dashboard
+     (GET /company) read them; messages about passes say "the Portal".

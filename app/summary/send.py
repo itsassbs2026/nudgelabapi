@@ -23,6 +23,7 @@ from app.models.summary import DashSummaryRecipient, DashSummaryRun
 from app.notifications.render import render_html
 from app.services import audit
 from app.services.audit import AuditAction
+from app.services.company import company
 from app.summary import narrative
 from app.summary.data import daily_summary
 from app.utils.errors import ApiError
@@ -116,6 +117,7 @@ def _view(data: dict[str, Any], words: dict[str, Any], by_claude: bool, settings
 def build(db: Session, settings: Settings, day: date) -> tuple[str, str, bool]:
     """(subject, HTML, whether Claude wrote the highlights) for `day`."""
     data = daily_summary(db, day, settings.summary_timezone)
+    data["company"] = company(db).as_dict()
     words, by_claude = narrative.write(settings, data)
     subject = f"NudgeLab daily summary: {day:%a}, {day:%b} {day.day}"
     return subject, render_html(TEMPLATE, **_view(data, words, by_claude, settings)), by_claude
@@ -180,7 +182,7 @@ def list_recipients(db: Session) -> list[dict[str, Any]]:
 def add_recipient(db: Session, current: CurrentUser, email: str, ip: str | None) -> dict[str, Any]:
     email = email.strip().lower()
     if not EMAIL.match(email) or len(email) > 255:
-        raise ApiError(422, "bad_email", "Enter one email address, like name@primecomms.com.")
+        raise ApiError(422, "bad_email", f"Enter one email address, like name@{company(db).email_domain}.")
     if db.execute(
         select(DashSummaryRecipient).where(DashSummaryRecipient.email == email)
     ).scalar_one_or_none():

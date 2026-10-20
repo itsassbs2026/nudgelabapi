@@ -14,6 +14,7 @@ from collections.abc import Callable
 from typing import Any
 
 from app.config import Settings
+from app.services.company import PRIME
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +28,8 @@ SCHEMA: dict[str, Any] = {
     "required": ["headline", "went_well", "needs_attention"],
 }
 
-SYSTEM = """You write the morning summary of yesterday's voice-training calls for Prime Communications'
-leadership. The trainings run on NudgeLab: employees call an AI trainer from the Prime app, learn a topic, and
+SYSTEM = """You write the morning summary of yesterday's voice-training calls for {company}'s
+leadership. The trainings run on NudgeLab: employees call an AI trainer from {app_name}, learn a topic, and
 pass a short quiz.
 
 Write for a busy executive: plain words, specific, no jargon, no hype. Use ONLY the figures in the data; never
@@ -55,11 +56,16 @@ def call_claude(settings: Settings, data: dict[str, Any]) -> dict[str, Any]:
 
     client = AnthropicBedrock(aws_region=settings.bedrock_region, timeout=120, max_retries=2)
     tool = {"name": "submit", "description": "Submit the summary, once.", "input_schema": SCHEMA}
+    # data["company"] says whose summary it is (send.build); it isn't one of the figures.
+    who = data.get("company") or {}
+    figures = {k: v for k, v in data.items() if k != "company"}
     message = client.messages.create(
         model=settings.summary_model,
         max_tokens=2000,
-        system=SYSTEM,
-        messages=[{"role": "user", "content": "Yesterday's figures:\n" + json.dumps(data, default=str)}],
+        system=SYSTEM.format(
+            company=who.get("name", PRIME.name), app_name=who.get("app_name", PRIME.app_name)
+        ),
+        messages=[{"role": "user", "content": "Yesterday's figures:\n" + json.dumps(figures, default=str)}],
         tools=[tool],  # type: ignore[list-item]
     )
     submitted = next((b.input for b in message.content if b.type == "tool_use" and b.name == "submit"), None)

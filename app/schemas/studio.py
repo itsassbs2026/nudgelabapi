@@ -257,7 +257,7 @@ class SendBackIn(BaseModel):
 class PublishIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    no_completion_key_ok: bool = False  # the trainer confirmed passes won't reach Prime Portal
+    no_completion_key_ok: bool = False  # the trainer confirmed passes won't reach the Portal
 
 
 class PreviewRef(BaseModel):

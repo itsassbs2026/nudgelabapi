@@ -423,6 +423,33 @@
         }
       }
     },
+    "/api/v1/company": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Company Info",
+        "description": "Who this installation is for (Admin > Settings, company.*), so the dashboard names the right company\nand portal (2026-10-20: one codebase for Prime and Suncom).",
+        "operationId": "company_info_api_v1_company_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/admin/users": {
       "get": {
         "tags": [
@@ -9515,6 +9542,39 @@
           "created_at"
         ],
         "title": "Comment"
+      },
+      "CompanyOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "app_name": {
+            "type": "string",
+            "title": "App Name"
+          },
+          "portal_name": {
+            "type": "string",
+            "title": "Portal Name"
+          },
+          "email_domain": {
+            "type": "string",
+            "title": "Email Domain"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "app_name",
+          "portal_name",
+          "email_domain"
+        ],
+        "title": "CompanyOut"
       },
       "ContentSave": {
         "properties": {

@@ -11,7 +11,7 @@ from typing import Any
 
 from app.schemas.training_content import CompletionType
 
-DEFAULT_COMPANY = "Prime Communications"
+DEFAULT_COMPANY = "Prime Communications"  # the installation's company.name is passed in
 
 _COMMON = ("first_message", "already_passed", "feedback_question", "closing", "welcome_back_walkthrough")
 REQUIRED_LINES: dict[str, tuple[str, ...]] = {
@@ -46,12 +46,17 @@ def required_lines(completion_type: CompletionType, uses_location: bool) -> tupl
 
 
 def blank_content(
-    *, title: str, completion_type: CompletionType, uses_location: bool, trainer_name: str
+    *,
+    title: str,
+    completion_type: CompletionType,
+    uses_location: bool,
+    trainer_name: str,
+    company: str = DEFAULT_COMPANY,
 ) -> dict[str, Any]:
     training: dict[str, Any] = {
         "title": title,
         "trainer_name": trainer_name,
-        "company": DEFAULT_COMPANY,
+        "company": company,
         "completion_type": completion_type,
         "uses_location": uses_location,
         "lines": dict.fromkeys(required_lines(completion_type, uses_location), ""),

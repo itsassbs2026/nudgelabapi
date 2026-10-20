@@ -30,6 +30,7 @@ from app.reference.agent_tables import training_profiles, training_versions, tra
 from app.schemas.training_content import TrainingContent
 from app.services import audit
 from app.services.audit import AuditAction
+from app.services.company import company
 from app.studio import prepare
 from app.studio.blank import blank_content
 from app.studio.diff import diff
@@ -184,6 +185,7 @@ def create_training(
         completion_type=data["completion_type"],
         uses_location=data["uses_location"],
         trainer_name=data.get("trainer_name") or DEFAULT_TRAINER_NAME,
+        company=company(db).name,
     )
     version_id = _insert_version(db, current, data["training_id"], content, label=None, notes=None)
     audit.record(
@@ -331,6 +333,7 @@ def create_version(
             completion_type=t.completion_type,
             uses_location=bool(t.uses_location),
             trainer_name=DEFAULT_TRAINER_NAME,
+            company=company(db).name,
         )
     version_id = _insert_version(
         db, current, training_id, content, data.get("label"), data.get("notes"), source_upload_id=upload_id

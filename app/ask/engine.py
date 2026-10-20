@@ -29,6 +29,7 @@ from app.config import Settings
 from app.models.ask import AskConversation, AskMessage
 from app.models.dashboard import DashUser
 from app.services import settings_table
+from app.services.company import company
 from app.utils.errors import ApiError
 
 logger = logging.getLogger(__name__)
@@ -37,10 +38,10 @@ MAX_TOKENS = 4000
 HISTORY_TURNS = 20
 MAX_TOOL_RESULT_CHARS = 60_000
 
-SYSTEM = """You are Ask NudgeLab, the analyst inside the NudgeLab dashboard for Prime Communications (an AT&T
-authorized retailer). NudgeLab runs voice trainings: employees call an AI trainer from the Prime app, learn a
-topic, and pass a short quiz (or a Role Play: coaching, a practice conversation with a pretend customer scored
-1-5 on the Win Meter, then a quiz). The person asking manages these trainings.
+SYSTEM = """You are Ask NudgeLab, the analyst inside the NudgeLab dashboard for {company}
+({company_description}). NudgeLab runs voice trainings: employees call an AI trainer from {app_name},
+learn a topic, and pass a short quiz (or a Role Play: coaching, a practice conversation with a pretend
+customer scored 1-5 on the Win Meter, then a quiz). The person asking manages these trainings.
 
 Today is {today} ({weekday}); dates and times are {timezone}. The person asking is {name}.
 
@@ -250,13 +251,20 @@ def stream_answer(
         max_calls = int(settings_table.get(db, "ask.max_tool_calls", 8))
         price_in = Decimal(str(settings_table.get(db, "ask.input_per_m", "3")))
         price_out = Decimal(str(settings_table.get(db, "ask.output_per_m", "15")))
+        who = company(db)
         today = datetime.now(UTC).astimezone(ZoneInfo(tz)).date()
         system = [
             {
                 "type": "text",
                 "cache_control": {"type": "ephemeral"},
                 "text": SYSTEM.format(
-                    today=today.isoformat(), weekday=f"{today:%A}", timezone=tz, name=user_name or "an Admin"
+                    today=today.isoformat(),
+                    weekday=f"{today:%A}",
+                    timezone=tz,
+                    name=user_name or "an Admin",
+                    company=who.name,
+                    company_description=who.description,
+                    app_name=who.app_name,
                 ),
             }
         ]

@@ -31,6 +31,7 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/me", None, True),
     ("PATCH", "/api/v1/me", {"timezone": "UTC"}, True),
     ("GET", "/api/v1/me/announcements", None, True),
+    ("GET", "/api/v1/company", None, True),
     ("PUT", "/api/v1/me/announcements/{key}", None, True),
     ("GET", "/api/v1/admin/users", None, False),
     ("POST", "/api/v1/admin/users", {"email": "p@example.com", "full_name": "P"}, False),
