@@ -482,7 +482,7 @@ Recorded as they're made (SPEC §0.2). Newest last.
      unchanged. The AI prompts (Ask NudgeLab, the daily summary), new trainings' company and the dashboard
      (GET /company) read them; messages about passes say "the Portal".
 
-## Overdue in the app (2026-10-21)
+## Overdue in the app (2026-10-20)
 
 127. **The app's list says which trainings are overdue, and when they're due in local time** (owner). Each card
      gets `is_overdue` (true when it has a due date, the date has passed and it isn't completed: the same rule as

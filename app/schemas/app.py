@@ -34,7 +34,7 @@ class TrainingCard(BaseModel):
     status: Literal["not_started", "in_progress", "completed"]
     progress: TrainingProgress
     due_at: str | None
-    due_date: str | None  # yyyy-mm-dd, the due day in the company's time zone (2026-10-21)
+    due_date: str | None  # yyyy-mm-dd, the due day in the company's time zone (2026-10-20)
     is_overdue: bool  # due date passed and not completed
     trainer_voice: str | None
     default_trainer_name: str
@@ -58,7 +58,7 @@ class PendingCount(BaseModel):
     uid: int
     name: str | None
     incompleted_count: int
-    overdue_count: int  # listed trainings past their due date and not completed (2026-10-21)
+    overdue_count: int  # listed trainings past their due date and not completed (2026-10-20)
 
 
 class SessionStartIn(BaseModel):

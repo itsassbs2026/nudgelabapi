@@ -361,7 +361,7 @@
   values by default); the AI prompts, new trainings and `GET /company` use them. For Suncom Mobile's own
   installation; no change for Prime.
 
-## App list: overdue (2026-10-21)
+## App list: overdue (2026-10-20)
 
 - `GET /app/v1/trainings`: each card adds `is_overdue` (due date passed and not completed, the Assignments page's
   rule) and `due_date` (the due day in Central time; `due_at` stays the UTC deadline). Overdue trainings sort

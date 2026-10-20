@@ -890,7 +890,7 @@ def test_a_roleplay_training_is_listed_as_a_quiz(
 def test_overdue_and_due_date(
     client: TestClient, app_data: None, make_pass: Callable[..., str], db_session: Session
 ) -> None:
-    """2026-10-21: is_overdue (due date passed, not completed: the Assignments page's rule), the due day in
+    """2026-10-20: is_overdue (due date passed, not completed: the Assignments page's rule), the due day in
     Central time, overdue first in the list, and overdue_count on the badge."""
     from datetime import UTC, datetime, timedelta
 

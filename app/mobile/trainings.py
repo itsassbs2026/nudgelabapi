@@ -98,7 +98,7 @@ def _status(row: Any) -> str:
 
 
 def _sort_key(card: dict[str, Any]) -> tuple[int, str, str]:
-    """Overdue first (2026-10-21), then required and not completed, then the rest; oldest assignment first."""
+    """Overdue first (2026-10-20), then required and not completed, then the rest; oldest assignment first."""
     open_and_required = card["is_required"] and not card["is_completed"]
     rank = 0 if card["is_overdue"] else 1 if open_and_required else 2
     return (rank, card["assigned_at"] or "", card["training_id"])
@@ -163,7 +163,7 @@ def training_cards(
                     and (r.completion_type == "quiz" or roleplay),
                 },
                 "due_at": _wanaka_time(r.due_at),
-                # 2026-10-21: the due day in the company's time zone, and whether it has passed without the
+                # 2026-10-20: the due day in the company's time zone, and whether it has passed without the
                 # training being completed (the same rule as the dashboard's Assignments page).
                 "due_date": _due_date(r.due_at, timezone),
                 "is_overdue": r.due_at is not None and r.due_at < now and not completed,
