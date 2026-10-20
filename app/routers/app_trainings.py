@@ -37,8 +37,12 @@ def list_trainings(
 
 
 @router.get("/trainings/pending-count", response_model=PendingCount)
-def pending_count(employee: Employee = Depends(reader), db: Session = Depends(get_db)) -> Any:
-    return trainings.pending_count(db, employee.uid, employee.profile)
+def pending_count(
+    employee: Employee = Depends(reader),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> Any:
+    return trainings.pending_count(db, settings, employee.uid, employee.profile)
 
 
 @router.post("/trainings/{training_id}/session", response_model=SessionStartOut)

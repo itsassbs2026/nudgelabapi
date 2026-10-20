@@ -105,8 +105,11 @@ class NudgeLabApi {
 Same JSON as Wanaka's pending count today:
 
 ```json
-{"uid": 3784, "name": "Binay Gupta", "incompleted_count": 2}
+{"uid": 3784, "name": "Binay Gupta", "incompleted_count": 2, "overdue_count": 1}
 ```
+
+`overdue_count` (added 2026-10-21) is how many listed trainings are past their due date and not completed, for an
+"overdue" badge or banner. Older app versions ignore it.
 
 Load it wherever the badge loads today (app start, resume, home), and again after a session ends.
 
@@ -121,7 +124,9 @@ Each card has these new keys:
 | `completion_type` | `quiz` \| `walkthrough` \| `acknowledgment` | optional label (a Role Play training is sent as `quiz`: it ends in one) |
 | `status` | `not_started` \| `in_progress` \| `completed` | button text: Start / Resume / Completed |
 | `progress` | `{"topics_done": 1, "topics_total": 16, "quiz_retry": false}` | progress bar; "Retake quiz" when `quiz_retry` |
-| `due_at` | `"2026-10-31 23:59:59.000000"` or `null` | optional due date |
+| `due_at` | `"2026-11-01 04:59:59.000000"` or `null` | the due date's deadline **in UTC** (the end of the due day in Central time), unchanged; don't show its date part: use `due_date` |
+| `due_date` | `"2026-10-31"` or `null` | the due day to show ("Due Oct 31"), in Central time (added 2026-10-21) |
+| `is_overdue` | `true` / `false` | the due date has passed and the training isn't completed: show it as overdue (added 2026-10-21) |
 | `trainer_voice` | e.g. `"Matthew"`, or `null` | send back on session start |
 | `default_trainer_name` | e.g. `"Anne"` | the trainer's name when `trainer_person_name` is null |
 
@@ -137,12 +142,13 @@ A real card from production:
   "matched_rule_group_id": null, "matched_rule_name": null, "ai_flag": null,
   "is_required": true, "is_completed": false,
   "training_id": "big4", "completion_type": "quiz", "status": "in_progress",
-  "progress": {"topics_done": 1, "topics_total": 16, "quiz_retry": false}, "due_at": null
+  "progress": {"topics_done": 1, "topics_total": 16, "quiz_retry": false}, "due_at": null,
+  "due_date": null, "is_overdue": false
 }
 ```
 
 Notes:
-- The list is already sorted: required and not completed first.
+- The list is already sorted: overdue first, then required and not completed, then the rest.
 - `elevenlabs_agent_id` is now just the training's completion key. Don't use it to start anything.
 - `trainer_person_name` / `trainer_picture` are the employee's district manager, as before (null for home
   office).

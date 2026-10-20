@@ -12,7 +12,7 @@ completed, from the same rows, so the list and the badge always agree.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -98,12 +98,25 @@ def _status(row: Any) -> str:
 
 
 def _sort_key(card: dict[str, Any]) -> tuple[int, str, str]:
+    """Overdue first (2026-10-21), then required and not completed, then the rest; oldest assignment first."""
     open_and_required = card["is_required"] and not card["is_completed"]
-    return (0 if open_and_required else 1, card["assigned_at"] or "", card["training_id"])
+    rank = 0 if card["is_overdue"] else 1 if open_and_required else 2
+    return (rank, card["assigned_at"] or "", card["training_id"])
 
 
-def training_cards(db: Session, uid: int, profile: dict[str, Any]) -> list[dict[str, Any]]:
+def _due_date(due_at: datetime | None, timezone: str) -> str | None:
+    """The due day as the assigner chose it (yyyy-mm-dd). `due_at` is the end of that day in the company's
+    time zone, stored in UTC (app/services/assignments.py), so as UTC its date is often the next day."""
+    if due_at is None:
+        return None
+    return due_at.replace(tzinfo=UTC).astimezone(ZoneInfo(timezone)).date().isoformat()
+
+
+def training_cards(
+    db: Session, uid: int, profile: dict[str, Any], timezone: str = "America/Chicago"
+) -> list[dict[str, Any]]:
     rows = db.execute(_listed(uid)).all()
+    now = datetime.now(UTC).replace(tzinfo=None)
     versions = {int(r.progress_version_id or r.active_version_id) for r in rows}
     topic_counts = _topic_counts(db, versions)
     names = default_names(db, {session_version(r) for r in rows})
@@ -150,6 +163,10 @@ def training_cards(db: Session, uid: int, profile: dict[str, Any]) -> list[dict[
                     and (r.completion_type == "quiz" or roleplay),
                 },
                 "due_at": _wanaka_time(r.due_at),
+                # 2026-10-21: the due day in the company's time zone, and whether it has passed without the
+                # training being completed (the same rule as the dashboard's Assignments page).
+                "due_date": _due_date(r.due_at, timezone),
+                "is_overdue": r.due_at is not None and r.due_at < now and not completed,
                 # The trainer's name and voice for this employee (app/mobile/persona.py): the app uses
                 # trainer_person_name, or default_trainer_name when it's null, and sends them back at start.
                 "trainer_voice": persona.voice,
@@ -172,16 +189,17 @@ def training_list(db: Session, settings: Settings, uid: int, profile: dict[str, 
         "district_name": profile.get("district_name"),
         # Wanaka used the month of its latest sales data; assignments here don't depend on it.
         "assignment_month": datetime.now(ZoneInfo(settings.default_timezone)).strftime("%Y-%m"),
-        "assigned_trainers": training_cards(db, uid, profile),
+        "assigned_trainers": training_cards(db, uid, profile, settings.default_timezone),
     }
 
 
-def pending_count(db: Session, uid: int, profile: dict[str, Any]) -> dict[str, Any]:
-    cards = training_cards(db, uid, profile)
+def pending_count(db: Session, settings: Settings, uid: int, profile: dict[str, Any]) -> dict[str, Any]:
+    cards = training_cards(db, uid, profile, settings.default_timezone)
     return {
         "uid": uid,
         "name": profile.get("name"),
         "incompleted_count": sum(1 for c in cards if c["is_required"] and not c["is_completed"]),
+        "overdue_count": sum(1 for c in cards if c["is_overdue"]),
     }
 
 

@@ -261,6 +261,8 @@ def test_list_keeps_wanakas_shape(client: TestClient, app_data: None, make_pass:
             "status",
             "progress",
             "due_at",
+            "due_date",
+            "is_overdue",
             "trainer_voice",
             "default_trainer_name",
         }
@@ -297,6 +299,8 @@ def test_list_content(client: TestClient, app_data: None, make_pass: Callable[..
         "status": "in_progress",
         "progress": {"topics_done": 2, "topics_total": 3, "quiz_retry": True},
         "due_at": None,
+        "due_date": None,
+        "is_overdue": False,
         "trainer_voice": "Matthew",  # the default voice
         "default_trainer_name": "Anne",  # big4's version has no trainer_name in content here
     }
@@ -348,6 +352,7 @@ def test_pending_count_matches_list(
         "uid": ME,
         "name": "Akbar Mohamed",
         "incompleted_count": 1,  # big4; walk isn't required
+        "overdue_count": 0,
     }
     db_session.connection().execute(text("UPDATE trainings SET is_required = 1 WHERE training_id = 'walk'"))
     count = client.get("/app/v1/trainings/pending-count", headers=headers).json()["incompleted_count"]
@@ -880,3 +885,47 @@ def test_a_roleplay_training_is_listed_as_a_quiz(
     big4 = next(c for c in response.json()["assigned_trainers"] if c["training_id"] == "big4")
     assert big4["completion_type"] == "quiz"
     assert big4["progress"]["topics_total"] >= 1  # never 0 of 0
+
+
+def test_overdue_and_due_date(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], db_session: Session
+) -> None:
+    """2026-10-21: is_overdue (due date passed, not completed: the Assignments page's rule), the due day in
+    Central time, overdue first in the list, and overdue_count on the badge."""
+    from datetime import UTC, datetime, timedelta
+
+    conn = db_session.connection()
+    # walk was due two days ago (end of the day, Central = 04:59:59 UTC the next day); big4 is due in 3 days.
+    due_day = (datetime.now(UTC) - timedelta(days=2)).date()
+    due_walk = datetime.combine(due_day + timedelta(days=1), datetime.min.time()) + timedelta(
+        hours=4, minutes=59, seconds=59
+    )
+    due_big4 = datetime.now(UTC).replace(tzinfo=None) + timedelta(days=3)
+    conn.execute(
+        text("UPDATE training_assignments SET due_at = :d WHERE uid = :u AND training_id = 'walk'"),
+        {"d": due_walk, "u": ME},
+    )
+    conn.execute(
+        text("UPDATE training_assignments SET due_at = :d WHERE uid = :u AND training_id = 'big4'"),
+        {"d": due_big4, "u": ME},
+    )
+    headers = bearer(make_pass())
+    cards = client.get("/app/v1/trainings", headers=headers).json()["assigned_trainers"]
+    walk, big4 = cards  # overdue first, even though walk isn't required
+    assert (walk["training_id"], walk["is_overdue"], walk["due_date"]) == (
+        "walk",
+        True,
+        due_day.isoformat(),
+    )
+    assert walk["due_at"].startswith((due_day + timedelta(days=1)).isoformat())  # the UTC value, unchanged
+    assert (big4["training_id"], big4["is_overdue"]) == ("big4", False)
+    count = client.get("/app/v1/trainings/pending-count", headers=headers).json()
+    assert count["overdue_count"] == 1 and count["incompleted_count"] == 1
+    # Completed late: no longer overdue.
+    insert(
+        db_session, "training_progress", uid=ME, training_id="walk", version_id=2, status="passed",
+        topics_covered="[1, 2]", correct_questions="[]", passed_at=T(6), first_started_at=T(6),
+    )  # fmt: skip
+    cards = client.get("/app/v1/trainings", headers=headers).json()["assigned_trainers"]
+    assert [(c["training_id"], c["is_overdue"]) for c in cards] == [("big4", False), ("walk", False)]
+    assert client.get("/app/v1/trainings/pending-count", headers=headers).json()["overdue_count"] == 0

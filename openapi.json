@@ -12163,13 +12163,18 @@
           "incompleted_count": {
             "type": "integer",
             "title": "Incompleted Count"
+          },
+          "overdue_count": {
+            "type": "integer",
+            "title": "Overdue Count"
           }
         },
         "type": "object",
         "required": [
           "uid",
           "name",
-          "incompleted_count"
+          "incompleted_count",
+          "overdue_count"
         ],
         "title": "PendingCount"
       },
@@ -16971,6 +16976,21 @@
             ],
             "title": "Due At"
           },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "is_overdue": {
+            "type": "boolean",
+            "title": "Is Overdue"
+          },
           "trainer_voice": {
             "anyOf": [
               {
@@ -17009,6 +17029,8 @@
           "status",
           "progress",
           "due_at",
+          "due_date",
+          "is_overdue",
           "trainer_voice",
           "default_trainer_name"
         ],
