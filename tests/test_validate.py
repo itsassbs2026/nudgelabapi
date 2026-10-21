@@ -113,6 +113,33 @@ def test_quiz_rules() -> None:
     assert ("Quiz", "Add at least one question.") in messages(validate(content, completion_key="agent_x"))
 
 
+def test_question_pool_rules() -> None:
+    content = load("big4")
+    sections = content["quiz"]["sections"]
+    code = next(iter(sections))
+    questions = content["quiz"]["questions"]
+    template = next(q for q in questions if q["section"] == code)
+    while sum(1 for q in questions if q["section"] == code) < 5:  # a bank of five
+        questions.append({**copy.deepcopy(template), "number": max(q["number"] for q in questions) + 1})
+    bank = 5
+
+    def run(draw: int | None) -> dict[str, list[dict[str, Any]]]:
+        sections[code]["draw"] = draw
+        return validate(content, completion_key="agent_x")
+
+    where = f"Quiz section {code}"
+    assert run(None)["errors"] == [] and run(bank - 2)["errors"] == []  # a real pool is fine
+    too_many = messages(run(bank + 1))
+    assert (
+        where,
+        f"Asks {bank + 1} questions but has {bank}. Add questions, or lower the number.",
+    ) in too_many
+    everything = messages(run(bank), "warnings")
+    assert any(w == where and "every question" in m for w, m in everything)
+    thin = messages(run(bank - 1), "warnings")
+    assert any(w == where and "spare question" in m for w, m in thin)
+
+
 def test_trainer_name_warnings() -> None:
     content = walkthrough()
     content["training"]["lines"]["first_message"] = "Hi, I'm Anne!"

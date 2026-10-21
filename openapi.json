@@ -15265,6 +15265,18 @@
               }
             ],
             "title": "Items"
+          },
+          "draw": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Draw"
           }
         },
         "additionalProperties": false,

@@ -82,6 +82,8 @@ class Section(Strict):
     name: str
     topics: list[int] | None = None  # quiz trainings: the knowledge base topics it covers
     items: list[str] | None = None  # roleplay tracks: the coaching items it covers
+    # Question pool: ask this many of the section's questions, drawn per trainee. Absent = ask them all.
+    draw: int | None = Field(default=None, ge=1)
 
 
 class Quiz(Strict):

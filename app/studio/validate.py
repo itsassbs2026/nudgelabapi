@@ -114,6 +114,21 @@ def validate(content: dict[str, Any], *, completion_key: str | None) -> dict[str
                 errors.append(
                     _issue(f"Quiz section {code}", "Pick the topics this section covers.", section=code)
                 )
+            draw = section.get("draw")
+            if draw:
+                bank = sum(1 for q in questions if q.get("section") == code)
+                where = f"Quiz section {code}"
+                if draw > bank:
+                    message = f"Asks {draw} questions but has {bank}. Add questions, or lower the number."
+                    errors.append(_issue(where, message, section=code))
+                elif draw == bank:
+                    message = f"Asks {draw} of {bank}, which is every question. Add more to draw from."
+                    warnings.append(_issue(where, message, section=code))
+                elif bank - draw < 2:
+                    message = (
+                        f"Only {bank - draw} spare question, so a missed one is rarely swapped for a new one."
+                    )
+                    warnings.append(_issue(where, message, section=code))
         for q in questions:
             where = f"Quiz question {q['number']}"
             bodies = list(q["variants"].values()) if q.get("variants") else [q]

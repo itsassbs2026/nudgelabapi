@@ -380,3 +380,10 @@
   `studio.history_keep` (20), `studio.history_min_minutes` (10). Grants: `deploy/db-grants-0021-studio-history.sql`.
 - Saving a draft keeps what it replaced (at most one per 10 minutes, the newest 20); `GET /studio-settings`,
   `GET /versions/{id}/history`, `POST /versions/{id}/history/{hid}/restore`; audit `version_history_restored`.
+
+## Question pools (2026-10-21)
+
+- Migration `0022_quiz_pools`: `training_progress.quiz_draw` (JSON). The agent's login already has UPDATE on the
+  table, so no grants. Until it's applied the agent still pools but can't remember a draw between calls.
+- Content: `quiz.sections.<code>.draw` (optional, at least 1). Publish checks: error when larger than the
+  section's questions; warnings for "asks every question" and "under two spare questions".

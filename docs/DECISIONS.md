@@ -514,3 +514,15 @@ Recorded as they're made (SPEC §0.2). Newest last.
      replaces, so a restore can be undone.
 131. **History can never make a save fail.** The snapshot runs in a savepoint and any error (for example before
      the table's grants are in place) is logged and dropped: the save succeeds without a history entry.
+
+## Question pools (2026-10-21)
+
+132. **A quiz section can ask N of a bigger bank (`quiz.sections.<code>.draw`), drawn per trainee** (owner, after a
+     trainer's request: learners shouldn't all see the same set). Pools only for now; shuffling the order of
+     questions or answers is deliberately left until pools are live and checked. Sections without `draw` ask every
+     question, so existing trainings don't change. Roleplay quizzes (their own pass mark) never pool.
+133. **A trainee's draw is kept (`training_progress.quiz_draw`, migration 0022) and passing means getting every
+     question dealt to them right.** A new call resumes the same questions. After a round with misses, each missed
+     question is swapped for one from the same section the trainee hasn't been asked (owner's rule); when the section
+     has none left, the missed question itself comes back. The checks: an error when `draw` is larger than the
+     section's bank; warnings when it equals the bank (nothing drawn) or leaves under two spare questions.

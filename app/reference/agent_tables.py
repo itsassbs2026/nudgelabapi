@@ -102,6 +102,7 @@ training_progress = Table(
     Column("passed_at", DateTime),
     Column("updated_at", DateTime),
     Column("track", String(40)),  # migration 0015: the roleplay track this trainee is on
+    Column("quiz_draw", JSON),  # migration 0022: what a question pool dealt this trainee
 )
 
 # Role Play (migration 0015, docs/ROLEPLAY.md): written by the agent, read by the API.
