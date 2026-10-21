@@ -136,6 +136,16 @@ def test_question_pool_rules() -> None:
     ) in too_many
     everything = messages(run(bank), "warnings")
     assert any(w == where and "every question" in m for w, m in everything)
+    # The intro line shouldn't state a count once a section is a pool.
+    content["training"]["lines"]["quiz_intro"] = "Now a quick 5-question quiz. You'll need all 5 right."
+    assert (
+        "Line quiz_intro",
+        "Says how many questions there are. With a question pool, each trainee is asked "
+        'fewer: say "a quick quiz" instead.',
+    ) in messages(run(bank - 2), "warnings")
+    assert not any(w == "Line quiz_intro" for w, _ in messages(run(None), "warnings"))
+    content["training"]["lines"]["quiz_intro"] = "Now a quick quiz."
+    assert not any(w == "Line quiz_intro" for w, _ in messages(run(bank - 2), "warnings"))
     thin = messages(run(bank - 1), "warnings")
     assert any(w == where and "spare question" in m for w, m in thin)
 

@@ -34,6 +34,14 @@ VOCAB_TERM = re.compile(r"^[A-Za-z][A-Za-z.'\-]{0,255}$")
 MAX_VOCAB_TERMS = 500
 ACK_MIN, ACK_MAX = 10, 300
 
+# "a quick 5-question quiz", "ask you ten questions", "all 5 right": a count the quiz intro shouldn't
+# state once a section is a pool.
+COUNT_IN_INTRO = re.compile(
+    r"\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)[\s-]+questions?\b"
+    r"|\ball\s+(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:right|correct)\b",
+    re.IGNORECASE,
+)
+
 
 def _issue(where: str, message: str, **at: Any) -> dict[str, Any]:
     return {"where": where, "message": message, **at}
@@ -129,6 +137,20 @@ def validate(content: dict[str, Any], *, completion_key: str | None) -> dict[str
                         f"Only {bank - draw} spare question, so a missed one is rarely swapped for a new one."
                     )
                     warnings.append(_issue(where, message, section=code))
+        pooled = any(
+            0 < (section.get("draw") or 0) < sum(1 for q in questions if q.get("section") == code)
+            for code, section in sections.items()
+        )
+        intro = str((training.get("lines") or {}).get("quiz_intro") or "")
+        if pooled and COUNT_IN_INTRO.search(intro):
+            warnings.append(
+                _issue(
+                    "Line quiz_intro",
+                    "Says how many questions there are. With a question pool, each trainee is asked fewer: "
+                    'say "a quick quiz" instead.',
+                    line_key="quiz_intro",
+                )
+            )
         for q in questions:
             where = f"Quiz question {q['number']}"
             bodies = list(q["variants"].values()) if q.get("variants") else [q]

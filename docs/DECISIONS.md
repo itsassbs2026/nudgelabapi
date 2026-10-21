@@ -526,3 +526,6 @@ Recorded as they're made (SPEC §0.2). Newest last.
      question is swapped for one from the same section the trainee hasn't been asked (owner's rule); when the section
      has none left, the missed question itself comes back. The checks: an error when `draw` is larger than the
      section's bank; warnings when it equals the bank (nothing drawn) or leaves under two spare questions.
+134. **The quiz intro line is checked for a stated count once a section is a pool.** Trainers often write "a quick
+     10-question quiz" or "all 10 right" there; with a pool each trainee is asked fewer, so it would be wrong out
+     loud. A warning (not an error) tells them to say "a quick quiz" instead.

@@ -387,3 +387,4 @@
   table, so no grants. Until it's applied the agent still pools but can't remember a draw between calls.
 - Content: `quiz.sections.<code>.draw` (optional, at least 1). Publish checks: error when larger than the
   section's questions; warnings for "asks every question" and "under two spare questions".
+- Warning when a quiz intro line states a number of questions (or "all 5 right") and a section is a pool.
