@@ -501,3 +501,16 @@ Recorded as they're made (SPEC §0.2). Newest last.
 129. **An untouched draft is flagged, never archived automatically**: `studio.stale_draft_days` (Admin >
      Settings, default 60, 0 = off) marks a draft nobody has edited for that long with an "Archive this?" hint.
      The studio list also shows who edited each training last.
+
+## Studio autosave and history (2026-10-22)
+
+130. **The editor autosaves the draft itself, and a draft keeps a short history** (owner: trainers step away and
+     pick work up the next day, from another device). Autosave goes straight to the draft (what's on screen is
+     what's saved), so the server needs a way back from a mistake: before a save overwrites the content it's kept
+     as a snapshot (`dash_version_history`), at most one per `studio.history_min_minutes` (10) and the newest
+     `studio.history_keep` (20) per draft; `studio.autosave_seconds` (20) is how soon after typing stops the
+     editor saves. All three are Admin settings (0 turns autosave or history off; existing history is kept when
+     it's turned off). Restoring an earlier save is a save with the usual revision check, and snapshots what it
+     replaces, so a restore can be undone.
+131. **History can never make a save fail.** The snapshot runs in a savepoint and any error (for example before
+     the table's grants are in place) is logged and dropped: the save succeeds without a history entry.

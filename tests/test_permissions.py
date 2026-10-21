@@ -95,6 +95,9 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/versions/{version_id}/readiness", None, True),
     ("POST", "/api/v1/versions/{version_id}/submit", None, True),
     ("POST", "/api/v1/versions/{version_id}/send-back", {}, True),
+    ("GET", "/api/v1/studio-settings", None, True),
+    ("GET", "/api/v1/versions/{version_id}/history", None, True),
+    ("POST", "/api/v1/versions/{version_id}/history/{history_id}/restore", {"revision": 1}, True),
     ("POST", "/api/v1/versions/{version_id}/archive", None, True),
     ("POST", "/api/v1/versions/{version_id}/restore", None, True),
     ("POST", "/api/v1/versions/{version_id}/publish", {}, True),
@@ -187,7 +190,7 @@ def _call(
     path = path.replace("{profile_id}", "nobody").replace("{tester_id}", "999999")
     path = path.replace("{recipient_id}", "999999")
     path = path.replace("{conversation_id}", "999999").replace("{message_id}", "999999")
-    path = path.replace("{key}", "ask.daily_limit")
+    path = path.replace("{key}", "ask.daily_limit").replace("{history_id}", "999999")
     return client.request(method, path, json=body, headers=headers or {}).status_code
 
 

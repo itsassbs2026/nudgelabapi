@@ -131,6 +131,33 @@ class VersionSummary(BaseModel):
     stale: bool  # a draft nobody has edited for studio.stale_draft_days: offer to archive it
 
 
+class StudioSettings(BaseModel):
+    autosave_seconds: int  # 0 = the editor doesn't autosave
+    history_keep: int  # 0 = no history
+    history_min_minutes: int
+    stale_draft_days: int
+
+
+class HistorySummary(BaseModel):
+    topics: int
+    questions: int
+    characters: int
+
+
+class HistoryEntry(BaseModel):
+    id: int
+    revision: int | None
+    saved_at: datetime | None
+    saved_by: str | None
+    summary: HistorySummary
+
+
+class HistoryRestore(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    revision: int = Field(ge=1)  # the revision the editor is on: a newer save is an edit conflict
+
+
 class TrainingDetail(TrainingSettings):
     active_version_id: int | None
     versions: list[VersionSummary]

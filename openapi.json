@@ -5355,6 +5355,155 @@
         }
       }
     },
+    "/api/v1/studio-settings": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Studio Settings",
+        "description": "How soon the editor autosaves and how history is kept (Admin > Settings, studio.*).",
+        "operationId": "studio_settings_api_v1_studio_settings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioSettings"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/versions/{version_id}/history": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Version History",
+        "description": "A draft's earlier saves, newest first.",
+        "operationId": "version_history_api_v1_versions__version_id__history_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HistoryEntry"
+                  },
+                  "title": "Response Version History Api V1 Versions  Version Id  History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/versions/{version_id}/history/{history_id}/restore": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Restore History",
+        "description": "Put an earlier save back as the draft (what's there now is kept in history first).",
+        "operationId": "restore_history_api_v1_versions__version_id__history__history_id__restore_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          },
+          {
+            "name": "history_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "History Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HistoryRestore"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/versions/{version_id}/validate": {
       "post": {
         "tags": [
@@ -11160,6 +11309,98 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HistoryEntry": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "saved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Saved At"
+          },
+          "saved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Saved By"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/HistorySummary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "saved_at",
+          "saved_by",
+          "summary"
+        ],
+        "title": "HistoryEntry"
+      },
+      "HistoryRestore": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision"
+        ],
+        "title": "HistoryRestore"
+      },
+      "HistorySummary": {
+        "properties": {
+          "topics": {
+            "type": "integer",
+            "title": "Topics"
+          },
+          "questions": {
+            "type": "integer",
+            "title": "Questions"
+          },
+          "characters": {
+            "type": "integer",
+            "title": "Characters"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topics",
+          "questions",
+          "characters"
+        ],
+        "title": "HistorySummary"
+      },
       "IdsIn": {
         "properties": {
           "assignment_ids": {
@@ -16243,6 +16484,34 @@
           "region_name"
         ],
         "title": "StoreOut"
+      },
+      "StudioSettings": {
+        "properties": {
+          "autosave_seconds": {
+            "type": "integer",
+            "title": "Autosave Seconds"
+          },
+          "history_keep": {
+            "type": "integer",
+            "title": "History Keep"
+          },
+          "history_min_minutes": {
+            "type": "integer",
+            "title": "History Min Minutes"
+          },
+          "stale_draft_days": {
+            "type": "integer",
+            "title": "Stale Draft Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "autosave_seconds",
+          "history_keep",
+          "history_min_minutes",
+          "stale_draft_days"
+        ],
+        "title": "StudioSettings"
       },
       "SyncQueued": {
         "properties": {

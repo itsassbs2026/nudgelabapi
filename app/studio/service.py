@@ -31,7 +31,7 @@ from app.schemas.training_content import TrainingContent
 from app.services import audit, settings_table
 from app.services.audit import AuditAction
 from app.services.company import company
-from app.studio import prepare
+from app.studio import history, prepare
 from app.studio.blank import blank_content
 from app.studio.diff import diff
 from app.studio.validate import validate
@@ -476,21 +476,28 @@ def save_content(
     )
     if result.rowcount != 1:  # type: ignore[attr-defined]
         db.rollback()
-        latest = _version(db, version_id)
-        names = _names(db, {latest.updated_by})
-        raise ApiError(
-            409,
-            "edit_conflict",
-            "Someone else saved this draft since you opened it. Reload to see their changes.",
-            {
-                "current_revision": latest.revision,
-                "updated_by": names.get(latest.updated_by),
-                "updated_at": latest.updated_at.isoformat() if latest.updated_at else None,
-                "status": latest.status,
-            },
-        )
+        raise edit_conflict(db, version_id)
+    if _json(row.content) != document:  # a save that changes nothing isn't worth a history entry
+        history.snapshot(db, row)  # what the draft was before this save (best effort; see history.py)
     db.commit()
     return version_summary(db, version_id)
+
+
+def edit_conflict(db: Session, version_id: int) -> ApiError:
+    """The error for a save made on an out-of-date revision: who saved since, and when."""
+    latest = _version(db, version_id)
+    names = _names(db, {latest.updated_by})
+    return ApiError(
+        409,
+        "edit_conflict",
+        "Someone else saved this draft since you opened it. Reload to see their changes.",
+        {
+            "current_revision": latest.revision,
+            "updated_by": names.get(latest.updated_by),
+            "updated_at": latest.updated_at.isoformat() if latest.updated_at else None,
+            "status": latest.status,
+        },
+    )
 
 
 def without_nulls(document: dict[str, Any]) -> dict[str, Any]:

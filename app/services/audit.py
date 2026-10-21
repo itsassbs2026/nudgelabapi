@@ -39,6 +39,7 @@ class AuditAction(StrEnum):
     VERSION_SENT_BACK = "version_sent_back"
     VERSION_ARCHIVED = "version_archived"  # 2026-10-22: a draft put away, or brought back
     VERSION_RESTORED = "version_restored"
+    VERSION_HISTORY_RESTORED = "version_history_restored"  # 2026-10-22: an earlier save put back
     TRAINING_PUBLISHED = "training_published"
     REFERENCE_SYNC_CODE_SENT = "reference_sync_code_sent"  # 2026-10-06: the manual Portal sync
     REFERENCE_SYNC_CODE_FAILED = "reference_sync_code_failed"

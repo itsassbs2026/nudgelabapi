@@ -373,3 +373,10 @@
 - `POST /versions/{id}/archive` and `/restore` (author or Admin); version status `archived`; the version
   summary adds `created_by_id` and `stale`; the training list adds `archived_drafts` and `last_edited_by`.
 - Audit actions `version_archived` / `version_restored`.
+
+## Studio: autosave and version history (2026-10-22)
+
+- Migration `0021_studio_history`: `dash_version_history` and settings `studio.autosave_seconds` (20),
+  `studio.history_keep` (20), `studio.history_min_minutes` (10). Grants: `deploy/db-grants-0021-studio-history.sql`.
+- Saving a draft keeps what it replaced (at most one per 10 minutes, the newest 20); `GET /studio-settings`,
+  `GET /versions/{id}/history`, `POST /versions/{id}/history/{hid}/restore`; audit `version_history_restored`.

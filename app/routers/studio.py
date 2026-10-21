@@ -21,12 +21,15 @@ from app.routers.auth import client_ip
 from app.schemas.studio import (
     TRAINING_ID_PATTERN,
     ContentSave,
+    HistoryEntry,
+    HistoryRestore,
     JobView,
     PreviewCallIn,
     PreviewCallOut,
     PublishIn,
     Readiness,
     SendBackIn,
+    StudioSettings,
     TrainingCreate,
     TrainingDetail,
     TrainingListItem,
@@ -43,7 +46,7 @@ from app.schemas.studio import (
 )
 from app.services import audit
 from app.services.audit import AuditAction
-from app.studio import prepare, publish, service, uploads
+from app.studio import history, prepare, publish, service, uploads
 from app.studio import preview as previews
 from app.utils.errors import ApiError
 
@@ -121,6 +124,34 @@ def save_content(
     db: Session = Depends(get_db),
 ) -> Any:
     return service.save_content(db, current, version_id, body.revision, body.content)
+
+
+@router.get("/studio-settings", response_model=StudioSettings)
+def studio_settings(_: CurrentUser = Depends(get_user), db: Session = Depends(get_db)) -> Any:
+    """How soon the editor autosaves and how history is kept (Admin > Settings, studio.*)."""
+    return history.settings(db)
+
+
+@router.get("/versions/{version_id}/history", response_model=list[HistoryEntry])
+def version_history(
+    version_id: int = VersionId, _: CurrentUser = Depends(get_user), db: Session = Depends(get_db)
+) -> Any:
+    """A draft's earlier saves, newest first."""
+    service._version(db, version_id)
+    return history.listing(db, version_id)
+
+
+@router.post("/versions/{version_id}/history/{history_id}/restore", response_model=VersionSummary)
+def restore_history(
+    body: HistoryRestore,
+    request: Request,
+    version_id: int = VersionId,
+    history_id: int = Path(ge=1),
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Put an earlier save back as the draft (what's there now is kept in history first)."""
+    return history.restore(db, current, version_id, history_id, body.revision, client_ip(request))
 
 
 @router.post("/versions/{version_id}/validate", response_model=ValidationOut)
