@@ -110,6 +110,9 @@ def main(url: str) -> None:
         insert(db, "training_versions", version_id=50, training_id="wec", version_label="v1",
                content_hash="c" * 64, content=wec, status="published")  # fmt: skip
         db.execute(text("UPDATE trainings SET active_version_id = 50 WHERE training_id = 'wec'"))
+        # The Studio autosaves 20 s after typing stops (migration 0021). Most e2e tests expect an edit to stay
+        # unsaved until they save it, so autosave is off here; e2e/studio-autosave.spec.ts turns it on.
+        db.execute(text("UPDATE dash_settings SET value = '0' WHERE `key` = 'studio.autosave_seconds'"))
         for uid, track, tier, score, day in (
             (1001, "billing", "beginner", 3, 5),
             (1001, "billing", "beginner", 4, 6),
