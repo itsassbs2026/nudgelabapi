@@ -489,3 +489,15 @@ Recorded as they're made (SPEC §0.2). Newest last.
      the Assignments page) and `due_date` (the due day in the company's time zone, Central, as the assigner chose
      it; `due_at` stays the UTC deadline, whose date part is often the next day). The badge endpoint adds
      `overdue_count`, and the list puts overdue trainings first. Booleans, like `is_required` / `is_completed`.
+
+## Studio tidy-up: archiving drafts (2026-10-22)
+
+128. **A draft can be archived, by its author or an Admin; nothing is deleted** (owner: trainers can do it, an
+     Admin clears anyone else's). `POST /versions/{id}/archive` and `/restore` flip a draft's status between
+     `draft` and `archived`; only a draft that isn't being prepared from a document can be archived (live,
+     retired and in-review versions are never touched). An archived draft can't be edited or published until
+     restored, doesn't count in the list's "drafts", and is hidden by default in the dashboard. Archiving a
+     whole training stays Admin-only. No schema change: the API's login already updates `status`.
+129. **An untouched draft is flagged, never archived automatically**: `studio.stale_draft_days` (Admin >
+     Settings, default 60, 0 = off) marks a draft nobody has edited for that long with an "Archive this?" hint.
+     The studio list also shows who edited each training last.

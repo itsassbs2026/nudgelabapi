@@ -95,6 +95,8 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("GET", "/api/v1/versions/{version_id}/readiness", None, True),
     ("POST", "/api/v1/versions/{version_id}/submit", None, True),
     ("POST", "/api/v1/versions/{version_id}/send-back", {}, True),
+    ("POST", "/api/v1/versions/{version_id}/archive", None, True),
+    ("POST", "/api/v1/versions/{version_id}/restore", None, True),
     ("POST", "/api/v1/versions/{version_id}/publish", {}, True),
     ("GET", "/api/v1/versions/{version_id}/publish", None, True),
     # Voice samples (SPEC 10.3).

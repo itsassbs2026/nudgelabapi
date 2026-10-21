@@ -104,24 +104,31 @@ class TrainingListItem(TrainingSettings):
     active_version: VersionRef | None
     drafts: int
     in_review: int
+    archived_drafts: int  # drafts put away (2026-10-22); not counted in `drafts`
     last_edited_at: datetime | None
+    last_edited_by: str | None
+
+
+VersionStatus = Literal["draft", "in_review", "published", "retired", "archived"]
 
 
 class VersionSummary(BaseModel):
     version_id: int
     training_id: str
     label: str
-    status: Literal["draft", "in_review", "published", "retired"]
+    status: VersionStatus
     is_active: bool
     revision: int
     has_content: bool
     notes: str | None
     created_at: datetime | None
     created_by: str | None
+    created_by_id: int | None  # who made it: a trainer may archive only their own drafts (2026-10-22)
     updated_at: datetime | None
     updated_by: str | None
     published_at: datetime | None
     source_upload_id: int | None
+    stale: bool  # a draft nobody has edited for studio.stale_draft_days: offer to archive it
 
 
 class TrainingDetail(TrainingSettings):
@@ -270,7 +277,7 @@ class Readiness(BaseModel):
     """What stands between a version and publishing (SPEC 10.1)."""
 
     version_id: int
-    status: Literal["draft", "in_review", "published", "retired"]
+    status: VersionStatus
     errors: int
     warnings: int
     preview: PreviewRef | None

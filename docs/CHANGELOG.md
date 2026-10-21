@@ -366,3 +366,10 @@
 - `GET /app/v1/trainings`: each card adds `is_overdue` (due date passed and not completed, the Assignments page's
   rule) and `due_date` (the due day in Central time; `due_at` stays the UTC deadline). Overdue trainings sort
   first. `GET /app/v1/trainings/pending-count` adds `overdue_count`. Additive: older app versions are unaffected.
+
+## Studio: archive drafts, a tidier list (2026-10-22)
+
+- Migration `0020_studio_tidy`: setting `studio.stale_draft_days` (60). No new table or grants.
+- `POST /versions/{id}/archive` and `/restore` (author or Admin); version status `archived`; the version
+  summary adds `created_by_id` and `stale`; the training list adds `archived_drafts` and `last_edited_by`.
+- Audit actions `version_archived` / `version_restored`.

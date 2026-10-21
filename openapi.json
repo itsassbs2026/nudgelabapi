@@ -5561,6 +5561,104 @@
         }
       }
     },
+    "/api/v1/versions/{version_id}/archive": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Archive Version",
+        "description": "Put a draft away (hidden by default, restorable, nothing deleted): its author, or an Admin.",
+        "operationId": "archive_version_api_v1_versions__version_id__archive_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/versions/{version_id}/restore": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Restore Version",
+        "description": "Bring an archived draft back as a draft.",
+        "operationId": "restore_version_api_v1_versions__version_id__restore_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/versions/{version_id}/publish": {
       "post": {
         "tags": [
@@ -13913,7 +14011,8 @@
               "draft",
               "in_review",
               "published",
-              "retired"
+              "retired",
+              "archived"
             ],
             "title": "Status"
           },
@@ -17710,6 +17809,10 @@
             "type": "integer",
             "title": "In Review"
           },
+          "archived_drafts": {
+            "type": "integer",
+            "title": "Archived Drafts"
+          },
           "last_edited_at": {
             "anyOf": [
               {
@@ -17721,6 +17824,17 @@
               }
             ],
             "title": "Last Edited At"
+          },
+          "last_edited_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Edited By"
           }
         },
         "type": "object",
@@ -17742,7 +17856,9 @@
           "active_version",
           "drafts",
           "in_review",
-          "last_edited_at"
+          "archived_drafts",
+          "last_edited_at",
+          "last_edited_by"
         ],
         "title": "TrainingListItem"
       },
@@ -18814,7 +18930,8 @@
               "draft",
               "in_review",
               "published",
-              "retired"
+              "retired",
+              "archived"
             ],
             "title": "Status"
           },
@@ -18864,6 +18981,17 @@
             ],
             "title": "Created By"
           },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
           "updated_at": {
             "anyOf": [
               {
@@ -18910,6 +19038,10 @@
             ],
             "title": "Source Upload Id"
           },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale"
+          },
           "content": {
             "anyOf": [
               {
@@ -18935,10 +19067,12 @@
           "notes",
           "created_at",
           "created_by",
+          "created_by_id",
           "updated_at",
           "updated_by",
           "published_at",
           "source_upload_id",
+          "stale",
           "content"
         ],
         "title": "VersionContent"
@@ -19171,7 +19305,8 @@
               "draft",
               "in_review",
               "published",
-              "retired"
+              "retired",
+              "archived"
             ],
             "title": "Status"
           },
@@ -19221,6 +19356,17 @@
             ],
             "title": "Created By"
           },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
           "updated_at": {
             "anyOf": [
               {
@@ -19266,6 +19412,10 @@
               }
             ],
             "title": "Source Upload Id"
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale"
           }
         },
         "type": "object",
@@ -19280,10 +19430,12 @@
           "notes",
           "created_at",
           "created_by",
+          "created_by_id",
           "updated_at",
           "updated_by",
           "published_at",
-          "source_upload_id"
+          "source_upload_id",
+          "stale"
         ],
         "title": "VersionSummary"
       },

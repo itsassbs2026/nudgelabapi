@@ -16,7 +16,7 @@ from __future__ import annotations
 import hashlib
 import json
 import secrets
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import case, func, insert, select, update
@@ -28,7 +28,7 @@ from app.models.content import ContentUpload, UploadStatus
 from app.models.dashboard import DashUser
 from app.reference.agent_tables import training_profiles, training_versions, trainings
 from app.schemas.training_content import TrainingContent
-from app.services import audit
+from app.services import audit, settings_table
 from app.services.audit import AuditAction
 from app.services.company import company
 from app.studio import prepare
@@ -38,6 +38,7 @@ from app.studio.validate import validate
 from app.utils.errors import ApiError
 
 DRAFT = "draft"
+ARCHIVED = "archived"  # a draft put away (2026-10-22): hidden by default, restorable, never run
 DEFAULT_TRAINER_NAME = "Anne"
 MAX_CONTENT_BYTES = 2_000_000
 
@@ -94,6 +95,7 @@ def list_trainings(db: Session) -> list[dict[str, Any]]:
             v.training_id,
             func.sum(case((v.status == "draft", 1), else_=0)).label("drafts"),
             func.sum(case((v.status == "in_review", 1), else_=0)).label("in_review"),
+            func.sum(case((v.status == ARCHIVED, 1), else_=0)).label("archived_drafts"),
             func.max(v.updated_at).label("last_edited_at"),
         )
         .group_by(v.training_id)
@@ -102,12 +104,18 @@ def list_trainings(db: Session) -> list[dict[str, Any]]:
     active = training_versions.alias("active")
     rows = db.execute(
         select(
-            trainings, counts.c.drafts, counts.c.in_review, counts.c.last_edited_at, active.c.version_label
+            trainings,
+            counts.c.drafts,
+            counts.c.in_review,
+            counts.c.archived_drafts,
+            counts.c.last_edited_at,
+            active.c.version_label,
         )
         .outerjoin(counts, counts.c.training_id == trainings.c.training_id)
         .outerjoin(active, active.c.version_id == trainings.c.active_version_id)
         .order_by(trainings.c.title)
     ).all()
+    editors = _last_editors(db)
     return [
         {
             **_settings(r),
@@ -116,10 +124,23 @@ def list_trainings(db: Session) -> list[dict[str, Any]]:
             ),
             "drafts": int(r.drafts or 0),
             "in_review": int(r.in_review or 0),
+            "archived_drafts": int(r.archived_drafts or 0),
             "last_edited_at": r.last_edited_at,
+            "last_edited_by": editors.get(r.training_id),
         }
         for r in rows
     ]
+
+
+def _last_editors(db: Session) -> dict[str, str]:
+    """Who made each training's most recent edit (the studio list shows it next to when)."""
+    v = training_versions.c
+    latest: dict[str, tuple[datetime, int]] = {}
+    for r in db.execute(select(v.training_id, v.updated_at, v.updated_by).where(v.updated_at.is_not(None))):
+        if r.updated_by and (r.training_id not in latest or r.updated_at > latest[r.training_id][0]):
+            latest[r.training_id] = (r.updated_at, r.updated_by)
+    names = _names(db, {user for _, user in latest.values()})
+    return {tid: names[user] for tid, (_, user) in latest.items() if user in names}
 
 
 def _settings(r: Any) -> dict[str, Any]:
@@ -251,7 +272,20 @@ def update_training(
 # --- Versions --------------------------------------------------------------------------------------------
 
 
-def _version_summary(row: Any, active_version_id: int | None, names: dict[int, str]) -> dict[str, Any]:
+def stale_days(db: Session) -> int:
+    return int(settings_table.get(db, "studio.stale_draft_days", 60))
+
+
+def _version_summary(
+    row: Any, active_version_id: int | None, names: dict[int, str], stale_after_days: int = 0
+) -> dict[str, Any]:
+    touched = row.updated_at or row.created_at
+    stale = bool(
+        stale_after_days
+        and row.status == DRAFT
+        and touched
+        and touched < _now() - timedelta(days=stale_after_days)
+    )
     return {
         "version_id": row.version_id,
         "training_id": row.training_id,
@@ -263,6 +297,8 @@ def _version_summary(row: Any, active_version_id: int | None, names: dict[int, s
         "notes": row.notes,
         "created_at": row.created_at,
         "created_by": names.get(row.created_by) if row.created_by else None,
+        "created_by_id": row.created_by or None,
+        "stale": stale,
         "updated_at": row.updated_at,
         "updated_by": names.get(row.updated_by) if row.updated_by else None,
         "published_at": row.published_at if row.status not in ("draft", "in_review") else None,
@@ -278,7 +314,59 @@ def list_versions(db: Session, training_id: str) -> list[dict[str, Any]]:
         .order_by(training_versions.c.version_id.desc())
     ).all()
     names = _names(db, {r.created_by for r in rows} | {r.updated_by for r in rows})
-    return [_version_summary(r, t.active_version_id, names) for r in rows]
+    days = stale_days(db)
+    return [_version_summary(r, t.active_version_id, names, days) for r in rows]
+
+
+def _may_archive(current: CurrentUser, row: Any) -> None:
+    """A trainer archives or restores the drafts they made; an Admin, any draft (2026-10-22)."""
+    if not current.is_admin and row.created_by != current.user.id:
+        raise ApiError(
+            403,
+            "forbidden",
+            "Only an Admin, or the person who made this draft, can archive or restore it.",
+        )
+
+
+def set_archived(
+    db: Session, current: CurrentUser, version_id: int, archive: bool, ip: str | None
+) -> dict[str, Any]:
+    """Put a draft away (draft -> archived) or bring it back (archived -> draft). Nothing is deleted: the
+    draft's content stays, and an archived draft can't be edited or published until restored. Live, retired
+    and in-review versions are never touched."""
+    row = _version(db, version_id)
+    _may_archive(current, row)
+    before, after = (DRAFT, ARCHIVED) if archive else (ARCHIVED, DRAFT)
+    if row.status != before:
+        raise ApiError(
+            409,
+            "not_a_draft" if archive else "not_archived",
+            "Only a draft can be archived: a version in review, live or retired stays as it is."
+            if archive
+            else "This draft isn't archived.",
+        )
+    if archive and prepare.is_preparing(db, version_id):
+        raise ApiError(
+            409, "being_prepared", "This draft is being prepared from a document. Wait until it's done."
+        )
+    v = training_versions.c
+    result = db.execute(
+        update(training_versions).where(v.version_id == version_id, v.status == before).values(status=after)
+    )
+    if result.rowcount != 1:  # type: ignore[attr-defined]
+        db.rollback()
+        raise ApiError(409, "changed", "Someone changed this draft just now. Reload and try again.")
+    audit.record(
+        db,
+        AuditAction.VERSION_ARCHIVED if archive else AuditAction.VERSION_RESTORED,
+        actor_user_id=current.user.id,
+        target_type="training",
+        target_id=row.training_id,
+        details={"version_id": version_id},
+        ip=ip,
+    )
+    db.commit()
+    return version_summary(db, version_id)
 
 
 def _insert_version(
@@ -361,7 +449,9 @@ def create_version(
 def version_summary(db: Session, version_id: int) -> dict[str, Any]:
     row = _version(db, version_id)
     t = _training(db, row.training_id)
-    return _version_summary(row, t.active_version_id, _names(db, {row.created_by, row.updated_by}))
+    return _version_summary(
+        row, t.active_version_id, _names(db, {row.created_by, row.updated_by}), stale_days(db)
+    )
 
 
 def get_content(db: Session, version_id: int) -> dict[str, Any]:

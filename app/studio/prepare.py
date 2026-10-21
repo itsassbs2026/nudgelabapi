@@ -488,6 +488,20 @@ def _json(value: Any) -> Any:
     return json.loads(value) if isinstance(value, str | bytes) else value
 
 
+def is_preparing(db: Session, version_id: int) -> bool:
+    """A "prepare for voice" job for this draft is queued or running."""
+    return (
+        db.scalars(
+            select(Job.id).where(
+                Job.type == JobType.PREPARE_FOR_VOICE.value,
+                Job.version_id == version_id,
+                Job.status.in_((JobStatus.QUEUED.value, JobStatus.RUNNING.value)),
+            )
+        ).first()
+        is not None
+    )
+
+
 def queue(db: Session, current: CurrentUser, version_id: int) -> Job:
     version = db.execute(
         select(training_versions).where(training_versions.c.version_id == version_id)
@@ -501,14 +515,7 @@ def queue(db: Session, current: CurrentUser, version_id: int) -> Job:
     upload = db.get(ContentUpload, version.source_upload_id)
     if upload is None or upload.status != UploadStatus.READY.value:
         raise ApiError(409, "upload_not_ready", "The document's text isn't ready yet.")
-    busy = db.scalars(
-        select(Job.id).where(
-            Job.type == JobType.PREPARE_FOR_VOICE.value,
-            Job.version_id == version_id,
-            Job.status.in_((JobStatus.QUEUED.value, JobStatus.RUNNING.value)),
-        )
-    ).first()
-    if busy:
+    if is_preparing(db, version_id):
         raise ApiError(409, "already_preparing", "This draft is already being prepared.")
     job = Job(
         type=JobType.PREPARE_FOR_VOICE.value,

@@ -162,6 +162,28 @@ def send_back_version(
     return publish.send_back(db, current, version_id, body.note, client_ip(request))
 
 
+@router.post("/versions/{version_id}/archive", response_model=VersionSummary)
+def archive_version(
+    request: Request,
+    version_id: int = VersionId,
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Put a draft away (hidden by default, restorable, nothing deleted): its author, or an Admin."""
+    return service.set_archived(db, current, version_id, True, client_ip(request))
+
+
+@router.post("/versions/{version_id}/restore", response_model=VersionSummary)
+def restore_version(
+    request: Request,
+    version_id: int = VersionId,
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Bring an archived draft back as a draft."""
+    return service.set_archived(db, current, version_id, False, client_ip(request))
+
+
 @router.post("/versions/{version_id}/publish", response_model=JobView, status_code=status.HTTP_202_ACCEPTED)
 def publish_version(
     body: PublishIn,
