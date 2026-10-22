@@ -27,6 +27,7 @@ class Action(StrEnum):
     ASSIGN_BULK = "assign_bulk"
     ASSIGN_CANCEL = "assign_cancel"
     ASSIGN_DUE_DATE = "assign_due_date"
+    RESET_PROGRESS = "reset_progress"
 
 
 LABELS = {
@@ -34,6 +35,7 @@ LABELS = {
     Action.ASSIGN_BULK: "Mass upload assignments (CSV)",
     Action.ASSIGN_CANCEL: "Cancel assignments",
     Action.ASSIGN_DUE_DATE: "Change due dates",
+    Action.RESET_PROGRESS: "Reset someone's training progress",
 }
 # Roles whose switches Admins set. Admins themselves are always allowed.
 SWITCHABLE_ROLES = (DashRole.TRAINER.value,)

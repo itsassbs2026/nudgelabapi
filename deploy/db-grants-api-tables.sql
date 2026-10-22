@@ -26,6 +26,7 @@ GRANT SELECT, INSERT                 ON nudgeai.ask_messages               TO 'n
 GRANT SELECT, INSERT, UPDATE         ON nudgeai.ask_feedback               TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT                 ON nudgeai.dash_announcements_seen    TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT, DELETE         ON nudgeai.dash_version_history       TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, INSERT                 ON nudgeai.portal_clears              TO 'nudgelab_api'@'10.0.1.148';
 
 -- Check:
 -- SHOW GRANTS FOR 'nudgelab_api'@'10.0.1.148';

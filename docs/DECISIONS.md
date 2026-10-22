@@ -529,3 +529,19 @@ Recorded as they're made (SPEC §0.2). Newest last.
 134. **The quiz intro line is checked for a stated count once a section is a pool.** Trainers often write "a quick
      10-question quiz" or "all 10 right" there; with a pool each trainee is asked fewer, so it would be wrong out
      loud. A warning (not an error) tells them to say "a quick quiz" instead.
+
+## Reset a person's progress (2026-10-22)
+
+135. **Admins and Trainers can reset one person's progress on one training or all of them** (owner; Trainers allowed
+     by default, switchable on Admin > Permissions as `reset_progress`; Admins always). The person starts brand new:
+     progress is archived first (`training_progress_history`), nothing is deleted, sessions and recordings stay, and
+     they get the live version (no pinned version, no question-pool draw). A completed assignment goes back to
+     assigned; its due date is untouched. Retake (reset plus due date and Portal handling) is on the TODO list.
+136. **A reset also clears the person's Prime Portal completion** (owner chose this over leaving Portal alone).
+     Only the agent servers hold a Portal write login, so the API queues the request (`portal_clears`, migration
+     0023) and the agent deletes the Portal row within a minute. If they pass again before it runs, the clear is
+     skipped and the new pass stays. The agent's Portal login needs DELETE on the completions table.
+137. **A reset is refused while the person is on a call about the training** (a session with no end in the last 30
+     minutes): the call writes its own progress and would put it back. A session that never closed, older than
+     that, doesn't block.
+

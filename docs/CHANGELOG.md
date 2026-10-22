@@ -388,3 +388,11 @@
 - Content: `quiz.sections.<code>.draw` (optional, at least 1). Publish checks: error when larger than the
   section's questions; warnings for "asks every question" and "under two spare questions".
 - Warning when a quiz intro line states a number of questions (or "all 5 right") and a section is a pool.
+
+## Reset a person's progress (2026-10-22)
+
+- Migration `0023_progress_reset`: `portal_clears` (the queue the agent works through) and the `reset_progress`
+  permission (Trainer on by default). Grants: `deploy/db-grants-0023-progress-reset.sql`; the agent's Portal
+  login also needs DELETE on `prime_nudge_ai_completions` (the owner, in Portal).
+- `POST /employees/{uid}/reset-progress` (`training_id` optional: all; `reason` optional); audit `progress_reset`.
+

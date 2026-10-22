@@ -8308,6 +8308,63 @@
         ]
       }
     },
+    "/api/v1/employees/{uid}/reset-progress": {
+      "post": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "Reset Progress",
+        "operationId": "reset_progress_api_v1_employees__uid__reset_progress_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Uid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/app/v1/trainings": {
       "get": {
         "tags": [
@@ -8573,7 +8630,8 @@
           "assign_single",
           "assign_bulk",
           "assign_cancel",
-          "assign_due_date"
+          "assign_due_date",
+          "reset_progress"
         ],
         "title": "Action"
       },
@@ -14447,6 +14505,58 @@
         ],
         "title": "RenameIn"
       },
+      "ResetIn": {
+        "properties": {
+          "training_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Training Id"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ResetIn"
+      },
+      "ResetOut": {
+        "properties": {
+          "reset": {
+            "items": {
+              "$ref": "#/components/schemas/ResetTraining"
+            },
+            "type": "array",
+            "title": "Reset"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reset",
+          "skipped"
+        ],
+        "title": "ResetOut"
+      },
       "ResetPasswordRequest": {
         "properties": {
           "token": {
@@ -14468,6 +14578,34 @@
           "new_password"
         ],
         "title": "ResetPasswordRequest"
+      },
+      "ResetTraining": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "was_passed": {
+            "type": "boolean",
+            "title": "Was Passed"
+          },
+          "portal": {
+            "type": "string",
+            "title": "Portal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "training_id",
+          "title",
+          "was_passed",
+          "portal"
+        ],
+        "title": "ResetTraining"
       },
       "ReviewIssue": {
         "properties": {

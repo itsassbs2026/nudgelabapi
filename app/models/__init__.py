@@ -18,6 +18,7 @@ from app.models.dashboard import (
     SavedView,
 )
 from app.models.permissions import DashPermission
+from app.models.portal_clear import PortalClear
 from app.models.studio_history import DashVersionHistory
 from app.models.summary import DashSummaryRecipient, DashSummaryRun
 from app.models.sync_run_log import SyncRunLog
@@ -30,6 +31,7 @@ __all__ = [
     "AgentServer",
     "DashAnnouncementSeen",
     "DashVersionHistory",
+    "PortalClear",
     "AppSessionStart",
     "AskConversation",
     "AskFeedback",

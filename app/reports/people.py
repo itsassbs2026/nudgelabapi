@@ -20,6 +20,7 @@ from app.reference.agent_tables import (
     training_feedback,
     training_pass_log,
     training_progress,
+    training_progress_history,
     training_sessions,
     trainings,
     vw_trainees,
@@ -98,6 +99,17 @@ def employee(db: Session, uid: int, *, include_bots: bool = False) -> dict[str, 
         for r in db.execute(session_q)
     ]
 
+    # A progress reset (app/services/progress_reset.py) starts the training over: answers from before it stay
+    # in the database but aren't shown under the new start (their rounds would repeat the new ones').
+    h = training_progress_history.c
+    reset_at = {
+        r.training_id: r.at
+        for r in db.execute(
+            select(h.training_id, func.max(h.archived_at).label("at"))
+            .where(h.uid == uid, h.archived_reason.like("reset by%"))
+            .group_by(h.training_id)
+        )
+    }
     a = quiz_answers.c
     answers: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for r in db.execute(
@@ -107,6 +119,8 @@ def employee(db: Session, uid: int, *, include_bots: bool = False) -> dict[str, 
         .where(a.uid == uid)
         .order_by(a.answered_at)
     ):
+        if r.training_id in reset_at and (r.answered_at is None or r.answered_at < reset_at[r.training_id]):
+            continue
         answers[r.training_id].append(
             {
                 "question_number": r.question_number,

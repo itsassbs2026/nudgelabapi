@@ -46,6 +46,7 @@ class AuditAction(StrEnum):
     REFERENCE_SYNC_STARTED = "reference_sync_started"
     ASSIGNMENTS_ADDED = "assignments_added"  # 2026-10-07: assigning training from the dashboard
     ASSIGNMENTS_CANCELLED = "assignments_cancelled"
+    PROGRESS_RESET = "progress_reset"
     ASSIGNMENTS_DUE_DATE = "assignments_due_date"
     PERMISSIONS_CHANGED = "permissions_changed"
     SUMMARY_RECIPIENTS_CHANGED = "summary_recipients_changed"  # 2026-10-09: the daily summary email

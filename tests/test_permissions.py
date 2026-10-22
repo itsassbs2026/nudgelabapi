@@ -137,6 +137,7 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("POST", "/api/v1/assignments/check", {"uid": 1001, "training_ids": ["big4"]}, True),
     ("POST", "/api/v1/assignments", {"uid": 1001, "training_ids": ["big4"]}, True),
     ("POST", "/api/v1/assignments/cancel", {"assignment_ids": [999999]}, True),
+    ("POST", "/api/v1/employees/{uid}/reset-progress", {"training_id": "nope"}, True),
     ("POST", "/api/v1/assignments/due-date", {"assignment_ids": [999999], "due_date": None}, True),
     # The daily summary email (2026-10-09): Admins only.
     ("GET", "/api/v1/admin/summary/recipients", None, False),

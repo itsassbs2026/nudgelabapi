@@ -68,6 +68,7 @@ def test_default_permissions(client: TestClient, trainer_headers: Headers, admin
         "assign_bulk": False,
         "assign_cancel": True,
         "assign_due_date": True,
+        "reset_progress": True,
     }
     assert all(client.get("/api/v1/me/permissions", headers=admin_headers).json().values())
     table = client.get("/api/v1/admin/permissions", headers=admin_headers).json()
@@ -76,6 +77,7 @@ def test_default_permissions(client: TestClient, trainer_headers: Headers, admin
         ("assign_bulk", False),
         ("assign_cancel", True),
         ("assign_due_date", True),
+        ("reset_progress", True),
     ]
     assert table[1]["label"] == "Mass upload assignments (CSV)"
 
