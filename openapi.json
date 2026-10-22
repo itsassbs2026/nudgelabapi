@@ -8365,6 +8365,52 @@
         }
       }
     },
+    "/api/v1/studio/pronunciation/check": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Check",
+        "operationId": "check_api_v1_studio_pronunciation_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/app/v1/trainings": {
       "get": {
         "tags": [
@@ -8623,6 +8669,39 @@
           "page_size"
         ],
         "title": "AcknowledgmentPage"
+      },
+      "AcronymOut": {
+        "properties": {
+          "acronym": {
+            "type": "string",
+            "title": "Acronym"
+          },
+          "spoken": {
+            "type": "string",
+            "title": "Spoken"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "where": {
+            "type": "string",
+            "title": "Where"
+          },
+          "example": {
+            "type": "string",
+            "title": "Example"
+          }
+        },
+        "type": "object",
+        "required": [
+          "acronym",
+          "spoken",
+          "count",
+          "where",
+          "example"
+        ],
+        "title": "AcronymOut"
       },
       "Action": {
         "type": "string",
@@ -9666,6 +9745,54 @@
           "question"
         ],
         "title": "ChatIn"
+      },
+      "CheckIn": {
+        "properties": {
+          "version_id": {
+            "type": "integer",
+            "title": "Version Id"
+          },
+          "content": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version_id",
+          "content"
+        ],
+        "title": "CheckIn"
+      },
+      "CheckOut": {
+        "properties": {
+          "voice_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice Id"
+          },
+          "acronyms": {
+            "items": {
+              "$ref": "#/components/schemas/AcronymOut"
+            },
+            "type": "array",
+            "title": "Acronyms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "voice_id",
+          "acronyms"
+        ],
+        "title": "CheckOut"
       },
       "Coach": {
         "properties": {
@@ -15104,6 +15231,11 @@
             "maxLength": 2000,
             "minLength": 1,
             "title": "Text"
+          },
+          "as_spoken": {
+            "type": "boolean",
+            "title": "As Spoken",
+            "default": false
           }
         },
         "additionalProperties": false,

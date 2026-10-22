@@ -23,6 +23,7 @@ from app.routers import (
     health,
     me,
     progress,
+    pronunciation,
     quality,
     reports,
     sessions,
@@ -92,6 +93,7 @@ def create_app() -> FastAPI:
         ask.router,
         assignments.router,
         progress.router,
+        pronunciation.router,
     ):
         app.include_router(router, prefix="/api/v1")
     # The Flutter app (docs/APP_HANDOFF.md): its own prefix and its own credentials (a NudgeLab pass).

@@ -17,6 +17,7 @@ from app.config import Settings, get_settings
 from app.db import get_db
 from app.reference.agent_tables import training_profiles
 from app.services import voices
+from app.studio import pronunciation
 from app.utils.errors import ApiError
 
 router = APIRouter(tags=["voices"])
@@ -44,6 +45,8 @@ class SampleIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     text: str = Field(min_length=1, max_length=2000)
+    # Say it as a call would: acronyms spelled out letter by letter (app/studio/pronunciation.py).
+    as_spoken: bool = False
 
     @field_validator("text")
     @classmethod
@@ -80,7 +83,8 @@ def voice_sample(
             429, "rate_limited", "Too many samples. Wait a minute and try again.", {"limit": limit}
         )
     voice = voices.find_voice(db, voice_id)
-    audio = voices.synthesize(settings, voice.voice_id, voice.engine or "generative", body.text)
+    words = pronunciation.spoken(body.text) if body.as_spoken else body.text
+    audio = voices.synthesize(settings, voice.voice_id, voice.engine or "generative", words)
     return Response(content=audio, media_type="audio/mpeg", headers={"Cache-Control": "no-store"})
 
 
