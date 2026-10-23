@@ -35,7 +35,7 @@ MIN_ASK_WORDS = 4
 VOCAB_TERM = re.compile(r"^[A-Za-z][A-Za-z.'\-]{0,255}$")
 MAX_VOCAB_TERMS = 500
 ACK_MIN, ACK_MAX = 10, 300
-# What the agent fills into scripts (training.py): the trainer's name and the trainee's first name (2026-10-23).
+# What the agent fills into scripts (training.py): the trainer's name and the trainee's first name.
 PLACEHOLDER = re.compile(r"\{([^{}\s]{1,30})\}")
 KNOWN_PLACEHOLDERS = {"trainer_name", "first_name"}
 
