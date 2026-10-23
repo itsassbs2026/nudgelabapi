@@ -17,6 +17,8 @@ Warnings:
 - a topic over 30 seconds of speech; an Ask without an Expected answer or with no Accept line
 - the welcome line doesn't use {trainer_name}, or a line says the trainer's name instead of {trainer_name}
 - no completion key (passes won't reach the Portal)
+- a {placeholder} the agent doesn't fill in (only {trainer_name} and {first_name} are), such as a misspelt
+  {firstname}: it would be spoken as written
 """
 
 from __future__ import annotations
@@ -33,6 +35,9 @@ MIN_ASK_WORDS = 4
 VOCAB_TERM = re.compile(r"^[A-Za-z][A-Za-z.'\-]{0,255}$")
 MAX_VOCAB_TERMS = 500
 ACK_MIN, ACK_MAX = 10, 300
+# What the agent fills into scripts (training.py): the trainer's name and the trainee's first name (2026-10-23).
+PLACEHOLDER = re.compile(r"\{([^{}\s]{1,30})\}")
+KNOWN_PLACEHOLDERS = {"trainer_name", "first_name"}
 
 # "a quick 5-question quiz", "ask you ten questions", "all 5 right": a count the quiz intro shouldn't
 # state once a section is a pool.
@@ -195,6 +200,17 @@ def validate(content: dict[str, Any], *, completion_key: str | None) -> dict[str
                 warnings.append(
                     _issue(f"Line {key}", f'Says "{name}"; use {{trainer_name}} instead.', line_key=key)
                 )
+
+    def unknown_placeholders(where: str, text: Any, **at: Any) -> None:
+        for found in sorted(set(PLACEHOLDER.findall(str(text or ""))) - KNOWN_PLACEHOLDERS):
+            message = f"Has {{{found}}}, which isn't filled in. Use {{trainer_name}} or {{first_name}}."
+            warnings.append(_issue(where, message, **at))
+
+    for key, text in lines.items():
+        unknown_placeholders(f"Line {key}", text, line_key=key)
+    for topic in topics:
+        for line in topic.get("lines", []):
+            unknown_placeholders(f"Topic {topic['number']}", line.get("text"), topic=topic["number"])
     vocabulary = content.get("vocabulary") or []
     if len(vocabulary) > MAX_VOCAB_TERMS:
         errors.append(_issue("Vocabulary", f"At most {MAX_VOCAB_TERMS} terms."))

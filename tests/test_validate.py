@@ -150,6 +150,22 @@ def test_question_pool_rules() -> None:
     assert any(w == where and "spare question" in m for w, m in thin)
 
 
+def test_placeholders_the_agent_fills_are_fine_and_others_are_flagged() -> None:
+    content = load("big4")
+    content["training"]["lines"]["closing"] = "Nice work, {first_name}. {trainer_name} here."
+    content["knowledge_base"]["topics"][0]["lines"][0]["text"] = "Say hello to {first_name}."
+    assert not [
+        w for w in validate(content, completion_key="agent_x")["warnings"] if "filled in" in w["message"]
+    ]
+    content["training"]["lines"]["closing"] = "Nice work, {firstname}."
+    content["knowledge_base"]["topics"][0]["lines"][0]["text"] = "Say hello to {first-name} and {employee}."
+    found = messages(validate(content, completion_key="agent_x"), "warnings")
+    note = "which isn't filled in. Use {trainer_name} or {first_name}."
+    assert ("Line closing", f"Has {{firstname}}, {note}") in found
+    assert ("Topic 1", f"Has {{employee}}, {note}") in found
+    assert ("Topic 1", f"Has {{first-name}}, {note}") in found
+
+
 def test_trainer_name_warnings() -> None:
     content = walkthrough()
     content["training"]["lines"]["first_message"] = "Hi, I'm Anne!"

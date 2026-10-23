@@ -545,3 +545,12 @@ Recorded as they're made (SPEC §0.2). Newest last.
      minutes): the call writes its own progress and would put it back. A session that never closed, older than
      that, doesn't block.
 
+## The trainee's first name in scripts (2026-10-23)
+
+138. **`{first_name}` is a placeholder next to `{trainer_name}`**, filled in by the agent at the start of the call
+     from the name in the app's token (owner: that name is reliable). It works in the scripted lines, opening
+     steps, topic lines (including Role Play coaching) and quiz questions. With no name the placeholder is removed
+     together with its comma or space ("Welcome back, {first_name}!" is "Welcome back!"); a "name" that isn't a
+     plain name (the same check as the trainer's persona name) counts as missing. Publish checks warn about any
+     other {placeholder}, such as a misspelt {firstname}, which would be spoken as written.
+
