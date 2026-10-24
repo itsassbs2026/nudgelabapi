@@ -152,6 +152,15 @@ class HistoryEntry(BaseModel):
     summary: HistorySummary
 
 
+class MediaUploaded(BaseModel):
+    id: str
+    key: str
+    width: int
+    height: int
+    bytes: int
+    url: str  # a short-lived link to show it in the editor
+
+
 class HistoryRestore(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

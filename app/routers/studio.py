@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Depends, Path, Request, status
+from fastapi.concurrency import run_in_threadpool
 from limits import parse
 from sqlalchemy.orm import Session
 
@@ -24,6 +25,7 @@ from app.schemas.studio import (
     HistoryEntry,
     HistoryRestore,
     JobView,
+    MediaUploaded,
     PreviewCallIn,
     PreviewCallOut,
     PublishIn,
@@ -46,7 +48,7 @@ from app.schemas.studio import (
 )
 from app.services import audit
 from app.services.audit import AuditAction
-from app.studio import history, prepare, publish, service, uploads
+from app.studio import history, media, prepare, publish, service, uploads
 from app.studio import preview as previews
 from app.utils.errors import ApiError
 
@@ -107,6 +109,35 @@ def create_version(
     db: Session = Depends(get_db),
 ) -> Any:
     return service.create_version(db, current, training_id, body.model_dump(), client_ip(request))
+
+
+@router.post(
+    "/versions/{version_id}/media", response_model=MediaUploaded, status_code=status.HTTP_201_CREATED
+)
+async def upload_media(
+    request: Request,
+    version_id: int = VersionId,
+    current: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> Any:
+    """One image for a draft: the image itself is the request body (JPEG, PNG, WebP or GIF)."""
+    if int(request.headers.get("content-length") or 0) > settings.media_max_upload_bytes:
+        raise ApiError(
+            413, "image_too_large", f"Images can be up to {settings.media_max_upload_bytes // 1_000_000} MB."
+        )
+    data = await request.body()
+    return await run_in_threadpool(media.upload, db, settings, current, version_id, data)
+
+
+@router.get("/versions/{version_id}/media-urls", response_model=dict[str, str])
+def media_urls(
+    version_id: int = VersionId,
+    _: CurrentUser = Depends(get_user),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> Any:
+    return media.urls(db, settings, version_id)
 
 
 @router.get("/versions/{version_id}/content", response_model=VersionContent)

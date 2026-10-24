@@ -5251,6 +5251,107 @@
         }
       }
     },
+    "/api/v1/versions/{version_id}/media": {
+      "post": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Upload Media",
+        "description": "One image for a draft: the image itself is the request body (JPEG, PNG, WebP or GIF).",
+        "operationId": "upload_media_api_v1_versions__version_id__media_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploaded"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/versions/{version_id}/media-urls": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Media Urls",
+        "operationId": "media_urls_api_v1_versions__version_id__media_urls_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Media Urls Api V1 Versions  Version Id  Media Urls Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/versions/{version_id}/content": {
       "get": {
         "tags": [
@@ -12401,6 +12502,108 @@
         "title": "MeUpdate",
         "description": "Users can change only their own display preferences and time zone."
       },
+      "MediaItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^img_[0-9a-f]{12}$",
+            "title": "Id"
+          },
+          "key": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Key"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Height"
+          },
+          "bytes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bytes"
+          },
+          "caption": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Caption"
+          },
+          "alt": {
+            "type": "string",
+            "maxLength": 400,
+            "title": "Alt",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "width",
+          "height"
+        ],
+        "title": "MediaItem",
+        "description": "An image shown to the trainee while this topic is taught (app/studio/media.py)."
+      },
+      "MediaUploaded": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "bytes": {
+            "type": "integer",
+            "title": "Bytes"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "width",
+          "height",
+          "bytes",
+          "url"
+        ],
+        "title": "MediaUploaded"
+      },
       "MessageOut": {
         "properties": {
           "id": {
@@ -17268,6 +17471,20 @@
             },
             "type": "array",
             "title": "Lines"
+          },
+          "media": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/MediaItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media"
           }
         },
         "additionalProperties": false,

@@ -48,10 +48,23 @@ class KbLine(Strict):
     locations: list[Location] | None = None  # only for location-specific lines
 
 
+class MediaItem(Strict):
+    """An image shown to the trainee while this topic is taught (app/studio/media.py)."""
+
+    id: str = Field(pattern=r"^img_[0-9a-f]{12}$")
+    key: str = Field(max_length=300)  # where it is in S3
+    width: int = Field(ge=1)
+    height: int = Field(ge=1)
+    bytes: int | None = Field(default=None, ge=0)
+    caption: str | None = Field(default=None, max_length=200)
+    alt: str = Field(default="", max_length=400)  # what the image shows, in words (checked at publish)
+
+
 class Topic(Strict):
     number: int = Field(ge=1)
     title: str  # as written after "TOPIC n:", including its leading space
     lines: list[KbLine]
+    media: list[MediaItem] | None = None  # images for this topic, in the order to show them
 
 
 class KnowledgeBase(Strict):

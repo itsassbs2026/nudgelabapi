@@ -11,6 +11,7 @@ Errors:
   section maps to topics that exist, and every question's section exists
 - acknowledgment trainings: a statement of 10–300 characters
 - every scripted line the completion type needs, written (not empty)
+- topic images: at most 6 a topic, each described in words (alt text), a caption of at most 140 characters
 - vocabulary terms Amazon Transcribe accepts: letters with periods, hyphens or apostrophes (P.P.V.G.A.,
   Protect-Advantage), no spaces or digits, at most 256 characters, at most 500 terms (Phase 16 publishes them)
 Warnings:
@@ -35,6 +36,8 @@ MIN_ASK_WORDS = 4
 VOCAB_TERM = re.compile(r"^[A-Za-z][A-Za-z.'\-]{0,255}$")
 MAX_VOCAB_TERMS = 500
 ACK_MIN, ACK_MAX = 10, 300
+MAX_TOPIC_IMAGES = 6
+MAX_IMAGE_CAPTION = 140
 # What the agent fills into scripts (training.py): the trainer's name and the trainee's first name.
 PLACEHOLDER = re.compile(r"\{([^{}\s]{1,30})\}")
 KNOWN_PLACEHOLDERS = {"trainer_name", "first_name"}
@@ -200,6 +203,28 @@ def validate(content: dict[str, Any], *, completion_key: str | None) -> dict[str
                 warnings.append(
                     _issue(f"Line {key}", f'Says "{name}"; use {{trainer_name}} instead.', line_key=key)
                 )
+
+    seen_images: set[str] = set()
+    for topic in topics:
+        images = topic.get("media") or []
+        where = f"Topic {topic['number']}"
+        if len(images) > MAX_TOPIC_IMAGES:
+            errors.append(
+                _issue(where, f"At most {MAX_TOPIC_IMAGES} images per topic.", topic=topic["number"])
+            )
+        for n, image in enumerate(images, 1):
+            label = f"{where}, image {n}"
+            if not str(image.get("alt") or "").strip():
+                message = (
+                    "Describe what the image shows (the description is read aloud when it can't be seen)."
+                )
+                errors.append(_issue(label, message, topic=topic["number"]))
+            if len(str(image.get("caption") or "")) > MAX_IMAGE_CAPTION:
+                message = f"The caption is over {MAX_IMAGE_CAPTION} characters."
+                errors.append(_issue(label, message, topic=topic["number"]))
+            if image.get("id") in seen_images:
+                errors.append(_issue(label, "The same image is attached twice.", topic=topic["number"]))
+            seen_images.add(str(image.get("id")))
 
     def unknown_placeholders(where: str, text: Any, **at: Any) -> None:
         for found in sorted(set(PLACEHOLDER.findall(str(text or ""))) - KNOWN_PLACEHOLDERS):

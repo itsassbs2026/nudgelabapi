@@ -106,6 +106,12 @@ class Settings(BaseSettings):
     content_prefix: str | None = None
     upload_max_bytes: int = 10 * 1024 * 1024
     upload_url_seconds: int = 300
+    # Topic images (app/studio/media.py): the biggest upload accepted, what an image is shrunk to, and how
+    # long a signed link to show one stays valid.
+    media_max_upload_bytes: int = 10 * 1024 * 1024
+    media_max_edge: int = 1600
+    media_target_bytes: int = 1_500_000
+    media_url_seconds: int = 3600
     extracted_text_max_chars: int = 200_000
 
     # "Prepare for voice" (SPEC 10.2): Claude on Bedrock via the instance role (iam-policy-stage2.json).

@@ -157,6 +157,8 @@ packaging==26.3
     #   pytest
 pathspec==1.1.1
     # via mypy
+pillow==13.0.0
+    # via -r requirements.in
 pluggy==1.6.0
     # via pytest
 propcache==0.5.4
