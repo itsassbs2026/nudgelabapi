@@ -63,7 +63,7 @@ def start(
         .with_identity(f"app-{uid}-{secrets.token_hex(2)}")
         .with_name(str(employee.profile.get("name") or uid))
         .with_ttl(ttl)
-        .with_grants(api.VideoGrants(room_join=True, room=room_name))
+        .with_grants(api.VideoGrants(room_join=True, room=room_name, can_update_own_metadata=True))
         .with_room_config(api.RoomConfiguration(agents=[dispatch]))
         .to_jwt()
     )

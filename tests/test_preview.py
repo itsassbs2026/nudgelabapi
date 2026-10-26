@@ -99,6 +99,7 @@ def test_preview_token(
 
     claims = claims_of(body)
     assert claims["video"]["room"] == body["room_name"]
+    assert claims["video"]["canUpdateOwnMetadata"] is True  # the preview sets its nudge.media flag (images)
     assert claims["sub"].startswith("preview-")
     assert before + 1190 <= claims["exp"] <= before + 1210
     (agent,) = claims["roomConfig"]["agents"]

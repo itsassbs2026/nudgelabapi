@@ -406,6 +406,7 @@ def test_session_start(
     assert claims["name"] == "Akbar Mohamed"
     assert claims["video"]["roomJoin"] is True
     assert claims["video"]["room"] == body["room_name"]  # this room only
+    assert claims["video"]["canUpdateOwnMetadata"] is True  # the app sets its nudge.media flag (images)
     (agent,) = claims["roomConfig"]["agents"]
     assert agent["agentName"] == "nudgelab-trainer"
     assert json.loads(agent["metadata"]) == {
