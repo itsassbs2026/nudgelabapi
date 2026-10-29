@@ -22,6 +22,8 @@ PUBLIC = {
     ("POST", "/api/v1/auth/refresh"),
     ("POST", "/api/v1/auth/forgot-password"),
     ("POST", "/api/v1/auth/reset-password"),
+    # The training page trades a one-time code for a session; the code is the credential (mobile/handoff.py).
+    ("POST", "/app/v1/handoffs/redeem"),
 }
 
 # (method, path, body, trainer allowed?)
@@ -176,6 +178,7 @@ APP_ROUTES: list[tuple[str, str]] = [
     ("GET", "/app/v1/trainings"),
     ("GET", "/app/v1/trainings/pending-count"),
     ("POST", "/app/v1/trainings/{training_id}/session"),
+    ("POST", "/app/v1/handoffs"),
 ]
 
 

@@ -8622,6 +8622,95 @@
           }
         }
       }
+    },
+    "/app/v1/handoffs": {
+      "post": {
+        "tags": [
+          "app"
+        ],
+        "summary": "Create Handoff",
+        "description": "The portal's server asks for a one-time Start link for its signed-in employee's training.",
+        "operationId": "create_handoff_app_v1_handoffs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandoffIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandoffOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/app/v1/handoffs/redeem": {
+      "post": {
+        "tags": [
+          "app"
+        ],
+        "summary": "Redeem Handoff",
+        "description": "The training page trades the code (once) for the voice session. No pass: the code is the credential.",
+        "operationId": "redeem_handoff_app_v1_handoffs_redeem_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedeemIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedeemOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -11594,6 +11683,64 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HandoffIn": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "pattern": "^[a-z0-9_]+$",
+            "title": "Training Id"
+          },
+          "start_over": {
+            "type": "boolean",
+            "title": "Start Over",
+            "default": false
+          },
+          "return_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Url"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "training_id"
+        ],
+        "title": "HandoffIn",
+        "description": "The portal asks for a Start link (app/mobile/handoff.py)."
+      },
+      "HandoffOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "url",
+          "expires_in"
+        ],
+        "title": "HandoffOut"
       },
       "HistoryEntry": {
         "properties": {
@@ -14801,6 +14948,109 @@
           "expires_at"
         ],
         "title": "RecordingUrl"
+      },
+      "RedeemIn": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 10,
+            "title": "Code"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "RedeemIn"
+      },
+      "RedeemOut": {
+        "properties": {
+          "server_url": {
+            "type": "string",
+            "title": "Server Url"
+          },
+          "participant_token": {
+            "type": "string",
+            "title": "Participant Token"
+          },
+          "room_name": {
+            "type": "string",
+            "title": "Room Name"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          },
+          "trainer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Name"
+          },
+          "trainer_voice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trainer Voice"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "training_title": {
+            "type": "string",
+            "title": "Training Title"
+          },
+          "return_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Url"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "server_url",
+          "participant_token",
+          "room_name",
+          "expires_in",
+          "trainer_name",
+          "trainer_voice",
+          "training_id",
+          "training_title",
+          "return_url",
+          "first_name"
+        ],
+        "title": "RedeemOut",
+        "description": "The training page's session: as the app's, plus what the page shows around it."
       },
       "RefreshResponse": {
         "properties": {

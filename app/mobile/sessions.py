@@ -25,6 +25,8 @@ from app.reference.agent_tables import trainings
 from app.utils.errors import ApiError
 
 CLIENT_LABEL = "flutter"
+# Sessions started from the employee portal's training page (2026-10-29): shown apart in the reports.
+CLIENT_LABELS = {"wanaka": CLIENT_LABEL, "portal": "portal"}
 
 
 def start(
@@ -45,7 +47,7 @@ def start(
         "uid": uid,
         "training_id": training_id,
         "reset": start_over,
-        "client": CLIENT_LABEL,
+        "client": CLIENT_LABELS.get(employee.issuer, CLIENT_LABEL),
     }
     # The trainer's name and voice (app/mobile/persona.py). Without a name the agent uses the training's own.
     if chosen.spoken:

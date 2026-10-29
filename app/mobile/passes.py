@@ -49,6 +49,7 @@ class PassesNotConfigured(Exception):
 class AppPass:
     uid: int
     jti: str | None
+    issuer: str = "wanaka"  # "portal" for the employee portal (2026-10-29)
 
 
 @lru_cache
@@ -89,7 +90,7 @@ def verify_pass(token: str, settings: Settings) -> AppPass:
             key,
             algorithms=[ALGORITHM],
             audience=settings.app_pass_audience,
-            issuer=settings.app_pass_issuer,
+            issuer=settings.app_pass_issuers,
             leeway=settings.app_pass_leeway_seconds,
             options={"require": ["exp", "iat", "sub", "iss", "aud"]},
         )
@@ -101,7 +102,7 @@ def verify_pass(token: str, settings: Settings) -> AppPass:
     if int(claims["exp"]) - int(claims["iat"]) > settings.app_pass_max_lifetime_seconds:
         raise PassError("lifetime too long")
     jti = claims.get("jti")
-    return AppPass(uid=int(sub), jti=str(jti)[:64] if jti else None)
+    return AppPass(uid=int(sub), jti=str(jti)[:64] if jti else None, issuer=str(claims["iss"]))
 
 
 @dataclass(frozen=True)
@@ -109,6 +110,7 @@ class Employee:
     uid: int
     jti: str | None
     profile: dict[str, Any]
+    issuer: str = "wanaka"
 
 
 def get_employee(
@@ -131,4 +133,4 @@ def get_employee(
     if row is None:
         logger.info("app_pass_inactive_employee", uid=app_pass.uid)
         raise ApiError(403, "inactive_employee", "This account can't use trainings.")
-    return Employee(uid=app_pass.uid, jti=app_pass.jti, profile=dict(row))
+    return Employee(uid=app_pass.uid, jti=app_pass.jti, profile=dict(row), issuer=app_pass.issuer)

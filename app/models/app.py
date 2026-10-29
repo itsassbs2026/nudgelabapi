@@ -10,6 +10,25 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.models.base import Base, BigIntId, UtcDateTime
 
 
+class AppHandoff(Base):
+    """A one-time code from the employee portal to the training page (app/mobile/handoff.py)."""
+
+    __tablename__ = "app_handoffs"
+    __table_args__ = (Index("ix_app_handoffs_created", "created_at"),)
+
+    id: Mapped[int] = mapped_column(BigIntId, primary_key=True, autoincrement=True)
+    code_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    uid: Mapped[int] = mapped_column(Integer, nullable=False)
+    training_id: Mapped[str] = mapped_column(String(50), nullable=False)
+    start_over: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    return_url: Mapped[str | None] = mapped_column(String(500))
+    expires_at: Mapped[datetime] = mapped_column(UtcDateTime, nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    created_at: Mapped[datetime] = mapped_column(
+        UtcDateTime, server_default=func.utc_timestamp(6), nullable=False
+    )
+
+
 class AppSessionStart(Base):
     """One row per LiveKit token handed to the app. The session itself is the agent's `training_sessions` row
     (same room name), written only if the trainee actually joins."""

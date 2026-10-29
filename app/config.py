@@ -68,7 +68,9 @@ class Settings(BaseSettings):
     # ES256 JWT signed by Wanaka (docs/WANAKA_NUDGE_TOKEN.md). Only the public keys live here, as
     # "kid=/path/key.pem", comma-separated so a rotation can list the old and new keys. Off (503) until set.
     app_pass_public_keys: str | None = None
-    app_pass_issuer: str = "wanaka"
+    # Who may sign passes, comma-separated: Wanaka for the app, and the employee portal's Drupal module
+    # (2026-10-29, docs/PORTAL_TRAINING.md). A pass still needs a key listed above.
+    app_pass_issuer: str = "wanaka,portal"
     app_pass_audience: str = "nudgelabapi"
     app_pass_max_lifetime_seconds: int = 3600
     app_pass_leeway_seconds: int = 30
@@ -82,6 +84,14 @@ class Settings(BaseSettings):
     # Play code; unset, they go to livekit_agent_name like everything else.
     livekit_roleplay_agent_name: str | None = None
     app_session_token_minutes: int = 30
+    # Training in the employee portal (app/mobile/handoff.py): the training page, the portal addresses it may
+    # send people back to, how long a Start link works, and how often one address may redeem links.
+    training_page_url: str = "https://training.myprimeportal.com"
+    portal_origins: str = (
+        "https://myprimeportal.com,https://www.myprimeportal.com,https://alpha.myprimeportal.com"
+    )
+    portal_handoff_seconds: int = 90
+    portal_redeem_rate_limit: str = "20/minute"
     # The busy check (app/mobile/capacity.py): no session when live calls reach the capacity of the agent
     # servers that checked in within agent_server_stale_seconds (they check in every 30 seconds).
     app_busy_check: bool = True
@@ -164,6 +174,14 @@ class Settings(BaseSettings):
     @property
     def previews_configured(self) -> bool:
         return self.livekit_configured and len(self.preview_secret or "") >= 32
+
+    @property
+    def app_pass_issuers(self) -> list[str]:
+        return [i.strip() for i in self.app_pass_issuer.split(",") if i.strip()]
+
+    @property
+    def portal_origin_list(self) -> list[str]:
+        return [o.strip().rstrip("/").lower() for o in self.portal_origins.split(",") if o.strip()]
 
     @property
     def app_pass_key_files(self) -> dict[str, str]:

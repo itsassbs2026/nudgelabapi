@@ -70,6 +70,28 @@ class SessionStartIn(BaseModel):
     trainer_voice: str | None = Field(default=None, min_length=1, max_length=40)
 
 
+class HandoffIn(BaseModel):
+    """The portal asks for a Start link (app/mobile/handoff.py)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    training_id: str = Field(min_length=1, max_length=50, pattern=r"^[a-z0-9_]+$")
+    start_over: bool = False
+    return_url: str | None = Field(default=None, max_length=500)  # kept only if it is on a portal address
+
+
+class HandoffOut(BaseModel):
+    code: str
+    url: str  # the training page, with the code
+    expires_in: int
+
+
+class RedeemIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(min_length=10, max_length=100)
+
+
 class SessionStartOut(BaseModel):
     server_url: str
     participant_token: str
@@ -77,3 +99,12 @@ class SessionStartOut(BaseModel):
     expires_in: int
     trainer_name: str | None  # the name the trainer will say (first name)
     trainer_voice: str | None
+
+
+class RedeemOut(SessionStartOut):
+    """The training page's session: as the app's, plus what the page shows around it."""
+
+    training_id: str
+    training_title: str
+    return_url: str | None
+    first_name: str | None
