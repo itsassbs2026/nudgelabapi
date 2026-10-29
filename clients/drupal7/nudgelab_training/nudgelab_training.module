@@ -1,0 +1,287 @@
+<?php
+
+/**
+ * @file
+ * NudgeLab training in the employee portal (2026-10-29).
+ *
+ * "My training" lists the voice trainings assigned to the signed-in employee, from the NudgeLab API. Start asks
+ * the API for a one-time link and sends the browser to the training page (training.myprimeportal.com), where the
+ * employee talks to the trainer. Progress and completions are recorded by NudgeLab exactly as for the app.
+ *
+ * The Drupal uid is the employee's uid in NudgeLab, Wanaka and the Portal (the same number everywhere).
+ * Set up: admin/config/services/nudgelab-training. Details: README.txt.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function nudgelab_training_permission() {
+  return array(
+    'take nudgelab training' => array(
+      'title' => t('Take NudgeLab voice trainings'),
+      'description' => t('See "My training" and start the trainings assigned to you.'),
+    ),
+    'administer nudgelab training' => array(
+      'title' => t('Administer NudgeLab training'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function nudgelab_training_menu() {
+  $items['my-training'] = array(
+    'title' => 'My training',
+    'page callback' => 'nudgelab_training_page',
+    'access callback' => 'nudgelab_training_access',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['my-training/start/%'] = array(
+    'title' => 'Start training',
+    'page callback' => 'nudgelab_training_start',
+    'page arguments' => array(2),
+    'access callback' => 'nudgelab_training_access',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/services/nudgelab-training'] = array(
+    'title' => 'NudgeLab training',
+    'description' => 'Connect "My training" to the NudgeLab API.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nudgelab_training_settings_form'),
+    'access arguments' => array('administer nudgelab training'),
+    'file' => 'nudgelab_training.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Signed-in, allowed, and the feature switched on.
+ */
+function nudgelab_training_access() {
+  return user_is_logged_in() && user_access('take nudgelab training')
+    && variable_get('nudgelab_training_enabled', 1);
+}
+
+/**
+ * The API client for this site's settings.
+ */
+function nudgelab_training_client() {
+  return new NudgelabClient(
+    variable_get('nudgelab_training_api_url', 'https://nudgelabapi.myprimeportal.com/app/v1'),
+    variable_get('nudgelab_training_key_path', ''),
+    variable_get('nudgelab_training_kid', 'portal-1'),
+    // cURL when PHP has it (it always has on the portal); Drupal's own HTTP otherwise.
+    function_exists('curl_init') ? NULL : 'nudgelab_training_http'
+  );
+}
+
+/**
+ * HTTP for NudgelabClient through Drupal's own drupal_http_request().
+ */
+function nudgelab_training_http($method, $url, $headers, $body, $timeout) {
+  // drupal_http_request() speaks HTTP/1.0 and reads until the server closes: ask it to, or a server that keeps
+  // the connection open makes every call wait for the timeout.
+  $headers['Connection'] = 'close';
+  $options = array('method' => $method, 'headers' => $headers, 'timeout' => $timeout);
+  if ($body !== NULL) {
+    $options['data'] = $body;
+  }
+  $response = drupal_http_request($url, $options);
+  $status = isset($response->code) && $response->code > 0 ? (int) $response->code : 0;
+  return array($status, isset($response->data) ? $response->data : '');
+}
+
+/**
+ * Page callback: the employee's trainings.
+ */
+function nudgelab_training_page() {
+  global $user;
+  drupal_add_css(drupal_get_path('module', 'nudgelab_training') . '/nudgelab_training.css');
+  drupal_page_is_cacheable(FALSE);
+  try {
+    $list = nudgelab_training_client()->trainings($user->uid);
+  }
+  catch (NudgelabClientException $e) {
+    watchdog('nudgelab_training', 'Training list failed for uid @uid: @status @code @message', array(
+      '@uid' => $user->uid,
+      '@status' => $e->status,
+      '@code' => $e->apiCode,
+      '@message' => $e->getMessage(),
+    ), WATCHDOG_WARNING);
+    $message = $e->status === 403
+      ? t('Your account can\'t use voice trainings. If that seems wrong, contact your manager.')
+      : t('Your trainings can\'t be loaded right now. Try again in a few minutes.');
+    return array('#markup' => '<div class="nl-training nl-empty">' . check_plain($message) . '</div>');
+  }
+
+  $cards = isset($list['assigned_trainers']) && is_array($list['assigned_trainers']) ? $list['assigned_trainers'] : array();
+  usort($cards, 'nudgelab_training_order');
+  $todo = array();
+  $done = array();
+  foreach ($cards as $card) {
+    if (!empty($card['is_completed'])) {
+      $done[] = nudgelab_training_card($card);
+    }
+    else {
+      $todo[] = nudgelab_training_card($card);
+    }
+  }
+
+  $out = '<div class="nl-training">';
+  $out .= '<p class="nl-intro">' . t('Short voice trainings: you talk with a trainer in your browser. Use earbuds with a mic if you can, in a quiet spot. Your progress is saved if you stop.') . '</p>';
+  if (!$todo && !$done) {
+    $out .= '<p class="nl-empty">' . t('You have no trainings assigned right now.') . '</p>';
+  }
+  if ($todo) {
+    $out .= '<h2>' . t('To do') . '</h2><ul class="nl-cards">' . implode('', $todo) . '</ul>';
+  }
+  if ($done) {
+    $out .= '<h2>' . t('Completed') . '</h2><ul class="nl-cards nl-done">' . implode('', $done) . '</ul>';
+  }
+  $out .= '</div>';
+  return array('#markup' => $out);
+}
+
+/**
+ * Overdue first, then by due date (none last), then by title; completed ones keep the same order.
+ */
+function nudgelab_training_order($a, $b) {
+  $ka = array(empty($a['is_overdue']) ? 1 : 0, empty($a['due_date']) ? '9999' : $a['due_date'], strtolower($a['trainer_name']));
+  $kb = array(empty($b['is_overdue']) ? 1 : 0, empty($b['due_date']) ? '9999' : $b['due_date'], strtolower($b['trainer_name']));
+  return $ka < $kb ? -1 : ($ka > $kb ? 1 : 0);
+}
+
+/**
+ * One training as a list item. Every value from the API is escaped.
+ */
+function nudgelab_training_card($card) {
+  $id = (string) $card['training_id'];
+  $status = isset($card['status']) ? $card['status'] : 'not_started';
+  $html = '<li class="nl-card nl-' . drupal_html_class($status) . '">';
+  $html .= '<div class="nl-card-main">';
+  $html .= '<h3>' . check_plain($card['trainer_name']) . '</h3>';
+  if (!empty($card['trainer_description'])) {
+    $html .= '<p class="nl-desc">' . check_plain($card['trainer_description']) . '</p>';
+  }
+  $meta = array();
+  if (!empty($card['is_completed'])) {
+    $meta[] = '<span class="nl-badge nl-badge-done">' . t('Completed') . '</span>';
+  }
+  elseif (!empty($card['is_overdue'])) {
+    $meta[] = '<span class="nl-badge nl-badge-overdue">' . t('Overdue') . '</span>';
+  }
+  elseif ($status === 'in_progress') {
+    $meta[] = '<span class="nl-badge">' . t('In progress') . '</span>';
+  }
+  if (!empty($card['due_date']) && empty($card['is_completed'])) {
+    $meta[] = t('Due @date', array('@date' => format_date(strtotime($card['due_date'] . ' 12:00:00'), 'custom', 'M j, Y')));
+  }
+  if (!empty($card['progress']['topics_total']) && empty($card['is_completed'])) {
+    $meta[] = t('@done of @total topics', array('@done' => (int) $card['progress']['topics_done'], '@total' => (int) $card['progress']['topics_total']));
+  }
+  if (!empty($card['is_required']) && empty($card['is_completed'])) {
+    $meta[] = t('Required');
+  }
+  if ($meta) {
+    $html .= '<p class="nl-meta">' . implode(' · ', $meta) . '</p>';
+  }
+  $html .= '</div>';
+  if (empty($card['is_completed']) && preg_match('/^[a-z0-9_]{1,50}$/', $id)) {
+    $label = $status === 'in_progress' ? t('Continue') : t('Start');
+    if (!empty($card['progress']['quiz_retry'])) {
+      $label = t('Retry the quiz');
+    }
+    $html .= l($label, 'my-training/start/' . $id, array(
+      'query' => array('token' => drupal_get_token('nudgelab_training_start_' . $id)),
+      'attributes' => array('class' => array('nl-start', 'button')),
+    ));
+  }
+  return $html . '</li>';
+}
+
+/**
+ * Page callback: get a one-time link for this training and go to the training page.
+ */
+function nudgelab_training_start($training_id) {
+  global $user;
+  $token = isset($_GET['token']) ? $_GET['token'] : '';
+  if (!preg_match('/^[a-z0-9_]{1,50}$/', $training_id) || !drupal_valid_token($token, 'nudgelab_training_start_' . $training_id)) {
+    drupal_set_message(t('That link has expired. Tap Start again.'), 'warning');
+    drupal_goto('my-training');
+  }
+  drupal_page_is_cacheable(FALSE);
+  try {
+    $link = nudgelab_training_client()->startLink($user->uid, $training_id, url('my-training', array('absolute' => TRUE)));
+  }
+  catch (NudgelabClientException $e) {
+    watchdog('nudgelab_training', 'Start failed for uid @uid, @training: @status @code @message', array(
+      '@uid' => $user->uid,
+      '@training' => $training_id,
+      '@status' => $e->status,
+      '@code' => $e->apiCode,
+      '@message' => $e->getMessage(),
+    ), WATCHDOG_WARNING);
+    drupal_set_message($e->status === 0 ? t('The training service can\'t be reached right now. Try again in a few minutes.') : check_plain($e->getMessage()), 'error');
+    drupal_goto('my-training');
+  }
+  if (empty($link['url']) || strpos($link['url'], 'https://') !== 0) {
+    drupal_set_message(t('The training couldn\'t be started. Try again in a few minutes.'), 'error');
+    drupal_goto('my-training');
+  }
+  drupal_add_http_header('Cache-Control', 'no-store');
+  drupal_goto($link['url'], array('external' => TRUE));
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function nudgelab_training_block_info() {
+  return array(
+    'pending' => array(
+      'info' => t('NudgeLab: trainings to do'),
+      'cache' => DRUPAL_NO_CACHE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_view().
+ *
+ * "You have 2 trainings to do" with a link, or nothing when there are none. The count is kept for two minutes per
+ * employee so the block doesn't ask the API on every page.
+ */
+function nudgelab_training_block_view($delta = '') {
+  global $user;
+  if ($delta !== 'pending' || !nudgelab_training_access()) {
+    return array();
+  }
+  $cid = 'nudgelab_training:pending:' . $user->uid;
+  $cached = cache_get($cid);
+  if ($cached && $cached->expire > REQUEST_TIME) {
+    $count = $cached->data;
+  }
+  else {
+    try {
+      $count = nudgelab_training_client()->pendingCount($user->uid);
+    }
+    catch (NudgelabClientException $e) {
+      return array();
+    }
+    cache_set($cid, $count, 'cache', REQUEST_TIME + 120);
+  }
+  $todo = isset($count['incompleted_count']) ? (int) $count['incompleted_count'] : 0;
+  if ($todo < 1) {
+    return array();
+  }
+  $overdue = isset($count['overdue_count']) ? (int) $count['overdue_count'] : 0;
+  $text = format_plural($todo, 'You have 1 training to do', 'You have @count trainings to do');
+  if ($overdue) {
+    $text .= ' ' . format_plural($overdue, '(1 overdue)', '(@count overdue)');
+  }
+  return array(
+    'subject' => t('Training'),
+    'content' => array('#markup' => l($text, 'my-training', array('attributes' => array('class' => array('nl-pending'))))),
+  );
+}

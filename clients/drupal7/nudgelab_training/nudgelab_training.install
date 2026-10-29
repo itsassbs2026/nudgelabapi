@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * @file
+ * Install, requirements and uninstall.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function nudgelab_training_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  $ok = extension_loaded('openssl') && defined('OPENSSL_KEYTYPE_EC') && function_exists('random_bytes');
+  $requirements['nudgelab_training_openssl'] = array(
+    'title' => $t('NudgeLab training: OpenSSL'),
+    'value' => $ok ? $t('EC keys supported') : $t('Missing'),
+    'severity' => $ok ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+    'description' => $ok ? '' : $t('PHP needs the OpenSSL extension with EC keys to sign NudgeLab passes.'),
+  );
+  $curl = function_exists('curl_init');
+  $requirements['nudgelab_training_curl'] = array(
+    'title' => $t('NudgeLab training: cURL'),
+    'value' => $curl ? $t('Available') : $t('Missing'),
+    'severity' => $curl ? REQUIREMENT_OK : REQUIREMENT_WARNING,
+    'description' => $curl ? '' : $t('Without the cURL extension, calls to NudgeLab use Drupal's own HTTP client, which is slower.'),
+  );
+  return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ *
+ * Every signed-in employee may take their trainings.
+ */
+function nudgelab_training_install() {
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('take nudgelab training'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function nudgelab_training_uninstall() {
+  foreach (array('enabled', 'api_url', 'key_path', 'kid') as $name) {
+    variable_del('nudgelab_training_' . $name);
+  }
+  cache_clear_all('nudgelab_training:', 'cache', TRUE);
+}

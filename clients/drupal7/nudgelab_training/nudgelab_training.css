@@ -1,0 +1,86 @@
+/* "My training": works inside any theme, phone first. */
+.nl-training {
+  max-width: 720px;
+}
+.nl-training h2 {
+  margin: 1.5em 0 0.5em;
+}
+.nl-intro,
+.nl-empty {
+  color: #5d6878;
+}
+.nl-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.nl-card {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid #dbe1ea;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.nl-card-main {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.nl-card h3 {
+  margin: 0 0 4px;
+  font-size: 1.1em;
+}
+.nl-desc {
+  margin: 0 0 6px;
+  color: #3a4452;
+}
+.nl-meta {
+  margin: 0;
+  font-size: 0.9em;
+  color: #5d6878;
+}
+.nl-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #e5edfc;
+  color: #1f5bd8;
+  font-weight: 600;
+  font-size: 0.85em;
+}
+.nl-badge-overdue {
+  background: #fde8e6;
+  color: #b42318;
+}
+.nl-badge-done {
+  background: #e3f4ea;
+  color: #1b7a4b;
+}
+a.nl-start {
+  display: inline-block;
+  padding: 10px 20px;
+  min-height: 44px;
+  border-radius: 8px;
+  background: #1f5bd8;
+  color: #fff !important;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+}
+a.nl-start:hover,
+a.nl-start:focus {
+  background: #1747ad;
+}
+.nl-done .nl-card {
+  opacity: 0.8;
+}
+@media (max-width: 480px) {
+  a.nl-start {
+    width: 100%;
+  }
+}

@@ -1,0 +1,8 @@
+name = NudgeLab training
+description = Employees see their assigned NudgeLab voice trainings in the portal and start them in the browser.
+core = 7.x
+php = 7.2
+package = NudgeLab
+configure = admin/config/services/nudgelab-training
+files[] = includes/NudgelabClient.php
+version = "7.x-1.0"
