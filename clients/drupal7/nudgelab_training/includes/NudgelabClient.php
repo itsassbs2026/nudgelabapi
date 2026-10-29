@@ -30,6 +30,9 @@ class NudgelabClientException extends Exception {
 class NudgelabClient {
 
   const PASS_SECONDS = 300;
+  // Sent with every call: PHP's cURL sends no User-Agent by default, and the API's front door refuses requests
+  // without one (403 from nginx, found on the alpha portal 2026-10-29).
+  const USER_AGENT = 'NudgeLab-Drupal/1.0';
   const TIMEOUT_SECONDS = 10;
 
   private $apiUrl;
@@ -111,6 +114,7 @@ class NudgelabClient {
     $headers = array(
       'Authorization' => 'Bearer ' . $this->pass($uid),
       'Accept' => 'application/json',
+      'User-Agent' => self::USER_AGENT,
     );
     if ($body !== NULL) {
       $headers['Content-Type'] = 'application/json';
