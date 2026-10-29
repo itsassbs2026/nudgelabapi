@@ -23,7 +23,7 @@ function nudgelab_training_requirements($phase) {
     'title' => $t('NudgeLab training: cURL'),
     'value' => $curl ? $t('Available') : $t('Missing'),
     'severity' => $curl ? REQUIREMENT_OK : REQUIREMENT_WARNING,
-    'description' => $curl ? '' : $t('Without the cURL extension, calls to NudgeLab use Drupal's own HTTP client, which is slower.'),
+    'description' => $curl ? '' : $t('Without the cURL extension, calls to NudgeLab use the Drupal HTTP client, which is slower.'),
   );
   return $requirements;
 }
