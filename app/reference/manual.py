@@ -278,7 +278,10 @@ def run_reference_sync_jobs(db: Session, settings: Settings) -> dict[str, int]:
         source = create_engine(settings.portallive_database_url, pool_pre_ping=True, future=True)
         target = create_engine(settings.reference_sync_database_url, pool_pre_ping=True, future=True)
         try:
-            results = [r.__dict__ for r in sync_reference_tables(target, source_fetcher(source))]
+            done = sync_reference_tables(
+                target, source_fetcher(source), shared_columns=settings.reference_sync_shared_columns
+            )
+            results = [r.__dict__ for r in done]
         finally:
             source.dispose()
             target.dispose()

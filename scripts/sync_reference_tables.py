@@ -62,7 +62,11 @@ def main(argv: list[str]) -> int:
     target = create_engine(settings.reference_sync_database_url, pool_pre_ping=True, future=True)
     try:
         results = sync_reference_tables(
-            target, source_fetcher(source), dry_run=args.dry_run, tables=args.table
+            target,
+            source_fetcher(source),
+            dry_run=args.dry_run,
+            tables=args.table,
+            shared_columns=settings.reference_sync_shared_columns,
         )
     finally:
         source.dispose()

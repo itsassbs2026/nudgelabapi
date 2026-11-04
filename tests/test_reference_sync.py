@@ -170,3 +170,61 @@ def test_the_command_fails_loudly_without_its_settings(capsys: pytest.CaptureFix
     cli = importlib.import_module("scripts.sync_reference_tables")
     assert cli.main([]) == 1  # PORTALLIVE_DATABASE_URL and REFERENCE_SYNC_DATABASE_URL aren't set in tests
     assert "must both be set" in capsys.readouterr().out
+
+
+# Shared columns (Suncom, 2026-11-04): another company's Portal has the same views with other columns.
+SUNCOM_STORES = ["store_id", "store_name", "district_id", "district_name", "store_city", "rq_store_name"]
+SUNCOM_USERS = ["uid", "name", "pass", "status", "store_id", "job_title", "hire_date", "phone_number"]
+
+
+def test_shared_query_names_only_columns_both_sides_have() -> None:
+    target = ["store_id", "store_name", "store_active", "prime_tier", "district_id", "store_city"]
+    sql = sync.shared_query("v_stores_all", SUNCOM_STORES, target)
+    assert sql == (
+        "SELECT `store_id`, `store_name`,"
+        " (`store_id` IN (SELECT `store_id` FROM `v_stores`)) AS `store_active`,"
+        " `district_id`, `store_city` FROM `v_stores_all`"
+    )
+    users = sync.shared_query(
+        "v_users", SUNCOM_USERS, ["uid", "name", "status", "store_id", "job_title", "mail"]
+    )
+    assert "pass" not in users and "phone_number" not in users
+
+
+def test_shared_query_refuses_without_a_required_column() -> None:
+    with pytest.raises(sync.SyncRefused, match="has no job_title"):
+        sync.shared_query("v_users", ["uid", "name", "status", "store_id"], ["uid", "name", "job_title"])
+
+
+def test_shared_columns_copy_what_both_have_and_leave_the_rest_empty(target: Engine) -> None:
+    seen: list[str] = []
+
+    def fetch(sql: str) -> tuple[list[str], list[tuple[Any, ...]]]:
+        seen.append(sql)
+        if sql.endswith("LIMIT 0"):
+            return SUNCOM_STORES, []
+        assert "rq_store_name" not in sql
+        return ["store_id", "store_name", "store_active", "district_id", "district_name", "store_city"], [
+            (f"S{i}", f"Store {i}", 1, 7, "North", "Miami") for i in range(3)
+        ]
+
+    (result,) = sync.sync_reference_tables(target, fetch, tables=["v_stores_all"], shared_columns=True)
+    assert (result.status, result.fetched, result.error) == ("success", 3, None)
+    assert seen[0] == "SELECT * FROM `v_stores_all` LIMIT 0"
+    with target.connect() as conn:
+        rows = conn.execute(text(
+            "SELECT store_id, store_active, district_name, prime_tier FROM v_stores_all ORDER BY store_id"
+        )).all()  # fmt: skip
+    assert [tuple(r) for r in rows] == [
+        ("S0", 1, "North", None),
+        ("S1", 1, "North", None),
+        ("S2", 1, "North", None),
+    ]
+
+
+def test_without_shared_columns_other_columns_are_still_refused(target: Engine) -> None:
+    def fetch(sql: str) -> tuple[list[str], list[tuple[Any, ...]]]:
+        return SUNCOM_STORES, [("S1", "Store", 1, "N", "Miami", "RQ")]
+
+    (result,) = sync.sync_reference_tables(target, fetch, tables=["v_stores_all"])
+    assert result.status == "failed" and "columns differ" in (result.error or "")

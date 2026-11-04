@@ -107,6 +107,8 @@ class Settings(BaseSettings):
     portallive_database_url: str | None = None
     reference_sync_database_url: str | None = None
     reference_sync_alert_email: str | None = None
+    # Another company's Portal (Suncom): copy only the columns both sides have (app/reference/sync.py).
+    reference_sync_shared_columns: bool = False
 
     # Training content uploads (SPEC 10.2, §12.4): presigned POST straight to S3 under a random key, then the
     # worker checks the file and extracts its text. The prefix defaults to training-content/<APP_ENV>; the

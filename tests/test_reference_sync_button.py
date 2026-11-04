@@ -145,7 +145,7 @@ def test_the_worker_runs_the_sync(
     client.post(f"{URL}/code", headers=admin_headers)
     client.post(URL, headers=admin_headers, json={"code": emailed_code(db_session)})
 
-    def fake_sync(target: Any, fetch: Any) -> list[TableResult]:
+    def fake_sync(target: Any, fetch: Any, shared_columns: bool = False) -> list[TableResult]:
         out = [
             TableResult(t, "success", 10, 11) for t in ("v_users_all", "v_users", "v_stores", "v_stores_all")
         ]

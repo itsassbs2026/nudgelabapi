@@ -1,4 +1,5 @@
-"""Claude through Anthropic's API where ANTHROPIC_API_KEY is set (Suncom, 2026-11-03), else Bedrock (Prime)."""
+"""Claude through Anthropic's API where ANTHROPIC_API_KEY is set (Suncom, 2026-11-03), else Bedrock
+(Prime)."""
 
 from __future__ import annotations
 
@@ -6,7 +7,6 @@ from typing import Any
 
 import anthropic
 import pytest
-
 from app import claude
 from app.config import Settings, get_settings
 from app.summary import narrative

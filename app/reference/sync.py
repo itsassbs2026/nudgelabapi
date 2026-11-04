@@ -12,6 +12,12 @@ table and each table on its own (one failing never stops the others):
    rows or the new ones, never an empty table.
 4. Write one `sync_run_log` row, success or failure, in its own commit.
 
+Shared columns (REFERENCE_SYNC_SHARED_COLUMNS, Suncom 2026-11-04): another company's Portal has the same four
+views with other columns. Then each table copies only the columns both sides have, named in the query
+(a Portal-only column such as a password hash never leaves the Portal), leaves nudgeai-only columns empty, and
+works out `store_active` from `v_stores` (the active stores) when the Portal has no such column. It still
+refuses when a column the reports and the agent need (REQUIRED) is missing on the Portal.
+
 Never raises: returns one result per table. Connections: a read-only PortalLive login
 (PORTALLIVE_DATABASE_URL) and the `nudgelab_sync` login on nudgeai (REFERENCE_SYNC_DATABASE_URL), which can
 only read and replace these four tables and write `sync_run_log`. The API's own login can't read them
@@ -36,6 +42,15 @@ SOURCES: dict[str, str] = {
     "v_stores": "SELECT * FROM v_stores",
     "v_stores_all": "SELECT * FROM v_stores_all",
 }
+# Shared columns: the columns vw_trainees, vw_training_stores and the reports can't do without.
+REQUIRED: dict[str, tuple[str, ...]] = {
+    "v_users_all": ("uid", "name", "status", "store_id", "job_title"),
+    "v_users": ("uid", "name", "status", "store_id", "job_title"),
+    "v_stores": ("store_id", "store_name"),
+    "v_stores_all": ("store_id", "store_name"),
+}
+# Shared columns: worked out on the Portal when it has no such column.
+DERIVED = {"store_active": "(`store_id` IN (SELECT `store_id` FROM `v_stores`))"}
 MIN_KEPT = 0.5  # a fetch under half the rows on file is refused
 BATCH_ROWS = 2000
 
@@ -96,12 +111,31 @@ def _on_file(target: Engine, table: str) -> int:
         return int(conn.execute(text(f"SELECT COUNT(*) FROM `{table}`")).scalar_one())
 
 
+def shared_query(table: str, portal_columns: Sequence[str], target_columns: Sequence[str]) -> str:
+    """The Portal query for shared columns: nudgeai's columns the Portal has (or DERIVED), by name."""
+    missing = [c for c in REQUIRED[table] if c not in portal_columns]
+    if missing:
+        raise SyncRefused(f"{table}: the Portal's view has no {', '.join(missing)}; nothing changed.")
+    picked = [
+        f"`{c}`" if c in portal_columns else f"{DERIVED[c]} AS `{c}`"
+        for c in target_columns
+        if c in portal_columns or c in DERIVED
+    ]
+    return f"SELECT {', '.join(picked)} FROM `{table}`"
+
+
 def check_refresh(
-    table: str, columns: Sequence[str], target_columns: Sequence[str], fetched: int, on_file: int
+    table: str,
+    columns: Sequence[str],
+    target_columns: Sequence[str],
+    fetched: int,
+    on_file: int,
+    *,
+    shared_columns: bool = False,
 ) -> None:
     """The guards: raise SyncRefused, naming the table and the numbers, if the refresh would lose anything."""
     missing = [c for c in columns if c not in target_columns]
-    extra = [c for c in target_columns if c not in columns]
+    extra = [] if shared_columns else [c for c in target_columns if c not in columns]
     if missing or extra:
         raise SyncRefused(
             f"{table}: columns differ. Only on PortalLive: {missing or 'none'}; "
@@ -136,14 +170,23 @@ def _log(target: Engine, result: TableResult, started: datetime) -> None:
         )  # fmt: skip
 
 
-def refresh_table(target: Engine, fetch: Fetch, table: str, *, dry_run: bool = False) -> TableResult:
+def refresh_table(
+    target: Engine, fetch: Fetch, table: str, *, dry_run: bool = False, shared_columns: bool = False
+) -> TableResult:
     started = _now()
     result = TableResult(table, "failed")
     try:
         result.on_file = _on_file(target, table)
-        columns, rows = fetch(SOURCES[table])
+        target_columns = _target_columns(target, table)
+        sql = SOURCES[table]
+        if shared_columns:
+            portal_columns, _ = fetch(f"SELECT * FROM `{table}` LIMIT 0")
+            sql = shared_query(table, portal_columns, target_columns)
+        columns, rows = fetch(sql)
         result.fetched = len(rows)
-        check_refresh(table, columns, _target_columns(target, table), len(rows), result.on_file)
+        check_refresh(
+            table, columns, target_columns, len(rows), result.on_file, shared_columns=shared_columns
+        )
         if dry_run:
             result.status = "dry_run"
             return result
@@ -165,7 +208,15 @@ def refresh_table(target: Engine, fetch: Fetch, table: str, *, dry_run: bool = F
 
 
 def sync_reference_tables(
-    target: Engine, fetch: Fetch, *, dry_run: bool = False, tables: Sequence[str] | None = None
+    target: Engine,
+    fetch: Fetch,
+    *,
+    dry_run: bool = False,
+    tables: Sequence[str] | None = None,
+    shared_columns: bool = False,
 ) -> list[TableResult]:
     """Refresh every table (or `tables`), each on its own. Never raises."""
-    return [refresh_table(target, fetch, table, dry_run=dry_run) for table in (tables or SOURCES)]
+    return [
+        refresh_table(target, fetch, table, dry_run=dry_run, shared_columns=shared_columns)
+        for table in (tables or SOURCES)
+    ]
