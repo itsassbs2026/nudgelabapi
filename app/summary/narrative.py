@@ -13,6 +13,7 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
+from app import claude
 from app.config import Settings
 from app.services.company import PRIME
 
@@ -52,21 +53,19 @@ Writer = Callable[[Settings, dict[str, Any]], dict[str, Any]]
 
 
 def call_claude(settings: Settings, data: dict[str, Any]) -> dict[str, Any]:
-    from anthropic import AnthropicBedrock
-
-    client = AnthropicBedrock(aws_region=settings.bedrock_region, timeout=120, max_retries=2)
+    client = claude.client(settings)
     tool = {"name": "submit", "description": "Submit the summary, once.", "input_schema": SCHEMA}
     # data["company"] says whose summary it is (send.build); it isn't one of the figures.
     who = data.get("company") or {}
     figures = {k: v for k, v in data.items() if k != "company"}
     message = client.messages.create(
-        model=settings.summary_model,
+        model=claude.model(settings, settings.summary_model),
         max_tokens=2000,
         system=SYSTEM.format(
             company=who.get("name", PRIME.name), app_name=who.get("app_name", PRIME.app_name)
         ),
         messages=[{"role": "user", "content": "Yesterday's figures:\n" + json.dumps(figures, default=str)}],
-        tools=[tool],  # type: ignore[list-item]
+        tools=[tool],
     )
     submitted = next((b.input for b in message.content if b.type == "tool_use" and b.name == "submit"), None)
     if not isinstance(submitted, dict):

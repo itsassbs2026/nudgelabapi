@@ -27,6 +27,7 @@ from pydantic import ValidationError
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
+from app import claude as claude_route
 from app.auth.deps import CurrentUser
 from app.config import Settings
 from app.models.content import ContentUpload, UploadStatus
@@ -176,18 +177,14 @@ def call_claude(
     the tool is offered with the default choice and the instructions ask for it. The input isn't guaranteed to
     match the schema: everything that reads it checks it (to_content, TrainingContent, the fact check).
     """
-    from anthropic import AnthropicBedrock
-
-    client = AnthropicBedrock(
-        aws_region=settings.bedrock_region, timeout=settings.prep_timeout_seconds, max_retries=2
-    )
+    client = claude_route.client(settings, timeout=settings.prep_timeout_seconds)
     tool = {"name": "submit", "description": "Submit the finished result, once.", "input_schema": schema}
     with client.messages.stream(
-        model=settings.bedrock_prep_model,
+        model=claude_route.model(settings, settings.bedrock_prep_model),
         max_tokens=settings.prep_max_tokens,
         system=system + "\n\n" + SUBMIT_INSTRUCTION,
         messages=[{"role": "user", "content": user}],
-        tools=[tool],  # type: ignore[list-item]
+        tools=[tool],
     ) as stream:
         message = stream.get_final_message()
     if message.stop_reason == "max_tokens":

@@ -24,6 +24,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app import claude
 from app.ask import tools
 from app.config import Settings
 from app.models.ask import AskConversation, AskMessage
@@ -154,9 +155,7 @@ class FakeClient:
 def bedrock_client(settings: Settings) -> Any:
     if settings.ask_fake:
         return FakeClient()
-    from anthropic import AnthropicBedrock
-
-    return AnthropicBedrock(aws_region=settings.bedrock_region, timeout=120, max_retries=2)
+    return claude.client(settings)
 
 
 # Tests replace this.
@@ -247,7 +246,8 @@ def stream_answer(
     text_parts: list[str] = []
     tokens_in = tokens_out = 0
     with session() as db:
-        model = str(settings_table.get(db, "ask.model", "us.anthropic.claude-sonnet-5-5"))
+        ask_model = str(settings_table.get(db, "ask.model", "us.anthropic.claude-sonnet-5-5"))
+        model = claude.model(settings, ask_model)
         max_calls = int(settings_table.get(db, "ask.max_tool_calls", 8))
         price_in = Decimal(str(settings_table.get(db, "ask.input_per_m", "3")))
         price_out = Decimal(str(settings_table.get(db, "ask.output_per_m", "15")))

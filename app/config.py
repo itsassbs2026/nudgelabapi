@@ -126,6 +126,9 @@ class Settings(BaseSettings):
 
     # "Prepare for voice" (SPEC 10.2): Claude on Bedrock via the instance role (iam-policy-stage2.json).
     bedrock_region: str = "us-east-1"
+    # Set: every Claude call goes to Anthropic's API instead of Bedrock (Suncom, whose AWS account has no
+    # Bedrock quota; app/claude.py). Empty: Bedrock.
+    anthropic_api_key: str = ""
     bedrock_prep_model: str = "us.anthropic.claude-sonnet-5-5"
     # The daily summary email (app/summary): the model that writes its highlights, and the day it reports on.
     summary_model: str = "us.anthropic.claude-sonnet-5-5"
