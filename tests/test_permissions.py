@@ -98,6 +98,8 @@ PROTECTED: list[tuple[str, str, dict[str, Any] | None, bool]] = [
     ("POST", "/api/v1/versions/{version_id}/submit", None, True),
     ("POST", "/api/v1/versions/{version_id}/send-back", {}, True),
     ("GET", "/api/v1/studio-settings", None, True),
+    ("GET", "/api/v1/trainings/{training_id}/recommendations", None, True),
+    ("PATCH", "/api/v1/recommendations/{rec_id}", {"status": "done"}, True),
     ("GET", "/api/v1/versions/{version_id}/history", None, True),
     ("POST", "/api/v1/versions/{version_id}/history/{history_id}/restore", {"revision": 1}, True),
     ("POST", "/api/v1/versions/{version_id}/archive", None, True),
@@ -195,7 +197,7 @@ def _call(
     path = path.replace("{upload_id}", "999999").replace("{voice_id}", "Nobody")
     path = path.replace("{from_id}", "999998").replace("{to_id}", "999999")
     path = path.replace("{profile_id}", "nobody").replace("{tester_id}", "999999")
-    path = path.replace("{recipient_id}", "999999")
+    path = path.replace("{recipient_id}", "999999").replace("{rec_id}", "999999")
     path = path.replace("{conversation_id}", "999999").replace("{message_id}", "999999")
     path = path.replace("{key}", "ask.daily_limit").replace("{history_id}", "999999")
     return client.request(method, path, json=body, headers=headers or {}).status_code

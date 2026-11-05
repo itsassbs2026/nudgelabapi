@@ -130,6 +130,12 @@ class Settings(BaseSettings):
     # The daily summary email (app/summary): the model that writes its highlights, and the day it reports on.
     summary_model: str = "us.anthropic.claude-sonnet-5-5"
     summary_timezone: str = "America/Chicago"
+    # Content recommendations (app/recommendations): the nightly look at each training's recent calls.
+    # Items outside trainers' control (speech recognition, the app, the AI trainer) are emailed here.
+    recommendations_model: str = "us.anthropic.claude-sonnet-5-5"
+    recommendations_days: int = 7
+    recommendations_min_calls: int = 20
+    recommendations_email: str = "bgupta@primecomms.com"
     # Ask NudgeLab answers with a scripted fake model instead of Bedrock (e2e tests only).
     ask_fake: bool = False
     prep_max_tokens: int = 32_000

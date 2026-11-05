@@ -1,0 +1,24 @@
+{% extends "_base.html.j2" %}
+{% block content %}
+<p style="margin:0 0 4px;font-size:13px;color:#71717a;">Content recommendations · {{ day_label }}</p>
+<h1 style="margin:0 0 8px;font-size:20px;line-height:1.35;">Our list: what the content can't fix</h1>
+<p style="margin:0 0 20px;font-size:14px;color:#52525b;line-height:1.5;">From each training's calls over the last 7 days. These items are for the NudgeLab team (speech recognition, grading, the AI trainer, the app); trainers don't see them. Trainers see their content recommendations in the Training studio.</p>
+
+{% for t in trainings %}
+<h2 style="margin:0 0 4px;font-size:15px;">{{ t.title }}</h2>
+<p style="margin:0 0 8px;font-size:12px;color:#71717a;">{{ t.calls }} calls · {{ t.recommendations }} content recommendation{{ "" if t.recommendations == 1 else "s" }} for trainers{% if t.error %} · <span style="color:#b91c1c;">the AI review failed tonight; earlier recommendations stay up</span>{% endif %}</p>
+{% if t.ours %}
+<ul style="margin:0 0 20px;padding-left:20px;font-size:14px;line-height:1.5;">
+  {% for o in t.ours %}
+  <li style="margin:0 0 8px;"><b>{{ o.issue }}</b><br><span style="color:#52525b;">{{ o.evidence }}</span>{% for link in o.links %}{% if loop.first %}<br>{% endif %}<a href="{{ link }}" style="color:#4f46e5;font-size:13px;">call {{ loop.index }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p style="margin:0 0 20px;font-size:14px;color:#52525b;">Nothing for us.</p>
+{% endif %}
+{% endfor %}
+
+<p style="margin:0 0 8px;">
+  <a href="{{ studio_link }}" style="display:inline-block;padding:10px 18px;background:#4f46e5;color:#ffffff;text-decoration:none;border-radius:6px;font-size:15px;">Open the Training studio</a>
+</p>
+{% endblock %}

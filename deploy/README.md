@@ -368,6 +368,24 @@ dashboard's *Send me a test now* sends it to the signed-in Admin. A day is sent 
 the RDS admin login: `mysql -h <RDS endpoint> -u <admin user> -p < deploy/db-grants-0014-assignments.sql` (the
 client asks for the password), or open `mysql` as admin and paste the file's `GRANT` lines at the `mysql>` prompt.
 
+## Content recommendations (2026-11-05)
+
+Each night at 2 AM Chicago time, every live training with at least 20 calls in the last 7 days gets up to 5
+content recommendations in the Training studio (Claude Sonnet on Bedrock, one request per training). Items the
+content can't fix are emailed to `RECOMMENDATIONS_EMAIL` (default bgupta@primecomms.com).
+
+1. `bash deploy/deploy.sh` stops at migration 0025: run `venv/bin/alembic upgrade head`.
+2. As the RDS master login: `deploy/db-grants-0025-recommendations.sql`.
+3. `bash deploy/deploy.sh` again (restarts the API; the Studio list shows a Recommendations column).
+4. Try one training first and read what comes back (nothing is saved):
+   `venv/bin/python scripts/recommendations.py --training benefits_know_it_choose_it_use_it --preview`
+5. Install the timer:
+   ```bash
+   sudo cp deploy/nudgelabapi-recommendations.{service,timer} /etc/systemd/system/
+   sudo systemctl daemon-reload && sudo systemctl enable --now nudgelabapi-recommendations.timer
+   ```
+   To fill the Studio right away instead of waiting for 2 AM: `sudo systemctl start nudgelabapi-recommendations`.
+
 ## Where things are
 
 | | |

@@ -26,6 +26,7 @@ from app.auth.deps import CurrentUser
 from app.mobile.persona import Voices
 from app.models.content import ContentUpload, UploadStatus
 from app.models.dashboard import DashUser
+from app.recommendations import service as recommendations
 from app.reference.agent_tables import training_profiles, training_versions, trainings
 from app.schemas.training_content import TrainingContent
 from app.services import audit, settings_table
@@ -116,6 +117,7 @@ def list_trainings(db: Session) -> list[dict[str, Any]]:
         .order_by(trainings.c.title)
     ).all()
     editors = _last_editors(db)
+    recs = recommendations.open_counts(db)
     return [
         {
             **_settings(r),
@@ -127,6 +129,7 @@ def list_trainings(db: Session) -> list[dict[str, Any]]:
             "archived_drafts": int(r.archived_drafts or 0),
             "last_edited_at": r.last_edited_at,
             "last_edited_by": editors.get(r.training_id),
+            "recommendations": recs.get(r.training_id, 0),
         }
         for r in rows
     ]

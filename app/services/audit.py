@@ -51,6 +51,7 @@ class AuditAction(StrEnum):
     PERMISSIONS_CHANGED = "permissions_changed"
     SUMMARY_RECIPIENTS_CHANGED = "summary_recipients_changed"  # 2026-10-09: the daily summary email
     SUMMARY_TEST_SENT = "summary_test_sent"
+    RECOMMENDATION_UPDATED = "recommendation_updated"  # 2026-11-05: done / dismissed in the Studio
     # Later phases: training_published, settings_changed, …
 
 

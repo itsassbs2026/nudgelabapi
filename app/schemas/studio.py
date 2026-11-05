@@ -107,6 +107,7 @@ class TrainingListItem(TrainingSettings):
     archived_drafts: int  # drafts put away (2026-10-22); not counted in `drafts`
     last_edited_at: datetime | None
     last_edited_by: str | None
+    recommendations: int = 0  # open content recommendations (2026-11-05)
 
 
 VersionStatus = Literal["draft", "in_review", "published", "retired", "archived"]

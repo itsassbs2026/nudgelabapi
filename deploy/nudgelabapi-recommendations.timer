@@ -1,0 +1,10 @@
+[Unit]
+Description=Content recommendations for the Training studio, every night (2 AM Chicago time)
+
+[Timer]
+# Chicago time, so daylight saving is followed. Persistent: a run missed while the server was down runs at boot.
+OnCalendar=*-*-* 02:00:00 America/Chicago
+Persistent=true
+
+[Install]
+WantedBy=timers.target

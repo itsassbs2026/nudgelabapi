@@ -1,0 +1,16 @@
+[Unit]
+Description=nudgelabapi: content recommendations from the last 7 days of calls (scripts/recommendations.py)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/srv/nudgelabapi
+# Same .env as nudgelabapi.service. A training is looked at once a night, so a rerun only finishes what was left.
+ExecStart=/srv/nudgelabapi/venv/bin/python scripts/recommendations.py
+TimeoutStartSec=3600
+
+NoNewPrivileges=true
+PrivateTmp=true

@@ -19,6 +19,7 @@ from app.models.dashboard import (
 )
 from app.models.permissions import DashPermission
 from app.models.portal_clear import PortalClear
+from app.models.recommendations import DashRecommendation, DashRecommendationRun
 from app.models.studio_history import DashVersionHistory
 from app.models.summary import DashSummaryRecipient, DashSummaryRun
 from app.models.sync_run_log import SyncRunLog
@@ -43,6 +44,8 @@ __all__ = [
     "DashEmailOutbox",
     "DashPasswordResetToken",
     "DashPermission",
+    "DashRecommendation",
+    "DashRecommendationRun",
     "DashRefreshToken",
     "DashSetting",
     "DashSummaryRecipient",
