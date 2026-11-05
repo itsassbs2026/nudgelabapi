@@ -379,7 +379,15 @@ def livekit(monkeypatch: pytest.MonkeyPatch) -> str:
     monkeypatch.setattr(settings, "livekit_url", "wss://example.livekit.cloud")
     monkeypatch.setattr(settings, "livekit_api_key", "lk-key")
     monkeypatch.setattr(settings, "livekit_api_secret", "lk-secret-" + "y" * 32)
+    from app.services import live
+
+    # LiveKit is never called: a room's state is what a test puts in ROOM_STATES (default: gone).
+    ROOM_STATES.clear()
+    monkeypatch.setattr(live, "room_state", lambda _settings, room: ROOM_STATES.get(room, "gone"))
     return settings.livekit_api_secret or ""
+
+
+ROOM_STATES: dict[str, str | None] = {}
 
 
 def test_session_start(
@@ -438,6 +446,60 @@ def test_session_start_without_body(
         body["participant_token"], livekit, algorithms=["HS256"], options={"verify_aud": False}
     )
     assert json.loads(claims["roomConfig"]["agents"][0]["metadata"])["reset"] is False
+
+
+# --- Start tapped again within seconds (2026-11-05: 7 rooms in 28 s, a trainer talking to nobody) -------
+
+
+def _sub(token: str, secret: str) -> str:
+    claims = pyjwt.decode(token, secret, algorithms=["HS256"], options={"verify_aud": False})
+    return str(claims["sub"])
+
+
+def test_a_repeated_start_gets_the_same_room_while_its_trainer_waits(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], livekit: str, db_session: Session,
+    rooms: list[Any],
+) -> None:  # fmt: skip
+    first = start(client, make_pass).json()
+    ROOM_STATES[first["room_name"]] = "agent"
+    server(db_session, "main", 1)
+    rooms.append(call(first["room_name"]))  # every seat taken, by this very call: not refused as busy
+    again = start(client, make_pass)
+    assert again.status_code == 200, again.text
+    second = again.json()
+    assert second["room_name"] == first["room_name"]
+    # Same identity: LiveKit swaps the old connection for the new one, and the agent sees the same trainee.
+    assert _sub(second["participant_token"], livekit) == _sub(first["participant_token"], livekit)
+    assert db_session.execute(text("SELECT COUNT(*) FROM app_session_starts")).scalar() == 2  # both logged
+
+
+@pytest.mark.parametrize(
+    "state", ["gone", "no_agent", None]
+)  # ended, trainer left ("trainee left"), unreadable
+def test_a_new_room_when_the_last_one_cant_take_them(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], livekit: str, state: str | None
+) -> None:
+    first = start(client, make_pass).json()
+    ROOM_STATES[first["room_name"]] = state
+    assert start(client, make_pass).json()["room_name"] != first["room_name"]
+
+
+def test_a_new_room_after_40_seconds_or_with_other_settings(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], livekit: str, db_session: Session
+) -> None:
+    headers = bearer(make_pass())
+    first = start(client, make_pass).json()
+    ROOM_STATES[first["room_name"]] = "agent"
+    over = client.post("/app/v1/trainings/big4/session", headers=headers, json={"start_over": True}).json()
+    assert over["room_name"] != first["room_name"]  # starting over: the trainer's metadata differs
+    walk = client.post("/app/v1/trainings/walk/session", headers=headers, json={}).json()
+    assert walk["room_name"] != first["room_name"]  # another training
+    db_session.execute(
+        text("UPDATE app_session_starts SET created_at = UTC_TIMESTAMP(6) - INTERVAL 41 SECOND")
+    )
+    db_session.commit()
+    ROOM_STATES.update({over["room_name"]: "agent", walk["room_name"]: "agent"})
+    assert start(client, make_pass).json()["room_name"] not in (first["room_name"], over["room_name"])
 
 
 @pytest.mark.parametrize(

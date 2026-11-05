@@ -100,8 +100,15 @@ def _start(
         requested_name=body.trainer_name,
         requested_voice=body.trainer_voice,
     )
-    capacity.check(db, settings)  # all trainers busy: 503 trainers_busy, the app says to come back later
-    return sessions.start(db, settings, employee, training_id, chosen, start_over=body.start_over, ip=ip)
+    # Start tapped again within seconds: the same room, while its trainer is still waiting there.
+    room = sessions.recent_room(
+        db, settings, employee.uid, training_id, start_over=body.start_over, chosen=chosen
+    )
+    if room is None:
+        capacity.check(db, settings)  # all trainers busy: 503 trainers_busy, the app says to come back later
+    return sessions.start(
+        db, settings, employee, training_id, chosen, start_over=body.start_over, ip=ip, room_name=room
+    )
 
 
 # --- The employee portal (2026-10-29, docs/PORTAL_TRAINING.md) ---------------------------------------------
