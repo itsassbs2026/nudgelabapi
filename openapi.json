@@ -8512,6 +8512,112 @@
         ]
       }
     },
+    "/api/v1/trainings/{training_id}/recommendations": {
+      "get": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Training Recommendations",
+        "operationId": "training_recommendations_api_v1_trainings__training_id__recommendations_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "training_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{2,49}$",
+              "title": "Training Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainingRecommendations"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/{rec_id}": {
+      "patch": {
+        "tags": [
+          "studio"
+        ],
+        "summary": "Update Recommendation",
+        "operationId": "update_recommendation_api_v1_recommendations__rec_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "rec_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "title": "Rec Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/app/v1/trainings": {
       "get": {
         "tags": [
@@ -12166,6 +12272,37 @@
         ],
         "title": "KnowledgeBase"
       },
+      "LastRun": {
+        "properties": {
+          "run_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Run Date"
+          },
+          "window_from": {
+            "type": "string",
+            "format": "date",
+            "title": "Window From"
+          },
+          "window_to": {
+            "type": "string",
+            "format": "date",
+            "title": "Window To"
+          },
+          "calls": {
+            "type": "integer",
+            "title": "Calls"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_date",
+          "window_from",
+          "window_to",
+          "calls"
+        ],
+        "title": "LastRun"
+      },
       "LiveOut": {
         "properties": {
           "configured": {
@@ -14925,6 +15062,144 @@
         ],
         "title": "RecipientUpdate"
       },
+      "RecommendationOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id"
+          },
+          "area": {
+            "type": "string",
+            "title": "Area"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          },
+          "impact": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Impact"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "problem": {
+            "type": "string",
+            "title": "Problem"
+          },
+          "suggestion": {
+            "type": "string",
+            "title": "Suggestion"
+          },
+          "evidence": {
+            "type": "string",
+            "title": "Evidence"
+          },
+          "examples": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Examples"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "done",
+              "dismissed"
+            ],
+            "title": "Status"
+          },
+          "status_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status Note"
+          },
+          "status_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status By"
+          },
+          "status_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "training_id",
+          "version_id",
+          "area",
+          "target",
+          "impact",
+          "title",
+          "problem",
+          "suggestion",
+          "evidence",
+          "examples",
+          "status",
+          "status_note",
+          "status_by",
+          "status_at",
+          "created_at"
+        ],
+        "title": "RecommendationOut"
+      },
       "RecordingUrl": {
         "properties": {
           "url": {
@@ -17116,6 +17391,36 @@
         ],
         "title": "SetupChoice"
       },
+      "StatusIn": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "done",
+              "dismissed"
+            ],
+            "title": "Status"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "StatusIn"
+      },
       "StoreOut": {
         "properties": {
           "store_id": {
@@ -18853,6 +19158,11 @@
               }
             ],
             "title": "Last Edited By"
+          },
+          "recommendations": {
+            "type": "integer",
+            "title": "Recommendations",
+            "default": 0
           }
         },
         "type": "object",
@@ -18993,6 +19303,46 @@
           "quiz_retry"
         ],
         "title": "TrainingProgress"
+      },
+      "TrainingRecommendations": {
+        "properties": {
+          "training_id": {
+            "type": "string",
+            "title": "Training Id"
+          },
+          "open": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationOut"
+            },
+            "type": "array",
+            "title": "Open"
+          },
+          "handled": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendationOut"
+            },
+            "type": "array",
+            "title": "Handled"
+          },
+          "last_run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LastRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "training_id",
+          "open",
+          "handled",
+          "last_run"
+        ],
+        "title": "TrainingRecommendations"
       },
       "TrainingRow": {
         "properties": {

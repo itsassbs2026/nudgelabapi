@@ -129,6 +129,28 @@ def main(url: str) -> None:
                kind="first", passed_at=T(4))  # fmt: skip
         insert(db, "training_pass_log", uid=1001, training_id="wec", version_id=50, track="billing",
                kind="repeat", passed_at=T(9))  # fmt: skip
+        # Content recommendations (2026-11-05): two open ones for the Big 4 (e2e/recommendations.spec.ts).
+        from app.models.recommendations import DashRecommendation, DashRecommendationRun
+
+        rec_run = DashRecommendationRun(run_date=T(30).date(), training_id="big4", version_id=1,
+                                        window_from=T(23).date(), window_to=T(29).date(),
+                                        calls=212)  # fmt: skip
+        db.add(rec_run)
+        db.flush()
+        for impact, target, title, problem, suggestion, evidence in (
+            ("high", "Question 1", "Make question 1's options easier to tell apart",
+             "Most people who miss it pick C, which starts with the same words as the right answer.",
+             'Start each option differently: "Oct 15-31", "Nov 1-15", "Dec 1-18".',
+             "38% missed it on the first try; 81 of 96 wrong answers were C."),
+            ("low", "Topic 2", "Explain attach rate the first time it comes up",
+             'Trainees ask "what does attach rate mean?" during topic 2.',
+             'Add one sentence: "Attach rate is how many accessories you sell per phone."',
+             "Asked in 14 of 250 sampled calls."),
+        ):  # fmt: skip
+            db.add(DashRecommendation(run_id=rec_run.id, training_id="big4", version_id=1, area="question",
+                                      target=target, impact=impact, title=title, problem=problem,
+                                      suggestion=suggestion, evidence=evidence, examples=["s1"],
+                                      status="open"))  # fmt: skip
         # The session viewer test needs a recorded session with a transcript: give rec-new s1's lines.
         db.execute(
             text(
