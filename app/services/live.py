@@ -59,6 +59,28 @@ async def people_in(settings: Settings, room: str) -> int:
         raise ApiError(503, "live_unavailable", "Live sessions can't be read right now.") from exc
 
 
+async def _room_state(settings: Settings, room: str) -> str:
+    async with api.LiveKitAPI(
+        settings.livekit_url, settings.livekit_api_key, settings.livekit_api_secret
+    ) as lk:
+        listed = await lk.room.list_rooms(api.ListRoomsRequest(names=[room]))
+        if not listed.rooms:
+            return "gone"
+        response = await lk.room.list_participants(api.ListParticipantsRequest(room=room))
+    agent = any(p.kind == api.ParticipantInfo.Kind.AGENT for p in response.participants)
+    return "agent" if agent else "no_agent"
+
+
+def room_state(settings: Settings, room: str) -> str | None:
+    """The room's state: "gone" (no such room), "agent" (open, the trainer is in it), "no_agent" (open, no
+    trainer), or None when LiveKit can't be read."""
+    try:
+        return asyncio.run(asyncio.wait_for(_room_state(settings, room), TIMEOUT_SECONDS))
+    except Exception as exc:
+        logger.warning("room_state_failed", error=type(exc).__name__)
+        return None
+
+
 def describe(db: Session, rooms: list[Any], *, include_tests: bool) -> list[dict[str, Any]]:
     """Training sessions among the rooms, with trainee names and training titles; newest first."""
     parsed = []
