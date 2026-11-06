@@ -68,15 +68,25 @@ def _earlier(db: Session, training_id: str, run_date: date) -> list[dict[str, An
     ]
 
 
+def window(settings: Settings, run_date: date) -> tuple[date, date] | None:
+    """The days a run on run_date looks at: the last recommendations_days, but none before
+    recommendations_not_before. None when that leaves no days."""
+    start = run_date - timedelta(days=settings.recommendations_days)
+    if settings.recommendations_not_before:
+        start = max(start, settings.recommendations_not_before)
+    end = run_date - timedelta(days=1)
+    return (start, end) if start <= end else None
+
+
 def run_training(
     db: Session, settings: Settings, training_id: str, run_date: date
 ) -> DashRecommendationRun | None:
     """Look at one training's last week; None when it had too few calls. Commits."""
+    days = window(settings, run_date)
+    if days is None:
+        return None
     f = build_filters(
-        timezone=settings.summary_timezone,
-        date_from=run_date - timedelta(days=settings.recommendations_days),
-        date_to=run_date - timedelta(days=1),
-        training_id=training_id,
+        timezone=settings.summary_timezone, date_from=days[0], date_to=days[1], training_id=training_id
     )
     evidence = ev.gather(db, f)
     if evidence["calls"] < settings.recommendations_min_calls:

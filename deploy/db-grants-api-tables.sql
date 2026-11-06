@@ -28,6 +28,9 @@ GRANT SELECT, INSERT, UPDATE         ON nudgeai.ask_feedback               TO 'n
 GRANT SELECT, INSERT                 ON nudgeai.dash_announcements_seen    TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT, DELETE         ON nudgeai.dash_version_history       TO 'nudgelab_api'@'10.0.1.148';
 GRANT SELECT, INSERT                 ON nudgeai.portal_clears              TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, INSERT                 ON nudgeai.dash_recommendation_runs   TO 'nudgelab_api'@'10.0.1.148';
+GRANT SELECT, INSERT                 ON nudgeai.dash_recommendations       TO 'nudgelab_api'@'10.0.1.148';
+GRANT UPDATE (status, status_note, status_by, status_at) ON nudgeai.dash_recommendations TO 'nudgelab_api'@'10.0.1.148';
 
 -- Check:
 -- SHOW GRANTS FOR 'nudgelab_api'@'10.0.1.148';

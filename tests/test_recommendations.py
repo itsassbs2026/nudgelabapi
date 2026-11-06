@@ -34,6 +34,7 @@ def week(db_session: Session, monkeypatch: pytest.MonkeyPatch) -> Session:
     monkeypatch.setattr(
         get_settings(), "recommendations_min_calls", 15
     )  # 18 calls in the next night's window
+    monkeypatch.setattr(get_settings(), "recommendations_not_before", None)
     for i in range(22):
         sid = f"r{i:02d}"
         uid = 1001 + i % 5
@@ -237,3 +238,23 @@ def test_the_writer_doesnt_force_the_tool(monkeypatch):
     assert sent["tool_choice"] == {"type": "auto"}
     assert "submit tool" in sent["messages"][0]["content"]
     assert got == {"recommendations": [], "ours": []} and usage == {"input_tokens": 10, "output_tokens": 5}
+
+
+def test_calls_where_nobody_spoke_arent_hangups(week: Session) -> None:
+    """A trainee who never said a word (repeated Start taps, no mic) didn't leave because of the welcome."""
+    for i in range(3):
+        insert(week, "training_sessions", session_id=f"silent{i}", uid=1001, training_id="big4", version_id=1,
+               room_name=f"room-silent{i}", started_at=at(24, 40 + i), duration_sec=61, start_point="new",
+               client="flutter", outcome="not_passed", end_reason="user_left")  # fmt: skip
+    week.flush()
+    ev = evidence.gather(week, _f())
+    assert ev["left_without_saying_anything"]["calls"] == 3
+    assert not any("welcome" in h["where"] for h in ev["hangups_before_passing"])
+
+
+def test_the_window_doesnt_reach_before_the_grading_fix(monkeypatch: pytest.MonkeyPatch) -> None:
+    settings = get_settings()
+    monkeypatch.setattr(settings, "recommendations_not_before", date(2026, 11, 6))
+    assert run.window(settings, date(2026, 11, 6)) is None
+    assert run.window(settings, date(2026, 11, 8)) == (date(2026, 11, 6), date(2026, 11, 7))
+    assert run.window(settings, date(2026, 11, 20)) == (date(2026, 11, 13), date(2026, 11, 19))

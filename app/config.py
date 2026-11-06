@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from enum import StrEnum
 from functools import lru_cache
 
@@ -134,6 +135,9 @@ class Settings(BaseSettings):
     # Items outside trainers' control (speech recognition, the app, the AI trainer) are emailed here.
     recommendations_model: str = "us.anthropic.claude-sonnet-5-5"
     recommendations_days: int = 7
+    # No calls from before this day: answers with "1st"/"first" were graded wrong until the 2026-11-05 night
+    # release, which would read as a content problem. Matters only until 2026-11-13.
+    recommendations_not_before: date | None = date(2026, 11, 6)
     recommendations_min_calls: int = 20
     recommendations_email: str = "bgupta@primecomms.com"
     # Ask NudgeLab answers with a scripted fake model instead of Bedrock (e2e tests only).

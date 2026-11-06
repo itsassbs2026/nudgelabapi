@@ -96,6 +96,21 @@ def _hangups(
     return [{"where": k, "calls": v} for k, v in where.most_common(8)]
 
 
+def _never_spoke(db: Session, ids: list[str]) -> set[str]:
+    """The calls among ids with no trainee line in the transcript."""
+    tr = session_transcripts.c
+    spoke: set[str] = set()
+    for chunk in range(0, len(ids), 1000):
+        part = ids[chunk : chunk + 1000]
+        spoke |= {
+            r[0]
+            for r in db.execute(
+                select(tr.session_id).where(tr.session_id.in_(part), tr.role == "trainee").distinct()
+            )
+        }
+    return set(ids) - spoke
+
+
 def _wrong_heard(db: Session, f: ReportFilters, numbers: list[int]) -> dict[int, list[dict[str, Any]]]:
     """For the most-missed questions: what trainees actually said when graded wrong (up to 8 each)."""
     if not numbers:
@@ -206,6 +221,10 @@ def gather(db: Session, f: ReportFilters) -> dict[str, Any]:
         )
     }
     left = [r.session_id for r in rows if r.end_reason == "user_left" and r.outcome != "passed"]
+    # 2026-11-06: of 634 Benefits calls "left before the first topic", 364 never said a word (repeated Start
+    # taps, mic or connection problems). Those aren't about the welcome, so they're counted apart.
+    silent = _never_spoke(db, left)
+    left = [sid for sid in left if sid not in silent]
     questions = question_stats(db, f, str(f.training_id))["questions"]
     most_missed = [
         q["question_number"]
@@ -242,6 +261,10 @@ def gather(db: Session, f: ReportFilters) -> dict[str, Any]:
         },
         "rating_quotes": quotes,
         "hangups_before_passing": _hangups(db, f, left, topic_titles),
+        "left_without_saying_anything": {
+            "calls": len(silent),
+            "note": "The trainee never spoke: app, microphone or connection problems, not the content.",
+        },
         "topics": [
             {"topic": n, "title": topic_titles.get(n), **topics.get(n, {})} for n in sorted(topic_titles)
         ],

@@ -15,7 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -49,10 +49,14 @@ def main(argv: list[str]) -> int:
         if args.preview:
             if not args.training:
                 parser.error("--preview needs --training")
+            days = run.window(settings, run_date)
+            if days is None:
+                print(f"No days to look at before {run_date} (recommendations_not_before).")
+                return 0
             f = build_filters(
                 timezone=settings.summary_timezone,
-                date_from=run_date - timedelta(days=settings.recommendations_days),
-                date_to=run_date - timedelta(days=1),
+                date_from=days[0],
+                date_to=days[1],
                 training_id=args.training,
             )
             ev = evidence.gather(db, f)
