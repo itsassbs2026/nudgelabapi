@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime as dt
 from datetime import date
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -213,3 +214,26 @@ def test_the_email_preview_renders(week: Session, claude: list[Any]) -> None:
     run.run_all(week, get_settings(), RUN)
     subject, html = run.build_email(week, get_settings(), RUN)
     assert subject.endswith("Wed, Sep 30") and "The Big 4" in html and "1 content recommendation for" in html
+
+
+def test_the_writer_doesnt_force_the_tool(monkeypatch):
+    """Sonnet 5.5 answers a forced tool_choice with a 400 (2026-11-06), so the call leaves it to the model."""
+    import anthropic
+
+    sent: dict = {}
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.messages = SimpleNamespace(create=self.create)
+
+        def create(self, **kwargs):
+            sent.update(kwargs)
+            block = SimpleNamespace(type="tool_use", name="submit", input={"recommendations": [], "ours": []})
+            usage = SimpleNamespace(input_tokens=10, output_tokens=5)
+            return SimpleNamespace(content=[block], stop_reason="tool_use", usage=usage)
+
+    monkeypatch.setattr(anthropic, "AnthropicBedrock", FakeClient)
+    got, usage = writer.call_claude(get_settings(), {"calls": 1}, [])
+    assert sent["tool_choice"] == {"type": "auto"}
+    assert "submit tool" in sent["messages"][0]["content"]
+    assert got == {"recommendations": [], "ours": []} and usage == {"input_tokens": 10, "output_tokens": 5}

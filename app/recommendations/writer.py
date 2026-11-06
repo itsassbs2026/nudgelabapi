@@ -125,11 +125,13 @@ def call_claude(
                 "content": "Earlier recommendations and what trainers did with them:\n"
                 + json.dumps(earlier, default=str)
                 + "\n\nThis week's evidence:\n"
-                + json.dumps(evidence, default=str, ensure_ascii=False),
+                + json.dumps(evidence, default=str, ensure_ascii=False)
+                + "\n\nCall the submit tool now, once, with your recommendations.",
             }
         ],
         tools=[tool],
-        tool_choice={"type": "tool", "name": "submit"},
+        # Sonnet 5.5 answers a forced tool ({"type": "tool"}) with a 400 (2026-11-06): the prompt asks.
+        tool_choice={"type": "auto"},
     )
     submitted = next((b.input for b in message.content if b.type == "tool_use" and b.name == "submit"), None)
     if not isinstance(submitted, dict):
