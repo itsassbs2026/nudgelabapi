@@ -121,6 +121,11 @@ else the `default_marker` voice). Changing the rule means changing that function
 whatever it was given. The trainer says the first name only; names that aren't plain letters aren't spoken
 (the default is used). The agent (step 2) uses `trainer_name` and says it's an AI trainer if asked.
 
+**For now (2026-11-09, temporary):** the list shows `"trainer_person_name": "Nudge"` and the Nudge badge as
+`trainer_picture` for everyone, and on the call the trainer says the training's own name (`default_trainer_name`,
+Anne for most). A start that sends back "Nudge", the default name, or the district manager's name from an older
+list is accepted. To return to the district manager: `SHOWN_TRAINER = None` in `app/mobile/persona.py`.
+
 - Refused (403) unless the training is **assigned** to this uid, not cancelled, and has a published version.
 - The token is signed with the LiveKit secret and carries the dispatch metadata (`uid`, `training_id`, `reset`,
   `client: "flutter"`). The app can't change it, so the agent can trust the uid without new agent code.

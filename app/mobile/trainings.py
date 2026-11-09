@@ -140,7 +140,7 @@ def training_cards(
                 "elevenlabs_agent_id": r.completion_key,
                 "trainer_description": r.description,
                 "trainer_person_name": persona.name,
-                "trainer_picture": profile.get("district_manager_picture"),
+                "trainer_picture": persona.picture,  # Nudge's badge for now (persona.SHOWN_TRAINER)
                 "matched_rule_group_id": r.matched_rule_group_id,
                 "matched_rule_name": r.matched_rule_name,
                 "ai_flag": r.ai_flag,

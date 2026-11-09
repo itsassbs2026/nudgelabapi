@@ -14,6 +14,7 @@ from typing import Any
 import jwt as pyjwt
 import pytest
 from app.config import get_settings
+from app.mobile import persona
 from app.mobile.persona import spoken_name
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -77,6 +78,13 @@ def make_pass(wanaka_key: ec.EllipticCurvePrivateKey) -> Callable[..., str]:
         return pyjwt.encode(claims, key or wanaka_key, algorithm="ES256", headers={"kid": kid})
 
     return _make
+
+
+@pytest.fixture(autouse=True)
+def managers_as_trainers(monkeypatch: pytest.MonkeyPatch) -> None:
+    """These tests cover the district manager as the trainer. 2026-11-09: the app shows Nudge for now
+    (persona.SHOWN_TRAINER, tested at the end); the manager comes back later."""
+    monkeypatch.setattr(persona, "SHOWN_TRAINER", None)
 
 
 def bearer(token: str) -> dict[str, str]:
@@ -992,3 +1000,53 @@ def test_overdue_and_due_date(
     cards = client.get("/app/v1/trainings", headers=headers).json()["assigned_trainers"]
     assert [(c["training_id"], c["is_overdue"]) for c in cards] == [("big4", False), ("walk", False)]
     assert client.get("/app/v1/trainings/pending-count", headers=headers).json()["overdue_count"] == 0
+
+
+NUDGE = ("Nudge", "https://example.com/nudge_icon.png")
+
+
+def test_for_now_the_app_shows_nudge(
+    client: TestClient, app_data: None, make_pass: Callable[..., str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(persona, "SHOWN_TRAINER", NUDGE)
+    for who, training in ((make_pass(), "big4"), (make_pass(OTHER), "walk")):  # with and without a manager
+        c = card(client, bearer(who), training)
+        assert (c["trainer_person_name"], c["trainer_picture"], c["default_trainer_name"]) == (*NUDGE, "Anne")
+
+
+@pytest.mark.parametrize(
+    "sent",
+    [
+        {},
+        {"trainer_name": "Nudge"},  # what the list gives now
+        {"trainer_name": "Dana Manager"},  # a list the app fetched before the change
+        {"trainer_name": "Anne"},
+    ],
+)
+def test_with_nudge_shown_the_trainer_says_the_trainings_own_name(
+    client: TestClient,
+    app_data: None,
+    make_pass: Callable[..., str],
+    livekit: str,
+    monkeypatch: pytest.MonkeyPatch,
+    sent: dict[str, str],
+) -> None:
+    monkeypatch.setattr(persona, "SHOWN_TRAINER", NUDGE)
+    r = client.post(SESSION.format("big4"), headers=bearer(make_pass()), json=sent)
+    assert r.status_code == 200, r.text
+    assert r.json()["trainer_name"] == "Anne"
+    assert metadata(r.json(), livekit)["trainer_name"] == "Anne"
+
+
+def test_with_nudge_shown_other_names_are_still_refused(
+    client: TestClient,
+    app_data: None,
+    make_pass: Callable[..., str],
+    livekit: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(persona, "SHOWN_TRAINER", NUDGE)
+    r = client.post(
+        SESSION.format("big4"), headers=bearer(make_pass()), json={"trainer_name": "Someone Else"}
+    )
+    assert r.status_code == 422 and r.json()["error"]["code"] == "trainer_name_not_allowed"

@@ -31,11 +31,23 @@ DEFAULT_TRAINER_NAME = "Anne"  # the agent's trainings all use it; the content's
 _NAME = re.compile(r"^[^\W\d_]+(?:[ '\-][^\W\d_]+)*$")
 MAX_SPOKEN = 40
 
+# 2026-11-09, TEMPORARY (owner's request, to be put back later): the app shows "Nudge" and the Nudge badge as
+# the trainer instead of the employee's district manager, and on the call the trainer says the training's own
+# name (Anne for most). To go back to the district manager: SHOWN_TRAINER = None.
+SHOWN_TRAINER: tuple[str, str] | None = (
+    "Nudge",
+    "https://primetwokfiles.s3.us-west-2.amazonaws.com/s3fs-public/badges/nudge_icon.png",
+)
+
 
 @dataclass(frozen=True)
 class Persona:
     name: str | None  # as shown in the app (a full name)
     voice: str | None
+    picture: str | None = None
+    # While SHOWN_TRAINER is set: the district manager's name, still accepted back at start from a list the
+    # app fetched before the change (the trainer then says the training's own name anyway).
+    manager_name: str | None = None
 
 
 def spoken_name(name: str | None) -> str | None:
@@ -78,10 +90,11 @@ class Voices:
 def trainer_persona(
     profile: dict[str, Any], profile_id: str | None, voices: Voices, content_voice: str | None = None
 ) -> Persona:
-    return Persona(
-        name=profile.get("district_manager_name") or None,
-        voice=voices.for_training(profile_id, content_voice),
-    )
+    manager = profile.get("district_manager_name") or None
+    voice = voices.for_training(profile_id, content_voice)
+    if SHOWN_TRAINER:
+        return Persona(name=SHOWN_TRAINER[0], voice=voice, picture=SHOWN_TRAINER[1], manager_name=manager)
+    return Persona(name=manager, voice=voice, picture=profile.get("district_manager_picture"))
 
 
 def _training_setting(db: Session, version_ids: set[int], key: str) -> dict[int, str]:
@@ -130,7 +143,8 @@ def choose(
     requested_voice: str | None,
 ) -> Chosen:
     """What the session uses. The app may only send back what it was offered."""
-    allowed = {n.strip().casefold(): n.strip() for n in (persona.name, default_name) if n and n.strip()}
+    offered = (persona.name, persona.manager_name, default_name)
+    allowed = {n.strip().casefold(): n.strip() for n in offered if n and n.strip()}
     if requested_name is not None:
         name = allowed.get(requested_name.strip().casefold())
         if name is None:
@@ -145,4 +159,6 @@ def choose(
             raise ApiError(422, "trainer_voice_not_allowed", "That voice isn't available.")
     else:
         voice = persona.voice
+    if SHOWN_TRAINER:  # the app shows Nudge; the trainer says the training's own name
+        return Chosen(display_name=name, spoken=spoken_name(default_name), voice=voice)
     return Chosen(display_name=name, spoken=spoken_name(name) or spoken_name(default_name), voice=voice)
