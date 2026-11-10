@@ -248,6 +248,7 @@ class EmployeeTraining(BaseModel):
     answers: list[AnswerOut]
     track: str | None = None  # Role Play: the track they're on now
     passes: list[PassOut] = []  # every pass logged, newest first
+    opted_out: bool = False  # completed by opting out, not by the quiz or topics (2026-11-10)
 
 
 class EmployeeSession(BaseModel):
@@ -275,6 +276,7 @@ class AcknowledgmentOut(BaseModel):
     statement: str
     trainee_quote: str
     acknowledged_at: datetime
+    kind: str = "acknowledgment"  # or "opt_out": the trainee opted out (migration 0026)
 
 
 class EmployeeOut(BaseModel):
@@ -362,6 +364,8 @@ class AcknowledgmentItem(BaseModel):
     trainee_quote: str
     acknowledged_at: datetime
     session_id: str
+    kind: str = "acknowledgment"  # or "opt_out": the trainee opted out (migration 0026)
+    kind_label: str = "Acknowledgment"  # "Opted out" for an opt-out; the CSV's Type column
 
 
 class RoleplayTrack(BaseModel):
@@ -530,7 +534,7 @@ class TranscriptLine(BaseModel):
 
 class SessionEvent(BaseModel):
     # topic_reached | quiz_answer | guardrail | end_call_refused | error | dropped | reconnected |
-    # not_reconnected | acknowledged | rating
+    # not_reconnected | acknowledged | opted_out | rating
     type: str
     at: datetime | None
     seconds: int | None

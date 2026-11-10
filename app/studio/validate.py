@@ -183,6 +183,16 @@ def validate(content: dict[str, Any], *, completion_key: str | None) -> dict[str
             message = f"Write the statement the trainee confirms ({ACK_MIN}–{ACK_MAX} characters)."
             errors.append(_issue("Acknowledgment", message))
 
+    # Opt-out (2026-11-10), optional: a trainee who confirms it out loud completes the training.
+    opt_out = str(training.get("opt_out") or "").strip()
+    if opt_out and completion_type == "roleplay":
+        errors.append(_issue("Opt-out statement", "A role play can't have an opt-out. Clear the statement."))
+    elif opt_out and not ACK_MIN <= len(opt_out) <= ACK_MAX:
+        message = (
+            f"Write the opt-out statement the trainee confirms ({ACK_MIN}–{ACK_MAX} characters), or clear it."
+        )
+        errors.append(_issue("Opt-out statement", message))
+
     lines = training.get("lines", {})
     for key in required_lines(completion_type, bool(training.get("uses_location"))):
         if not str(lines.get(key) or "").strip():

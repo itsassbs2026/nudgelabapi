@@ -211,6 +211,7 @@ REPORTS: dict[str, Report] = {
                 Col("Store", "store_name"),
                 Col("Training", "training_title"),
                 Col("Statement", "statement"),
+                Col("Type", "kind_label"),
                 Col("Trainee's words", "trainee_quote"),
                 Col("Acknowledged", "acknowledged_at", "datetime"),
                 Col("Session", "session_id"),

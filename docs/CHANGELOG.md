@@ -396,3 +396,13 @@
   login also needs DELETE on `prime_nudge_ai_completions` (the owner, in Portal).
 - `POST /employees/{uid}/reset-progress` (`training_id` optional: all; `reason` optional); audit `progress_reset`.
 
+
+## Opt-out (2026-11-10)
+
+- Migration `0026_opt_out`: `training_acknowledgments.kind` ('acknowledgment' by default, 'opt_out' when the
+  trainee opted out). No grants: the agent's INSERT and the API's SELECT are table-wide. Apply it before the
+  agent that writes opt-outs is deployed.
+- Content: `training.opt_out` (optional statement, 10–300 characters; not on a role play). The agent lets a
+  trainee opt out at any point by confirming it out loud; the code completes the training.
+- Reports: employee trainings carry `opted_out`; acknowledgments (Compliance, the employee's list, the CSV) carry
+  `kind` / `kind_label` ("Opted out"); the session timeline shows an "Opted out" event.

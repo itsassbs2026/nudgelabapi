@@ -281,6 +281,8 @@ training_acknowledgments = Table(
     Column("statement", String(1000)),
     Column("trainee_quote", String(2000)),
     Column("acknowledged_at", DateTime),
+    # Migration 0026: 'acknowledgment', or 'opt_out' when the trainee opted out of the training.
+    Column("kind", String(20)),
 )
 
 training_assignments = Table(

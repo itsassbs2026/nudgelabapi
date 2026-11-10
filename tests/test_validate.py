@@ -301,3 +301,14 @@ def test_a_coach_voice_must_be_switched_on(
     assert check("Matthew") == [] and check(None) == []  # an active voice, or the setup's
     (error,) = check("Joanna")  # not in training_voices
     assert error["where"] == "Settings" and "Joanna" in error["message"]
+
+
+def test_an_opt_out_statement_is_optional_but_must_be_a_real_statement() -> None:
+    content = walkthrough()
+    content["training"]["opt_out"] = "I'm declining Prime health benefits for 2027."
+    assert validate(content, completion_key="agent_x") == {"errors": [], "warnings": []}
+    content["training"]["opt_out"] = "No."
+    expected = "Write the opt-out statement the trainee confirms (10–300 characters), or clear it."
+    assert ("Opt-out statement", expected) in messages(validate(content, completion_key="agent_x"))
+    content["training"]["opt_out"] = "   "
+    assert validate(content, completion_key="agent_x")["errors"] == []

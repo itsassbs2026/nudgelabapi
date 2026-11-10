@@ -8884,6 +8884,16 @@
           "session_id": {
             "type": "string",
             "title": "Session Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "default": "acknowledgment"
+          },
+          "kind_label": {
+            "type": "string",
+            "title": "Kind Label",
+            "default": "Acknowledgment"
           }
         },
         "type": "object",
@@ -8923,6 +8933,11 @@
             "type": "string",
             "format": "date-time",
             "title": "Acknowledged At"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind",
+            "default": "acknowledgment"
           }
         },
         "type": "object",
@@ -11124,6 +11139,11 @@
             "type": "array",
             "title": "Passes",
             "default": []
+          },
+          "opted_out": {
+            "type": "boolean",
+            "title": "Opted Out",
+            "default": false
           }
         },
         "type": "object",
@@ -19505,6 +19525,17 @@
               }
             ],
             "title": "Acknowledgment"
+          },
+          "opt_out": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opt Out"
           },
           "uses_location": {
             "anyOf": [

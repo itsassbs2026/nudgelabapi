@@ -139,11 +139,19 @@ def employee(db: Session, uid: int, *, include_bots: bool = False) -> dict[str, 
             "statement": r.statement,
             "trainee_quote": r.trainee_quote,
             "acknowledged_at": r.acknowledged_at,
+            "kind": r.kind or "acknowledgment",
         }
         for r in db.execute(
             select(training_acknowledgments).where(k.uid == uid).order_by(k.acknowledged_at.desc())
         )
     ]
+    # Completed by opting out: an opt-out since the last reset (a reset starts the training over).
+    opted_out = {
+        a["training_id"]
+        for a in acks
+        if a["kind"] == "opt_out"
+        and (a["training_id"] not in reset_at or a["acknowledged_at"] >= reset_at[a["training_id"]])
+    }
     g = training_pass_log.c
     passes: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for r in db.execute(select(training_pass_log).where(g.uid == uid).order_by(g.passed_at.desc())):
@@ -189,6 +197,7 @@ def employee(db: Session, uid: int, *, include_bots: bool = False) -> dict[str, 
                 "answers": answers.get(r.training_id, []),
                 "track": r.track,
                 "passes": passes.get(r.training_id, []),
+                "opted_out": r.status == "passed" and r.training_id in opted_out,
             }
             for r in progress_rows
         ],
@@ -273,6 +282,7 @@ def acknowledgments_list(db: Session, f: ReportFilters, *, page: int, page_size:
             k.trainee_quote,
             k.acknowledged_at,
             k.session_id,
+            k.kind,
         )
         .select_from(
             training_acknowledgments.outerjoin(trainings, trainings.c.training_id == k.training_id).outerjoin(
@@ -305,6 +315,8 @@ def acknowledgments_list(db: Session, f: ReportFilters, *, page: int, page_size:
                 "trainee_quote": r[7],
                 "acknowledged_at": r[8],
                 "session_id": r[9],
+                "kind": r[10] or "acknowledgment",
+                "kind_label": "Opted out" if r[10] == "opt_out" else "Acknowledgment",
             }
             for r in rows
         ],

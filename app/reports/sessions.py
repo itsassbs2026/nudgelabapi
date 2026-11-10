@@ -353,12 +353,13 @@ def session_detail(db: Session, settings: Settings, session_id: str) -> dict[str
         select(training_acknowledgments).where(training_acknowledgments.c.session_id == session_id)
     ).first()
     if ack is not None:
+        opted_out = ack.kind == "opt_out"
         events.append(
             {
-                "type": "acknowledged",
+                "type": "opted_out" if opted_out else "acknowledged",
                 "at": ack.acknowledged_at,
                 "seconds": _seconds(ack.acknowledged_at, started),
-                "label": "Acknowledged",
+                "label": "Opted out" if opted_out else "Acknowledged",
                 "data": {"statement": ack.statement, "trainee_quote": ack.trainee_quote},
             }
         )

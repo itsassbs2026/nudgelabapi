@@ -125,6 +125,9 @@ class TrainingSettings(BaseModel):
     voice: str | None = None
     completion_type: CompletionType | None = None  # missing means "quiz"
     acknowledgment: str | None = None
+    # Opt-out (2026-11-10): a statement a trainee confirms out loud to opt out and still get credit (kept as
+    # kind 'opt_out' in training_acknowledgments). None or empty: no opt-out.
+    opt_out: str | None = None
     uses_location: bool | None = None
     stt_vocabulary: str | None = None
     opening: list[OpeningStep] | None = None

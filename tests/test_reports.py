@@ -374,3 +374,65 @@ def test_like_escaping() -> None:
     from app.reports.search import like_pattern
 
     assert like_pattern(r"50%_a\b") == r"%50\%\_a\\b%"
+
+
+# -- opt-out (2026-11-10) ------------------------------------------------------------------------------------
+
+
+def test_an_opt_out_shows_on_the_employee_compliance_and_the_session(
+    client: TestClient, trainer_headers: dict[str, str], data: None, db_session: Session
+) -> None:
+    """A trainee who opted out (training_acknowledgments kind 'opt_out') is completed and marked opted out."""
+    insert(
+        db_session,
+        "training_acknowledgments",
+        session_id="s2",
+        uid=1001,
+        training_id="big4",
+        version_id=1,
+        kind="opt_out",
+        statement="I'm declining benefits.",
+        trainee_quote="Yes.",
+        acknowledged_at=T(9, 10),
+    )
+    e = client.get("/api/v1/employees/1001", headers=trainer_headers).json()
+    big4 = next(t for t in e["trainings"] if t["training_id"] == "big4")
+    walk = next(t for t in e["trainings"] if t["training_id"] == "walk")
+    assert big4["opted_out"] is True and walk["opted_out"] is False
+    assert [(a["training_id"], a["kind"]) for a in e["acknowledgments"]] == [("big4", "opt_out")]
+
+    page = get(client, trainer_headers, "/acknowledgments")
+    assert sorted(i["kind"] for i in page["items"]) == ["acknowledgment", "opt_out"]
+
+    d = client.get("/api/v1/sessions/s2", headers=trainer_headers).json()
+    opted = [e for e in d["events"] if e["type"] == "opted_out"]
+    assert (
+        len(opted) == 1 and opted[0]["label"] == "Opted out" and opted[0]["data"]["trainee_quote"] == "Yes."
+    )
+
+
+def test_an_opt_out_before_a_reset_doesnt_count(
+    client: TestClient, trainer_headers: dict[str, str], data: None, db_session: Session
+) -> None:
+    insert(
+        db_session,
+        "training_acknowledgments",
+        session_id="s2",
+        uid=1001,
+        training_id="big4",
+        version_id=1,
+        kind="opt_out",
+        statement="I'm declining benefits.",
+        trainee_quote="Yes.",
+        acknowledged_at=T(2),
+    )
+    insert(
+        db_session,
+        "training_progress_history",
+        uid=1001,
+        training_id="big4",
+        archived_at=T(5),
+        archived_reason="reset by 1",
+    )
+    e = client.get("/api/v1/employees/1001", headers=trainer_headers).json()
+    assert next(t for t in e["trainings"] if t["training_id"] == "big4")["opted_out"] is False
