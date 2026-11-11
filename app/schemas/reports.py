@@ -29,6 +29,8 @@ class ActivityOut(BaseModel):
     flagged_sessions: int
     cost: float
     cost_per_completion: float | None
+    opted_out: int = 0  # completions in the period that came from opting out
+    opt_out_rate: float | None = None  # opted_out / completions
 
 
 class FunnelOut(BaseModel):
@@ -53,6 +55,7 @@ class TrainingCount(BaseModel):
     title: str | None
     sessions: int
     completions: int
+    opted_out: int = 0
 
 
 class OverviewOut(BaseModel):
@@ -73,6 +76,8 @@ class TrainingRow(BaseModel):
     sessions: int
     trainees: int
     completions: int
+    opted_out: int = 0
+    opt_out_rate: float | None = None
     avg_rating: float | None
     avg_review_score: float | None
     cost: float

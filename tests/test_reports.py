@@ -436,3 +436,55 @@ def test_an_opt_out_before_a_reset_doesnt_count(
     )
     e = client.get("/api/v1/employees/1001", headers=trainer_headers).json()
     assert next(t for t in e["trainings"] if t["training_id"] == "big4")["opted_out"] is False
+
+
+def test_opt_outs_are_counted_with_their_share_of_completions(
+    client: TestClient, trainer_headers: dict[str, str], data: None, db_session: Session
+) -> None:
+    """Overview, trainings table and training detail: completions that came from opting out."""
+
+    def opt_out(uid: int, training_id: str, at: Any) -> None:
+        insert(
+            db_session,
+            "training_acknowledgments",
+            session_id="s1",
+            uid=uid,
+            training_id=training_id,
+            version_id=1,
+            kind="opt_out",
+            statement="I'm declining benefits.",
+            trainee_quote="Yes.",
+            acknowledged_at=at,
+        )
+
+    opt_out(1001, "big4", T(6, 15, 4))  # the opt-out that completed 1001's big4 (same timestamp as passed_at)
+    opt_out(1004, "walk", T(14))  # an earlier opt-out; walk was completed normally later, so not counted
+
+    a = get(client, trainer_headers, "/reports/overview")["activity"]
+    assert a["completions"] == 2 and a["opted_out"] == 1 and a["opt_out_rate"] == 0.5
+    by = {r["training_id"]: r for r in get(client, trainer_headers, "/reports/overview")["by_training"]}
+    assert by["big4"]["opted_out"] == 1 and by["walk"]["opted_out"] == 0
+
+    rows = {r["training_id"]: r for r in get(client, trainer_headers, "/reports/trainings")["items"]}
+    assert rows["big4"]["opted_out"] == 1 and rows["big4"]["opt_out_rate"] == 1.0
+    assert rows["walk"]["opted_out"] == 0 and rows["walk"]["opt_out_rate"] == 0.0
+
+    d = get(client, trainer_headers, "/reports/trainings/big4")["activity"]
+    assert d["opted_out"] == 1 and d["opt_out_rate"] == 1.0
+
+    # Outside the period: nothing.
+    a = get(client, trainer_headers, "/reports/overview", date_from="2026-08-01", date_to="2026-08-31")[
+        "activity"
+    ]
+    assert a["opted_out"] == 0
+
+
+def test_without_opt_outs_the_rate_is_zero_or_empty(
+    client: TestClient, trainer_headers: dict[str, str], data: None
+) -> None:
+    a = get(client, trainer_headers, "/reports/overview")["activity"]
+    assert a["opted_out"] == 0 and a["opt_out_rate"] == 0.0
+    a = get(client, trainer_headers, "/reports/overview", date_from="2026-07-01", date_to="2026-07-31")[
+        "activity"
+    ]
+    assert a["opted_out"] == 0 and a["opt_out_rate"] is None

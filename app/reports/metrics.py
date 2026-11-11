@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 from app.reference.agent_tables import (
     session_reviews,
     session_usage,
+    training_acknowledgments,
     training_assignments,
     training_feedback,
     training_progress,
@@ -68,6 +69,9 @@ class Activity:
     flagged_sessions: int = 0
     cost: float = 0.0
     cost_per_completion: float | None = None
+    # Completions in the period that came from opting out, and their share of the completions.
+    opted_out: int = 0
+    opt_out_rate: float | None = None
 
 
 def activity(db: Session, f: ReportFilters) -> Activity:
@@ -111,6 +115,8 @@ def activity(db: Session, f: ReportFilters) -> Activity:
         cost=rounded(cost, 2) or 0.0,
     )
     a.cost_per_completion = rounded(a.cost / completions, 2) if completions else None
+    a.opted_out = opt_outs_in_period(db, f)
+    a.opt_out_rate = ratio(a.opted_out, completions)
     return a
 
 
@@ -119,6 +125,38 @@ def completions_in_period(db: Session, f: ReportFilters) -> int:
     return int(
         db.execute(
             select(func.count()).where(
+                p.passed_at >= f.start_utc,
+                p.passed_at < f.end_utc,
+                *training_conditions(f, p.training_id),
+                *trainee_conditions(f, p.uid),
+            )
+        ).scalar_one()
+    )
+
+
+def _opt_out_completions() -> Any:
+    """training_progress joined to the opt-out that completed it. The agent writes the opt-out and passed_at
+    with the same timestamp, so an earlier opt-out (reset, then passed normally) isn't counted."""
+    p, a = training_progress.c, training_acknowledgments.c
+    return training_progress.join(
+        training_acknowledgments,
+        and_(
+            a.uid == p.uid,
+            a.training_id == p.training_id,
+            a.kind == "opt_out",
+            a.acknowledged_at == p.passed_at,
+        ),
+    )
+
+
+def opt_outs_in_period(db: Session, f: ReportFilters) -> int:
+    """Completions in the period that came from opting out (counted in completions_in_period too)."""
+    p = training_progress.c
+    return int(
+        db.execute(
+            select(func.count())
+            .select_from(_opt_out_completions())
+            .where(
                 p.passed_at >= f.start_utc,
                 p.passed_at < f.end_utc,
                 *training_conditions(f, p.training_id),
@@ -289,7 +327,7 @@ def daily_series(db: Session, f: ReportFilters) -> list[dict[str, Any]]:
 
 
 def per_training_activity(db: Session, f: ReportFilters) -> dict[str, dict[str, Any]]:
-    """Sessions, trainees, cost, average rating and review score per training, for the period."""
+    """Sessions, trainees, cost, average rating, review score, completions and opt-outs per training."""
     s = training_sessions.c
     cond = and_(*session_conditions(f))
     out: dict[str, dict[str, Any]] = defaultdict(dict)
@@ -328,4 +366,11 @@ def per_training_activity(db: Session, f: ReportFilters) -> dict[str, dict[str, 
         .group_by(p.training_id)
     ):
         out[tid]["completions"] = int(n)
+    for tid, n in db.execute(
+        select(p.training_id, func.count())
+        .select_from(_opt_out_completions())
+        .where(p.passed_at >= f.start_utc, p.passed_at < f.end_utc, *trainee_conditions(f, p.uid))
+        .group_by(p.training_id)
+    ):
+        out[tid]["opted_out"] = int(n)
     return out

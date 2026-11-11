@@ -142,6 +142,8 @@ REPORTS: dict[str, Report] = {
                 Col("Sessions", "sessions", "int"),
                 Col("Trainees", "trainees", "int"),
                 Col("Completions in period", "completions", "int"),
+                Col("Opted out", "opted_out", "int"),
+                Col("Opt-out rate", "opt_out_rate", "pct"),
                 Col("Average rating", "avg_rating", "float"),
                 Col("Average review score", "avg_review_score", "float"),
                 Col("Cost (USD)", "cost", "float"),

@@ -69,6 +69,8 @@ def trainings_table(db: Session, f: ReportFilters) -> list[dict[str, Any]]:
                 "sessions": act.get("sessions", 0),
                 "trainees": act.get("trainees", 0),
                 "completions": act.get("completions", 0),
+                "opted_out": act.get("opted_out", 0),
+                "opt_out_rate": metrics.ratio(act.get("opted_out", 0), act.get("completions", 0)),
                 "avg_rating": act.get("avg_rating"),
                 "avg_review_score": act.get("avg_review_score"),
                 "cost": act.get("cost") or 0.0,

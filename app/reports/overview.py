@@ -28,6 +28,7 @@ def overview(db: Session, f: ReportFilters) -> dict[str, Any]:
                     "title": titles.get(tid, tid),
                     "sessions": v.get("sessions", 0),
                     "completions": v.get("completions", 0),
+                    "opted_out": v.get("opted_out", 0),
                 }
                 for tid, v in per_training.items()
             ),

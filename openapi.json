@@ -9098,6 +9098,22 @@
               }
             ],
             "title": "Cost Per Completion"
+          },
+          "opted_out": {
+            "type": "integer",
+            "title": "Opted Out",
+            "default": 0
+          },
+          "opt_out_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opt Out Rate"
           }
         },
         "type": "object",
@@ -18561,6 +18577,11 @@
           "completions": {
             "type": "integer",
             "title": "Completions"
+          },
+          "opted_out": {
+            "type": "integer",
+            "title": "Opted Out",
+            "default": 0
           }
         },
         "type": "object",
@@ -19428,6 +19449,22 @@
           "completions": {
             "type": "integer",
             "title": "Completions"
+          },
+          "opted_out": {
+            "type": "integer",
+            "title": "Opted Out",
+            "default": 0
+          },
+          "opt_out_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opt Out Rate"
           },
           "avg_rating": {
             "anyOf": [

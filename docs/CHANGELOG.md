@@ -406,3 +406,11 @@
   trainee opt out at any point by confirming it out loud; the code completes the training.
 - Reports: employee trainings carry `opted_out`; acknowledgments (Compliance, the employee's list, the CSV) carry
   `kind` / `kind_label` ("Opted out"); the session timeline shows an "Opted out" event.
+
+## Opt-out counts in the reports (2026-11-11)
+
+- `ActivityOut` (Overview, training detail) gains `opted_out` (completions in the period that came from opting
+  out) and `opt_out_rate` (opted_out / completions). Overview `by_training` rows gain `opted_out`; trainings
+  table rows gain `opted_out` and `opt_out_rate`; the trainings CSV has "Opted out" and "Opt-out rate".
+- An opt-out is matched to its completion by timestamp (the agent writes both at once), so an opt-out that was
+  later reset and passed normally is not counted. No migration.
